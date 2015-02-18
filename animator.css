@@ -1,0 +1,45 @@
+video {
+  display: none;
+}
+#top-container {
+  display: flex;
+  flex-flow: row nowrap;
+}
+#canvas-column {
+  min-width: -webkit-fit-content;
+  margin-right: 10px;
+}
+#speed-container {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+}
+#control-column {
+  width: fill-available;
+}
+#button-container {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: flex-start;
+}
+#stream {
+  position: absolute;
+  z-index: 1;
+  border: 1px solid black;
+}
+#snapshot {
+  position: relative;
+  z-index: 2;
+  opacity: 0.5;
+}
+button {
+  font: normal normal normal 18px/normal Arial;
+  background-color: #b0c4de;
+  border-radius: 15px;
+  border: 3px;
+  padding: 10px;
+  margin: 10px;
+}
+pre {
+  font: normal normal normal 24px/normal Arial;
+}

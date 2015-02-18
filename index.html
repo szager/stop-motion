@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="animator.css">  
+    <script src="animator.js"></script>
+    <script src="main.js"></script>
+  </head>
+  <body>
+    <video id="video" autoplay></video>
+    <div id="top-container">
+      <div id="canvas-column">
+	<div>
+          <canvas id="stream" width="640" height="480px"></canvas>
+	  <canvas id="snapshot" width="640" height="480"></canvas>
+        </div>
+	<div id="speed-container">
+          <pre style="flex: 0 1 auto">Slow  </pre>
+          <input id="playbackSpeed" style="flex: 99 0 auto" type="range" name="playbackSpeed" min="2" step="0.5" max="10" />
+          <pre style="flex: 0 1 auto">  Fast</pre>
+        </div>
+      </div>
+      <div id="control-column">
+        <div id="button-container">
+          <button id="toggleButton"><img src="images/off72.png" /><br>On/Off</button>
+          <button id="captureButton"><img src="images/capture72.png" /><br>Capture</button>
+          <button id="undoButton"><img src="images/undo72.png" /><br>Undo</button>
+          <button id="playButton"><img src="images/playpause72.png" /><br>Play/Stop</button>
+          <button id="clearButton"><img src="images/clear72.png" /><br>Clear</button>
+	  <dialog id="clearConfirmDialog">
+	    <p>Are you sure you want to clear the current animation?</p>
+	    <button id="clearConfirmButton">OK</button>
+	    <button id="clearCancelButton">Cancel</button>
+	  </dialog>
+    	  <button id="saveButton">Save</button>
+    	  <button id="loadButton">Load</button>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
