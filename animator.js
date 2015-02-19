@@ -149,48 +149,30 @@ var animator = animator || {};
     this.snapshotContext.clearRect(0, 0, this.w, this.h);
   };
 
-  an.Animator.prototype.save = function() {
-    chrome.fileSystem.chooseEntry(
-      {
-	type: 'saveFile',
-        suggestedName: 'MyAnimation.mng'
-      },
-      function(entry) {
-        if (!entry)
-          return;
-	entry.createWriter(function(fileWriter) {
-	  var encoder = new an.MngEncoder(this, fileWriter);
-	  encoder.encode();
-	}.bind(this), function(err) {console.log(err)});
-      }.bind(this)
-    );
+  an.Animator.prototype.save = function(cb) {
+    var encoder = new an.MngEncoder();
+    var blob = encoder.encode(this);
+    var url = URL.createObjectURL(blob);
+    var downloadLink = document.createElement('a');
+    downloadLink.download = "StopMotion.mng";
+    downloadLink.href = url;
+    downloadLink.click();
   };
 
-  an.Animator.prototype.load = function() {
+  an.Animator.prototype.load = function(file, cb) {
     var animator = this;
-    chrome.fileSystem.chooseEntry({
-      type: 'openFile',
-      accepts: [{extensions: ['mng']}],
-      acceptsMultiple: false
-    }, function(entry) {
-      if (!entry.length)
-        return;
-      entry[0].file(function(file) {
-        var reader = new FileReader();
-        reader.onloadend = function() {
-          var decoder = new an.MngDecoder(animator, this.result);
-          decoder.decode();
-        };
-        reader.readAsBinaryString(file);
-      });
-    });
+    var reader = new FileReader();
+    reader.onloadend = function() {
+      var decoder = new an.MngDecoder(animator, this.result, cb);
+      decoder.decode();
+    };
+    reader.readAsBinaryString(file);
   };
 
   // MngEncoder, for writing animations in mng format.
 
-  an.MngEncoder = function(animator, fileWriter) {
+  an.MngEncoder = function(animator) {
     this.animator = animator;
-    this.fileWriter = fileWriter;
     this.chunks = [];
     this.intBuf = new Uint8Array(4);
   };
@@ -250,11 +232,11 @@ var animator = animator || {};
     this.chunks.push(arr);
   };
 
-  an.MngEncoder.prototype.writeHeader = function() {
-    var frameCount = this.animator.frames.length;
+  an.MngEncoder.prototype.writeHeader = function(animator) {
+    var frameCount = animator.frames.length;
     var data = new Uint8Array(28);
-    this.encodeInt(this.animator.w, data, 0);   // Frame_width
-    this.encodeInt(this.animator.h, data, 4);   // Frame_height
+    this.encodeInt(animator.w, data, 0);   // Frame_width
+    this.encodeInt(animator.h, data, 4);   // Frame_height
     this.encodeInt(1, data, 8);            // Ticks_per_second
     this.encodeInt(0, data, 12);           // Nominal_layer_count
     this.encodeInt(frameCount, data, 16);  // Nominal_frame_count
@@ -273,10 +255,10 @@ var animator = animator || {};
     this.writeChunk(new Uint8Array(0), 'MEND');
   };
 
-  an.MngEncoder.prototype.getFramePNG = function(i) {
-    this.animator.snapshotContext.clearRect(0, 0, this.animator.w, this.animator.h);
-    this.animator.snapshotContext.putImageData(this.animator.frames[i], 0, 0);
-    var dataUrl = this.animator.snapshotCanvas.toDataURL();
+  an.MngEncoder.prototype.getFramePNG = function(animator, i) {
+    animator.snapshotContext.clearRect(0, 0, animator.w, animator.h);
+    animator.snapshotContext.putImageData(animator.frames[i], 0, 0);
+    var dataUrl = animator.snapshotCanvas.toDataURL();
     var binStr = atob(dataUrl.split(',')[1]);
     var arr = new Uint8Array(binStr.length - 8);
     for (var i = 8; i < binStr.length; i++)
@@ -284,26 +266,23 @@ var animator = animator || {};
     return arr;
   };
 
-  an.MngEncoder.prototype.encode = function() {
+  an.MngEncoder.prototype.encode = function(animator) {
     this.writeSignature();
-    this.writeHeader();
+    this.writeHeader(animator);
     this.writeTerminationAction();
-    for (var i = 0; i < this.animator.frames.length; i++)
-      this.chunks.push(this.getFramePNG(i));
+    for (var i = 0; i < animator.frames.length; i++)
+      this.chunks.push(this.getFramePNG(animator, i));
     this.writeTrailer();
     this.blob = new Blob(this.chunks);
-    this.fileWriter.onwriteend = function() {
-      this.fileWriter.onwriteend = null;
-      this.fileWriter.truncate(this.blob.size);
-    }.bind(this);
-    this.fileWriter.write(new Blob(this.chunks));
+    return new Blob(this.chunks);
   };
 
   // MngDecoder, for reading animations in mng format.
 
-  an.MngDecoder = function(animator, data) {
+  an.MngDecoder = function(animator, data, cb) {
     this.animator = animator;
     this.data = new Uint8Array(data.length);
+    this.cb = cb;
     for (var i = 0; i < data.length; i++)
       this.data[i] = data.charCodeAt(i);
     this.w = null;
@@ -400,6 +379,9 @@ var animator = animator || {};
     this.numFrames = 0;
     this.w = null;
     this.h = null;
+    if (this.cb)
+      this.cb();
+    this.animator.startPlay();
   };
 
   an.MngDecoder.prototype.decode = function() {

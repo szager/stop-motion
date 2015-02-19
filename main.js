@@ -18,11 +18,10 @@ window.onload = function() {
   var saveButton = document.getElementById('saveButton');
   var loadButton = document.getElementById('loadButton');
 
-  if (!chrome.fileSystem) {
-    saveButton.style.display = 'none';
-    loadButton.style.display = 'none';
-  }
-
+  var showSpinner = function() {
+  };
+  var hideSpinner = function() {
+  };
   an = new animator.Animator(video, streamCanvas, snapshotCanvas);
   an.attachStream();
   toggleButton.onclick = function() {
@@ -52,6 +51,17 @@ window.onload = function() {
   clearCancelButton.onclick = function () {
     document.getElementById('clearConfirmDialog').close();
   };
-  saveButton.onclick = an.save.bind(an);
-  loadButton.onclick = an.load.bind(an);
+  saveButton.onclick = function () {
+    an.save();
+  };
+  loadButton.onclick = function() {
+    var fileInput = document.createElement('input');
+    fileInput.type = "file";
+    fileInput.addEventListener("change", function () {
+      if (this.files[0])
+        an.load(this.files[0], hideSpinner);
+      this.files = [];
+    }, false);
+    fileInput.click();
+  }
 };
