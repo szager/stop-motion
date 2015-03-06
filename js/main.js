@@ -17,6 +17,7 @@ window.onload = function() {
   var clearCancelButton = document.getElementById('clearCancelButton');
   var saveButton = document.getElementById('saveButton');
   var loadButton = document.getElementById('loadButton');
+  var playbackSpeedSelector = document.getElementById('playbackSpeed');
 
   var showSpinner = function() {
   };
@@ -24,6 +25,9 @@ window.onload = function() {
   };
   an = new animator.Animator(video, streamCanvas, snapshotCanvas);
   an.attachStream();
+  an.frameTimeout = function() {
+    return 1000.0 / playbackSpeedSelector.value;
+  };
   toggleButton.onclick = function() {
     an.toggleVideo();
     if (an.video.paused)
