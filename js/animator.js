@@ -147,13 +147,27 @@ var animator = animator || {};
 
   an.Animator.prototype.getFramePNG = function(idx) {
     this.snapshotContext.clearRect(0, 0, this.w, this.h);
-    this.snapshotContext.putImageData(this.frames[i], 0, 0);
+    this.snapshotContext.putImageData(this.frames[idx], 0, 0);
     var dataUrl = this.snapshotCanvas.toDataURL();
     var binStr = atob(dataUrl.split(',')[1]);
     var arr = new Uint8Array(binStr.length - 8);
     for (var i = 8; i < binStr.length; i++)
       arr[i-8] = binStr.charCodeAt(i);
     return arr;
+  };
+
+  an.Animator.prototype.getFrameWebP = function(idx) {
+    this.snapshotContext.clearRect(0, 0, this.w, this.h);
+    this.snapshotContext.putImageData(this.frames[idx], 0, 0);
+    var dataUrl = this.snapshotCanvas.toDataURL('image/webp', 1.0);
+    return dataUrl;
+    /*
+    var binStr = atob(dataUrl.split(',')[1]);
+    var arr = new Uint8Array(binStr.length);
+    for (var i = 0; i < binStr.length; i++)
+      arr[i] = binStr.charCodeAt(i);
+    return arr;
+    */
   };
 
   an.Animator.prototype.populate = function(width, height, frames) {
@@ -172,6 +186,18 @@ var animator = animator || {};
     var url = URL.createObjectURL(blob);
     var downloadLink = document.createElement('a');
     downloadLink.download = "StopMotion.mng";
+    downloadLink.href = url;
+    downloadLink.click();
+  };
+
+  an.Animator.prototype.export = function(cb) {
+    var encoder = new Whammy.Video(1000.0 / this.frameTimeout());
+    for (var i = 0; i < this.frames.length; i++)
+      encoder.add(this.getFrameWebP(i));
+    var blob = encoder.compile();
+    var url = URL.createObjectURL(blob);
+    var downloadLink = document.createElement('a');
+    downloadLink.download = "StopMotion.webm";
     downloadLink.href = url;
     downloadLink.click();
   };

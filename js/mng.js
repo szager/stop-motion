@@ -225,3 +225,5 @@ var mng = mng || {};
       console.log(e);
     }
   };
+
+})();

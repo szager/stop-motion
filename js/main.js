@@ -17,6 +17,7 @@ window.onload = function() {
   var clearCancelButton = document.getElementById('clearCancelButton');
   var saveButton = document.getElementById('saveButton');
   var loadButton = document.getElementById('loadButton');
+  var exportButton = document.getElementById('exportButton');
   var playbackSpeedSelector = document.getElementById('playbackSpeed');
 
   var showSpinner = function() {
@@ -58,7 +59,7 @@ window.onload = function() {
   saveButton.onclick = function () {
     an.save();
   };
-  loadButton.onclick = function() {
+  loadButton.onclick = function () {
     var fileInput = document.createElement('input');
     fileInput.type = "file";
     fileInput.addEventListener("change", function () {
@@ -68,4 +69,7 @@ window.onload = function() {
     }, false);
     fileInput.click();
   }
+  exportButton.onclick = function () {
+    an.export();
+  };
 };
