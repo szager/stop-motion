@@ -176,7 +176,7 @@ window.Whammy = (function(){
         clusterFrames.push(frames[frameNumber]);
         clusterDuration += frames[frameNumber].duration;
         frameNumber++;
-      }while(frameNumber < frames.length && clusterDuration < CLUSTER_MAX_DURATION);
+      } while (frameNumber < frames.length && clusterDuration < CLUSTER_MAX_DURATION);
 
       var clusterCounter = 0;
       var cluster = {
@@ -245,17 +245,16 @@ window.Whammy = (function(){
     };
   }
 
-
-  function numToBuffer(num){
+  function numToBuffer(num) {
     var parts = [];
-    while(num > 0){
+    while (num != 0) {
       parts.push(num & 0xff)
-      num = num >> 8
+      num = num >>> 8
     }
     return new Uint8Array(parts.reverse());
   }
 
-  function numToFixedBuffer(num, size){
+  function numToFixedBuffer(num, size) {
     var parts = new Uint8Array(size);
     for(var i = size - 1; i >= 0; i--){
       parts[i] = num & 0xff;
@@ -283,7 +282,7 @@ window.Whammy = (function(){
   // at all really, but the reason is that there's some code below that i dont really
   // feel like understanding, and this is easier than using my brain.
 
-  function bitsToBuffer(bits){
+  function bitsToBuffer(bits) {
     var data = [];
     var pad = (bits.length % 8) ? (new Array(1 + 8 - (bits.length % 8))).join('0') : '';
     bits = pad + bits;
@@ -303,13 +302,12 @@ window.Whammy = (function(){
       }
 
       var data = json[i].data;
-      if(typeof data == 'object') data = generateEBML(data, outputAsArray);
-      if(typeof data == 'number') data = ('size' in json[i]) ? numToFixedBuffer(data, json[i].size) : bitsToBuffer(data.toString(2));
-      if(typeof data == 'string') data = strToBuffer(data);
-
-      if(data.length){
-        var z = z;
-      }
+      if (typeof data == 'object')
+	data = generateEBML(data, outputAsArray);
+      if (typeof data == 'number')
+	data = ('size' in json[i]) ? numToFixedBuffer(data, json[i].size) : bitsToBuffer(data.toString(2));
+      if (typeof data == 'string')
+	data = strToBuffer(data);
 
       var len = data.size || data.byteLength || data.length;
       var zeroes = Math.ceil(Math.ceil(Math.log(len)/Math.log(2))/8);
@@ -352,42 +350,6 @@ window.Whammy = (function(){
       }
     }
     return outBuffer;
-  }
-
-  //OKAY, so the following two functions are the string-based old stuff, the reason they're
-  //still sort of in here, is that they're actually faster than the new blob stuff because
-  //getAsFile isn't widely implemented, or at least, it doesn't work in chrome, which is the
-  // only browser which supports get as webp
-
-  //Converting between a string of 0010101001's and binary back and forth is probably inefficient
-  //TODO: get rid of this function
-  function toBinStr_old(bits){
-    var data = '';
-    var pad = (bits.length % 8) ? (new Array(1 + 8 - (bits.length % 8))).join('0') : '';
-    bits = pad + bits;
-    for(var i = 0; i < bits.length; i+= 8){
-      data += String.fromCharCode(parseInt(bits.substr(i,8),2))
-    }
-    return data;
-  }
-
-  function generateEBML_old(json){
-    var ebml = '';
-    for(var i = 0; i < json.length; i++){
-      var data = json[i].data;
-      if(typeof data == 'object') data = generateEBML_old(data);
-      if(typeof data == 'number') data = toBinStr_old(data.toString(2));
-
-      var len = data.length;
-      var zeroes = Math.ceil(Math.ceil(Math.log(len)/Math.log(2))/8);
-      var size_str = len.toString(2);
-      var padded = (new Array((zeroes * 7 + 7 + 1) - size_str.length)).join('0') + size_str;
-      var size = (new Array(zeroes)).join('0') + '1' + padded;
-
-      ebml += toBinStr_old(json[i].id.toString(2)) + toBinStr_old(size) + data;
-
-    }
-    return ebml;
   }
 
   //woot, a function that's actually written for this project!
