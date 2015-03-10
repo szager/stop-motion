@@ -207,8 +207,8 @@ var animator = animator || {};
     var reader = new FileReader();
     reader.onloadend = function() {
       var decoder = new mng.Decoder(
-	  animator,
 	  this.result,
+	  this.snapshotContext,
 	  function(width, height, frames) {
 	      this.populate(width, height, frames);
 	      if (cb)
