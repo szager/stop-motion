@@ -12,6 +12,7 @@ var animator = animator || {};
     this.snapshotCanvas = snapshotCanvas;
     this.snapshotContext = snapshotCanvas.getContext('2d');
     this.frames = [];
+    this.streamOn = true;
   };
 
   an.Animator.prototype.videoCannotPlayHandler = function(e) {
@@ -72,13 +73,21 @@ var animator = animator || {};
   };
 
   an.Animator.prototype.toggleVideo = function() {
-    if (this.video.paused)
+    if (this.video.paused) {
       this.video.play();
-    else
+      this.streamOn = true;
+    } else {
       this.video.pause();
+      this.streamContext.clearRect(0, 0, this.w, this.h);
+      this.streamOn = false;
+      if (this.frames.length)
+	this.drawFrame(this.frames.length - 1, this.streamContext);
+    }
   };
 
   an.Animator.prototype.capture = function() {
+    if (!this.streamOn)
+      return;
     this.snapshotContext.clearRect(0, 0, this.w, this.h);
     this.snapshotContext.drawImage(this.streamCanvas, 0, 0, this.w, this.h);
     var imageData = this.snapshotContext.getImageData(0, 0, this.w, this.h);
@@ -110,7 +119,8 @@ var animator = animator || {};
       clearTimeout(this.playTimer);
     this.playTimer = null;
     this.snapshotCanvas.style.visibility = null;
-    this.video.play();
+    if (this.streamOn)
+      this.video.play();
   };
 
   an.Animator.prototype.drawFrame = function(frameNumber, context) {
@@ -208,7 +218,7 @@ var animator = animator || {};
     reader.onloadend = function() {
       var decoder = new mng.Decoder(
 	  this.result,
-	  this.snapshotContext,
+	  animator.snapshotContext,
 	  function(width, height, frames) {
 	      this.populate(width, height, frames);
 	      if (cb)
