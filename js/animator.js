@@ -53,19 +53,40 @@ var animator = animator || {};
     }
   };
 
-  an.Animator.prototype.attachStream = function() {
+  an.Animator.prototype.attachStream = function(mediaSource) {
     this.video.addEventListener('canplay', this.videoCanPlayHandler.bind(this), false);
     this.video.addEventListener('play', this.videoPlayHandler.bind(this), false);
     this.video.addEventListener('pause', this.videoStopHandler.bind(this), false);
     this.video.addEventListener('ended', this.videoStopHandler.bind(this), false);
     this.video.addEventListener('error', this.videoStopHandler.bind(this), false);
+    var constraints = {audio: false};
+    if (sourceId) {
+      constraints.video = {
+	optional: [{
+	  sourceId: mediaSource.id
+	}]
+      };
+    } else {
+      constraints.video = true;
+    }
     navigator.getUserMedia(
-      {audio: false, video: true},
+      constraints,
       function(stream) {
         this.video.src = window.URL.createObjectURL(stream);
+        this.streamOn = true;
       }.bind(this),
       this.videoCannotPlayHandler.bind(this)
     );
+  };
+
+  an.Animator.prototype.detachStream = function () {
+    if (!this.video.src)
+      return;
+    this.video.pause();
+    this.streamOn = false;
+    var objectUrl = this.video.src;
+    this.video.src = null;
+    URL.revokeObjectURL(objectUrl);
   };
 
   an.Animator.prototype.isPlaying = function() {

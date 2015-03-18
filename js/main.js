@@ -24,8 +24,9 @@ window.onload = function() {
   };
   var hideSpinner = function() {
   };
+
+  // Create Animator object and set up callbacks.
   an = new animator.Animator(video, streamCanvas, snapshotCanvas);
-  an.attachStream();
   an.frameTimeout = function() {
     return 1000.0 / playbackSpeedSelector.value;
   };
@@ -72,4 +73,31 @@ window.onload = function() {
   exportButton.onclick = function () {
     an.export();
   };
+
+  // Everything is set up, now connect to camera.
+  MediaStreamTrack.getSources(function(sources) {
+    if (sources.length > 1) {
+      var canvasColumnDiv = document.getElementById('canvas-column');
+      var selectDiv = document.createElement('div');
+      canvasColumnDiv.appendChild(selectDiv);
+      var cameraSelect = document.createElement('select');
+      cameraSelect.id = 'camera-select';
+      selectDiv.appendChild(cameraSelect);
+      for (var i = 0; i < sources.length; i++) {
+	var cameraOption = document.createElement('option');
+	cameraOption.value = sources[i];
+	cameraOption.innerText = 'Camera ' + i;
+	selectDiv.appendChild(cameraOption);
+	if (i == 0)
+	  cameraOption.selected = true;
+      }
+      cameraSelect.onchange = function(e) {
+	an.detachStream();
+	an.attachStream(e.target.value);
+      };
+      an.attachStream(sources[0]);
+    } else {
+      an.attachStream();
+    }
+  });
 };
