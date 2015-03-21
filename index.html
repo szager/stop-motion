@@ -28,14 +28,21 @@
           <button id="undoButton"><img src="images/undo72.png" /><br>Undo</button>
           <button id="playButton"><img src="images/playpause72.png" /><br>Play/Stop</button>
           <button id="clearButton"><img src="images/clear72.png" /><br>Clear</button>
+          <button id="saveButton"><img src="images/save72.png" /><br>Save</button>
+          <button id="loadButton"><img src="images/load72.png" /><br>Load</button>
+          <button id="exportButton"><img src="images/export72.png" /><br>Export</button>
+        </div>
+        <div id="dialog-container">
           <dialog id="clearConfirmDialog">
             <p>Are you sure you want to clear the current animation?</p>
             <button id="clearConfirmButton">OK</button>
             <button id="clearCancelButton">Cancel</button>
           </dialog>
-          <button id="saveButton"><img src="images/save72.png" /><br>Save</button>
-          <button id="loadButton"><img src="images/load72.png" /><br>Load</button>
-          <button id="exportButton"><img src="images/export72.png" /><br>Export</button>
+          <dialog id="saveDialog">
+            <p>Give your movie a name: <input type='text'></input></p>
+            <button id="SaveConfirmButton">Save</button>
+            <button id="SaveCancelButton">Cancel</button>
+          </dialog>
         </div>
       </div>
     </div>
