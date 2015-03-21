@@ -13,6 +13,7 @@ var animator = animator || {};
     this.snapshotContext = snapshotCanvas.getContext('2d');
     this.frames = [];
     this.streamOn = true;
+    this.name = null;
   };
 
   an.Animator.prototype.videoCannotPlayHandler = function(e) {
@@ -190,14 +191,15 @@ var animator = animator || {};
     this.startPlay();
   };
 
-  an.Animator.prototype.save = function(cb) {
+  an.Animator.prototype.save = function(filename, cb) {
     var encoder = new mng.Encoder();
     var blob = encoder.encode(this.w, this.h, this.frames.length, this.getFramePNG.bind(this));
     var url = URL.createObjectURL(blob);
     var downloadLink = document.createElement('a');
-    downloadLink.download = "StopMotion.mng";
+    downloadLink.download = filename || "StopMotion.mng";
     downloadLink.href = url;
     downloadLink.click();
+    URL.revokeObjectURL(url);
   };
 
   an.Animator.prototype.export = function(cb) {
@@ -210,6 +212,7 @@ var animator = animator || {};
     downloadLink.download = "StopMotion.webm";
     downloadLink.href = url;
     downloadLink.click();
+    URL.revokeObjectURL(url);
   };
 
   an.Animator.prototype.load = function(file, cb) {
@@ -220,9 +223,13 @@ var animator = animator || {};
 	  this.result,
 	  animator.snapshotContext,
 	  function(width, height, frames) {
-	      this.populate(width, height, frames);
-	      if (cb)
-		  cb();
+	    this.populate(width, height, frames);
+	    var name = file.name;
+	    if (name && name.endswith('.mng'))
+	      name = name.substring(0, name.length - 4);
+	    this.name = name;
+	    if (cb)
+	      cb();
 	  }.bind(animator));
       decoder.decode();
     };
