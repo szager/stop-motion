@@ -64,8 +64,10 @@ window.onload = function() {
     var fileInput = document.createElement('input');
     fileInput.type = "file";
     fileInput.addEventListener("change", function () {
-      if (this.files[0])
+      if (this.files[0]) {
+        showSpinner();
         an.load(this.files[0], hideSpinner);
+      }
       this.files = [];
     }, false);
     fileInput.click();
@@ -76,26 +78,33 @@ window.onload = function() {
 
   // Everything is set up, now connect to camera.
   MediaStreamTrack.getSources(function(sources) {
-    if (sources.length > 1) {
+    var videoSources = [];
+    for (var i = 0; i < sources.length; i++)
+      if (sources[i].kind == 'video')
+        videoSources.append(sources[i]);
+    if (videoSources.length > 1) {
       var canvasColumnDiv = document.getElementById('canvas-column');
       var selectDiv = document.createElement('div');
       canvasColumnDiv.appendChild(selectDiv);
       var cameraSelect = document.createElement('select');
       cameraSelect.id = 'camera-select';
       selectDiv.appendChild(cameraSelect);
-      for (var i = 0; i < sources.length; i++) {
+      for (var i = 0; i < videoSources.length; i++) {
+	if (videoSources[i].kind != 'video')
+	  continue;
 	var cameraOption = document.createElement('option');
-	cameraOption.value = sources[i];
-	cameraOption.innerText = 'Camera ' + i;
-	selectDiv.appendChild(cameraOption);
+	cameraOption.value = videoSources[i];
+	cameraOption.innerText = 'Camera ' + (i + 1);
+	cameraSelect.appendChild(cameraOption);
 	if (i == 0)
 	  cameraOption.selected = true;
       }
       cameraSelect.onchange = function(e) {
+	console.log('Camera changed');
 	an.detachStream();
 	an.attachStream(e.target.value);
       };
-      an.attachStream(sources[0]);
+      an.attachStream(videoSources[0]);
     } else {
       an.attachStream();
     }

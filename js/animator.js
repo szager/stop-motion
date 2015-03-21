@@ -60,7 +60,7 @@ var animator = animator || {};
     this.video.addEventListener('ended', this.videoStopHandler.bind(this), false);
     this.video.addEventListener('error', this.videoStopHandler.bind(this), false);
     var constraints = {audio: false};
-    if (sourceId) {
+    if (mediaSource) {
       constraints.video = {
 	optional: [{
 	  sourceId: mediaSource.id
