@@ -5,7 +5,6 @@ var an;
 window.onload = function() {
   navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 
-  var fileNameRegex = new RegExp(
   var video = document.getElementById('video');
   var streamCanvas = document.getElementById('stream');
   var snapshotCanvas = document.getElementById('snapshot');
@@ -64,9 +63,7 @@ window.onload = function() {
   saveButton.onclick = function () {
     if (!an.frames.length)
       return;
-    var fileNameInput = saveDialog.querySelector('input');
-    fileNameInput.value = an.name || 'MyAnimation';
-    an.save();
+    saveDialog.showModal();
   };
   saveConfirmButton.onclick = function () {
     var fileNameInput = saveDialog.querySelector('input');
@@ -75,9 +72,10 @@ window.onload = function() {
       value = 'StopMotion';
     value = value.replace(/\s+/g, '_');
     value = value.replace(/[^\w\-\.]+/g, '');
-    if (!value.endswith('.mng'))
+    if (!value.endsWith('.mng'))
       value += '.mng';
     an.save(value);
+    saveDialog.close();
   };
   saveCancelButton.onclick = function () {
     saveDialog.close();
@@ -103,7 +101,7 @@ window.onload = function() {
     var videoSources = [];
     for (var i = 0; i < sources.length; i++)
       if (sources[i].kind == 'video')
-        videoSources.append(sources[i]);
+        videoSources.push(sources[i]);
     if (videoSources.length > 1) {
       var canvasColumnDiv = document.getElementById('canvas-column');
       var selectDiv = document.createElement('div');
@@ -112,21 +110,21 @@ window.onload = function() {
       cameraSelect.id = 'camera-select';
       selectDiv.appendChild(cameraSelect);
       for (var i = 0; i < videoSources.length; i++) {
-	if (videoSources[i].kind != 'video')
-	  continue;
-	var cameraOption = document.createElement('option');
-	cameraOption.value = videoSources[i];
-	cameraOption.innerText = 'Camera ' + (i + 1);
-	cameraSelect.appendChild(cameraOption);
-	if (i == 0)
-	  cameraOption.selected = true;
+        if (videoSources[i].kind != 'video')
+          continue;
+        var cameraOption = document.createElement('option');
+        cameraOption.value = videoSources[i].id;
+        cameraOption.innerText = 'Camera ' + (i + 1);
+        cameraSelect.appendChild(cameraOption);
+        if (i == 0)
+          cameraOption.selected = true;
       }
       cameraSelect.onchange = function(e) {
-	console.log('Camera changed');
-	an.detachStream();
-	an.attachStream(e.target.value);
+        console.log('Camera changed');
+        an.detachStream();
+        an.attachStream(e.target.value);
       };
-      an.attachStream(videoSources[0]);
+      an.attachStream(videoSources[0].id);
     } else {
       an.attachStream();
     }

@@ -48,23 +48,24 @@ var animator = animator || {};
   };
 
   an.Animator.prototype.videoStopHandler = function() {
+    console.log('videoStopHandler');
     if (this.intervalID) {
       clearInterval(this.intervalID);
       this.intervalID = null;
     }
   };
 
-  an.Animator.prototype.attachStream = function(mediaSource) {
+  an.Animator.prototype.attachStream = function(sourceId) {
     this.video.addEventListener('canplay', this.videoCanPlayHandler.bind(this), false);
     this.video.addEventListener('play', this.videoPlayHandler.bind(this), false);
     this.video.addEventListener('pause', this.videoStopHandler.bind(this), false);
     this.video.addEventListener('ended', this.videoStopHandler.bind(this), false);
     this.video.addEventListener('error', this.videoStopHandler.bind(this), false);
     var constraints = {audio: false};
-    if (mediaSource) {
+    if (sourceId) {
       constraints.video = {
 	optional: [{
-	  sourceId: mediaSource.id
+	  sourceId: sourceId
 	}]
       };
     } else {
