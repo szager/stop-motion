@@ -170,14 +170,11 @@ var animator = animator || {};
     this.snapshotContext.clearRect(0, 0, this.w, this.h);
     this.snapshotContext.putImageData(this.frames[idx], 0, 0);
     var dataUrl = this.snapshotCanvas.toDataURL('image/webp', 1.0);
-    return dataUrl;
-    /*
     var binStr = atob(dataUrl.split(',')[1]);
     var arr = new Uint8Array(binStr.length);
     for (var i = 0; i < binStr.length; i++)
       arr[i] = binStr.charCodeAt(i);
     return arr;
-    */
   };
 
   an.Animator.prototype.populate = function(width, height, frames) {
