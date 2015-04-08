@@ -29,13 +29,11 @@ window.onload = function() {
   var captureClicks = function (e) {e.stopPropagation()};
 
   var showSpinner = function() {
-    console.log('show spinner');
     topContainer.style.opacity = 0.5;
     topContainer.addEventListener('click', captureClicks, true);
   };
 
   var hideSpinner = function() {
-    console.log('hide spinner');
     topContainer.style.opacity = null;
     topContainer.removeEventListener('click', captureClicks, true);
   };
@@ -157,7 +155,6 @@ window.onload = function() {
           cameraOption.selected = true;
       }
       cameraSelect.onchange = function(e) {
-        console.log('Camera changed');
         an.detachStream();
         an.attachStream(e.target.value);
       };

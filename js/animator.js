@@ -32,7 +32,6 @@ var animator = animator || {};
   };
 
   an.Animator.prototype.videoCanPlayHandler = function(e) {
-    console.log('videoCanPlayHandler');
     this.w = this.streamCanvas.width;
     this.h = this.video.videoHeight / (this.video.videoWidth / this.w);
     this.resizeCanvases();
@@ -50,7 +49,6 @@ var animator = animator || {};
   };
 
   an.Animator.prototype.videoStopHandler = function() {
-    console.log('videoStopHandler');
     if (this.intervalID) {
       clearInterval(this.intervalID);
       this.intervalID = null;
