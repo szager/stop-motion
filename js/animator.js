@@ -14,6 +14,8 @@ var animator = animator || {};
     this.frames = [];
     this.streamOn = true;
     this.name = null;
+    this.saved = false;
+    this.exported = false;
   };
 
   an.Animator.prototype.videoCannotPlayHandler = function(e) {
@@ -115,6 +117,8 @@ var animator = animator || {};
     this.snapshotContext.drawImage(this.streamCanvas, 0, 0, this.w, this.h);
     var imageData = this.snapshotContext.getImageData(0, 0, this.w, this.h);
     this.frames.push(imageData);
+    this.saved = false;
+    this.exported = false;
   };
 
   an.Animator.prototype.undoCapture = function() {
@@ -122,6 +126,8 @@ var animator = animator || {};
     this.snapshotContext.clearRect(0, 0, this.w, this.h);
     if (this.frames.length)
       this.snapshotContext.putImageData(this.frames[this.frames.length-1], 0, 0);
+    this.saved = false;
+    this.exported = false;
   };
 
   an.Animator.prototype.frameTimeout = function() {
@@ -176,6 +182,8 @@ var animator = animator || {};
       return;
     this.frames = [];
     this.snapshotContext.clearRect(0, 0, this.w, this.h);
+    this.saved = false;
+    this.exported = false;
   };
 
   an.Animator.prototype.getFramePNG = function(idx) {
@@ -220,26 +228,46 @@ var animator = animator || {};
     var downloadLink = document.createElement('a');
     downloadLink.download = filename || "StopMotion.mng";
     downloadLink.href = url;
+    if (filename) {
+      if (filename.endsWith('.mng'))
+        this.name = filename.substring(0, filename.length - 4);
+      else
+        this.name = filename;
+    }
+    this.saved = true;
     downloadLink.click();
     URL.revokeObjectURL(url);
+    if (cb)
+      cb();
   };
 
-  an.Animator.prototype.export = function(cb) {
+  an.Animator.prototype.export = function(filename, cb) {
     var encoder = new Whammy.Video(1000.0 / this.frameTimeout());
     for (var i = 0; i < this.frames.length; i++)
       encoder.add(this.getFrameWebP(i));
     var blob = encoder.compile();
     var url = URL.createObjectURL(blob);
     var downloadLink = document.createElement('a');
-    downloadLink.download = "StopMotion.webm";
+    downloadLink.download = filename || "StopMotion.webm";
     downloadLink.href = url;
+    if (filename) {
+      if (filename.endsWith('.webm'))
+        this.name = filename.substring(0, filename.length - 5);
+      else
+        this.name = filename;
+    }
+    this.exported = true;
     downloadLink.click();
     URL.revokeObjectURL(url);
+    if (cb)
+      cb();
   };
 
   an.Animator.prototype.load = function(file, cb) {
     var animator = this;
     var reader = new FileReader();
+    this.saved = true;
+    this.exported = false;
     reader.onloadend = function() {
       var decoder = new mng.Decoder(
 	  this.result,
@@ -247,7 +275,7 @@ var animator = animator || {};
 	  function(width, height, frames) {
 	    this.populate(width, height, frames);
 	    var name = file.name;
-	    if (name && name.endswith('.mng'))
+	    if (name && name.endsWith('.mng'))
 	      name = name.substring(0, name.length - 4);
 	    this.name = name;
 	    if (cb)

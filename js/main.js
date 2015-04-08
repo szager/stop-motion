@@ -6,6 +6,7 @@ window.onload = function() {
   navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 
   var video = document.getElementById('video');
+  var topContainer = document.getElementById('top-container');
   var streamCanvas = document.getElementById('stream');
   var snapshotCanvas = document.getElementById('snapshot');
   var toggleButton = document.getElementById('toggleButton');
@@ -18,15 +19,55 @@ window.onload = function() {
   var clearCancelButton = document.getElementById('clearCancelButton');
   var saveButton = document.getElementById('saveButton');
   var saveDialog = document.getElementById('saveDialog');
+  var fileNameInput = saveDialog.querySelector('input');
   var saveConfirmButton = document.getElementById('saveConfirmButton');
   var saveCancelButton = document.getElementById('saveCancelButton');
   var loadButton = document.getElementById('loadButton');
   var exportButton = document.getElementById('exportButton');
   var playbackSpeedSelector = document.getElementById('playbackSpeed');
 
+  var captureClicks = function (e) {e.stopPropagation()};
+
   var showSpinner = function() {
+    console.log('show spinner');
+    topContainer.style.opacity = 0.5;
+    topContainer.addEventListener('click', captureClicks, true);
   };
+
   var hideSpinner = function() {
+    console.log('hide spinner');
+    topContainer.style.opacity = null;
+    topContainer.removeEventListener('click', captureClicks, true);
+  };
+
+  var saveCB = function () {
+    var value = fileNameInput.value;
+    if (!value.length)
+      value = 'StopMotion';
+    value = value.replace(/\s+/g, '_');
+    value = value.replace(/[^\w\-\.]+/g, '');
+    if (value.endsWith('.webm'))
+      value = value.substring(0, value.length - 4);
+    if (!value.endsWith('.mng'))
+      value += '.mng';
+    saveDialog.close();
+    showSpinner();
+    an.save(value, hideSpinner);
+  };
+
+  var exportCB = function () {
+    var value = fileNameInput.value;
+    if (!value.length)
+      value = 'StopMotion';
+    value = value.replace(/\s+/g, '_');
+    value = value.replace(/[^\w\-\.]+/g, '');
+    if (value.endsWith('.mng'))
+      value = value.substring(0, value.length - 5);
+    if (!value.endsWith('.webm'))
+      value += '.webm';
+    saveDialog.close();
+    showSpinner();
+    an.export(value, hideSpinner);
   };
 
   // Create Animator object and set up callbacks.
@@ -61,24 +102,23 @@ window.onload = function() {
     clearConfirmDialog.close();
   };
   saveButton.onclick = function () {
-    if (!an.frames.length)
+    if (!an.frames.length || an.saved)
       return;
+    if (an.name)
+      fileNameInput.value = an.name;
+    saveConfirmButton.onclick = saveCB;
     saveDialog.showModal();
-  };
-  saveConfirmButton.onclick = function () {
-    var fileNameInput = saveDialog.querySelector('input');
-    var value = fileNameInput.value;
-    if (!value.length)
-      value = 'StopMotion';
-    value = value.replace(/\s+/g, '_');
-    value = value.replace(/[^\w\-\.]+/g, '');
-    if (!value.endsWith('.mng'))
-      value += '.mng';
-    an.save(value);
-    saveDialog.close();
   };
   saveCancelButton.onclick = function () {
     saveDialog.close();
+  };
+  exportButton.onclick = function () {
+    if (!an.frames.length || an.exported)
+      return;
+    if (an.name)
+      fileNameInput.value = an.name;
+    saveConfirmButton.onclick = exportCB;
+    saveDialog.showModal();
   };
   loadButton.onclick = function () {
     var fileInput = document.createElement('input');
@@ -92,9 +132,6 @@ window.onload = function() {
     }, false);
     fileInput.click();
   }
-  exportButton.onclick = function () {
-    an.export();
-  };
 
   // Everything is set up, now connect to camera.
   MediaStreamTrack.getSources(function(sources) {
