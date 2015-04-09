@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <link rel="stylesheet" href="animator.css">  
+    <link rel="stylesheet" href="animator.css">
     <script src="js/mng.js"></script>
     <script src="js/webm.js"></script>
     <script src="js/whammy.js"></script>
@@ -24,19 +24,26 @@
       </div>
       <div id="control-column">
         <div id="button-container">
-          <button id="toggleButton"><img src="images/off72.png" /><br>On/Off</button>
-          <button id="captureButton"><img src="images/capture72.png" /><br>Capture</button>
-          <button id="undoButton"><img src="images/undo72.png" /><br>Undo</button>
-          <button id="playButton"><img src="images/playpause72.png" /><br>Play/Stop</button>
-          <button id="clearButton"><img src="images/clear72.png" /><br>Clear</button>
+          <button class='button72' id="toggleButton"><img src="images/off72.png" /><br>On/Off</button>
+          <button class='button72' id="captureButton"><img src="images/capture72.png" /><br>Capture</button>
+          <button class='button72' id="undoButton"><img src="images/undo72.png" /><br>Undo</button>
+          <button class='button72' id="playButton"><img src="images/playpause72.png" /><br>Play/Stop</button>
+          <button class='button72' id="clearButton"><img src="images/clear72.png" /><br>Clear</button>
+          <button class='button72' id="saveButton"><img src="images/save72.png" /><br>Save</button>
+          <button class='button72' id="loadButton"><img src="images/load72.png" /><br>Load</button>
+          <button class='button72' id="exportButton"><img src="images/export72.png" /><br>Export</button>
+        </div>
+        <div id="dialog-container">
           <dialog id="clearConfirmDialog">
             <p>Are you sure you want to clear the current animation?</p>
             <button id="clearConfirmButton">OK</button>
             <button id="clearCancelButton">Cancel</button>
           </dialog>
-          <button id="saveButton"><img src="images/save72.png" /><br>Save</button>
-          <button id="loadButton"><img src="images/load72.png" /><br>Load</button>
-          <button id="exportButton"><img src="images/export72.png" /><br>Export</button>
+          <dialog id="saveDialog">
+            <p>Give your movie a name: <input type='text'></input></p>
+            <button id="saveConfirmButton">OK</button>
+            <button id="saveCancelButton">Cancel</button>
+          </dialog>
         </div>
       </div>
     </div>

@@ -13,6 +13,9 @@ var animator = animator || {};
     this.snapshotContext = snapshotCanvas.getContext('2d');
     this.frames = [];
     this.streamOn = true;
+    this.name = null;
+    this.saved = false;
+    this.exported = false;
   };
 
   an.Animator.prototype.videoCannotPlayHandler = function(e) {
@@ -29,7 +32,6 @@ var animator = animator || {};
   };
 
   an.Animator.prototype.videoCanPlayHandler = function(e) {
-    console.log('videoCanPlayHandler');
     this.w = this.streamCanvas.width;
     this.h = this.video.videoHeight / (this.video.videoWidth / this.w);
     this.resizeCanvases();
@@ -53,19 +55,40 @@ var animator = animator || {};
     }
   };
 
-  an.Animator.prototype.attachStream = function() {
+  an.Animator.prototype.attachStream = function(sourceId) {
     this.video.addEventListener('canplay', this.videoCanPlayHandler.bind(this), false);
     this.video.addEventListener('play', this.videoPlayHandler.bind(this), false);
     this.video.addEventListener('pause', this.videoStopHandler.bind(this), false);
     this.video.addEventListener('ended', this.videoStopHandler.bind(this), false);
     this.video.addEventListener('error', this.videoStopHandler.bind(this), false);
+    var constraints = {audio: false};
+    if (sourceId) {
+      constraints.video = {
+	optional: [{
+	  sourceId: sourceId
+	}]
+      };
+    } else {
+      constraints.video = true;
+    }
     navigator.getUserMedia(
-      {audio: false, video: true},
+      constraints,
       function(stream) {
         this.video.src = window.URL.createObjectURL(stream);
+        this.streamOn = true;
       }.bind(this),
       this.videoCannotPlayHandler.bind(this)
     );
+  };
+
+  an.Animator.prototype.detachStream = function () {
+    if (!this.video.src)
+      return;
+    this.video.pause();
+    this.streamOn = false;
+    var objectUrl = this.video.src;
+    this.video.src = null;
+    URL.revokeObjectURL(objectUrl);
   };
 
   an.Animator.prototype.isPlaying = function() {
@@ -92,6 +115,8 @@ var animator = animator || {};
     this.snapshotContext.drawImage(this.streamCanvas, 0, 0, this.w, this.h);
     var imageData = this.snapshotContext.getImageData(0, 0, this.w, this.h);
     this.frames.push(imageData);
+    this.saved = false;
+    this.exported = false;
   };
 
   an.Animator.prototype.undoCapture = function() {
@@ -99,6 +124,8 @@ var animator = animator || {};
     this.snapshotContext.clearRect(0, 0, this.w, this.h);
     if (this.frames.length)
       this.snapshotContext.putImageData(this.frames[this.frames.length-1], 0, 0);
+    this.saved = false;
+    this.exported = false;
   };
 
   an.Animator.prototype.frameTimeout = function() {
@@ -153,6 +180,8 @@ var animator = animator || {};
       return;
     this.frames = [];
     this.snapshotContext.clearRect(0, 0, this.w, this.h);
+    this.saved = false;
+    this.exported = false;
   };
 
   an.Animator.prototype.getFramePNG = function(idx) {
@@ -187,39 +216,65 @@ var animator = animator || {};
     this.startPlay();
   };
 
-  an.Animator.prototype.save = function(cb) {
+  an.Animator.prototype.save = function(filename, cb) {
     var encoder = new mng.Encoder();
     var blob = encoder.encode(this.w, this.h, this.frames.length, this.getFramePNG.bind(this));
     var url = URL.createObjectURL(blob);
     var downloadLink = document.createElement('a');
-    downloadLink.download = "StopMotion.mng";
+    downloadLink.download = filename || "StopMotion.mng";
     downloadLink.href = url;
+    if (filename) {
+      if (filename.endsWith('.mng'))
+        this.name = filename.substring(0, filename.length - 4);
+      else
+        this.name = filename;
+    }
+    this.saved = true;
     downloadLink.click();
+    URL.revokeObjectURL(url);
+    if (cb)
+      cb();
   };
 
-  an.Animator.prototype.export = function(cb) {
+  an.Animator.prototype.export = function(filename, cb) {
     var encoder = new Whammy.Video(1000.0 / this.frameTimeout());
     for (var i = 0; i < this.frames.length; i++)
       encoder.add(this.getFrameWebP(i));
     var blob = encoder.compile();
     var url = URL.createObjectURL(blob);
     var downloadLink = document.createElement('a');
-    downloadLink.download = "StopMotion.webm";
+    downloadLink.download = filename || "StopMotion.webm";
     downloadLink.href = url;
+    if (filename) {
+      if (filename.endsWith('.webm'))
+        this.name = filename.substring(0, filename.length - 5);
+      else
+        this.name = filename;
+    }
+    this.exported = true;
     downloadLink.click();
+    URL.revokeObjectURL(url);
+    if (cb)
+      cb();
   };
 
   an.Animator.prototype.load = function(file, cb) {
     var animator = this;
     var reader = new FileReader();
+    this.saved = true;
+    this.exported = false;
     reader.onloadend = function() {
       var decoder = new mng.Decoder(
 	  this.result,
 	  animator.snapshotContext,
 	  function(width, height, frames) {
-	      this.populate(width, height, frames);
-	      if (cb)
-		  cb();
+	    this.populate(width, height, frames);
+	    var name = file.name;
+	    if (name && name.endsWith('.mng'))
+	      name = name.substring(0, name.length - 4);
+	    this.name = name;
+	    if (cb)
+	      cb();
 	  }.bind(animator));
       decoder.decode();
     };
