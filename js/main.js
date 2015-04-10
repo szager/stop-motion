@@ -30,13 +30,13 @@ window.onload = function() {
   var captureClicks = function (e) {e.stopPropagation()};
 
   var showSpinner = function() {
-    topContainer.style.opacity = 0.5;
-    topContainer.addEventListener('click', captureClicks, true);
+//    topContainer.style.opacity = 0.5;
+//    topContainer.addEventListener('click', captureClicks, true);
   };
 
   var hideSpinner = function() {
-    topContainer.style.opacity = null;
-    topContainer.removeEventListener('click', captureClicks, true);
+//    topContainer.style.opacity = null;
+//    topContainer.removeEventListener('click', captureClicks, true);
   };
 
   var saveCB = function () {

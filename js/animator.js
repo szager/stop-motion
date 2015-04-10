@@ -211,8 +211,8 @@ var animator = animator || {};
       throw ('webp file does not start with RIFF.');
     if (binStr.substr(8, 4) != 'WEBP')
       throw ('webp file does not have WEBP identifier after RIFF.');
-    var riffLen = (binStr.charCodeAt(4) << 24) | (binStr.charCodeAt(5) << 16) |
-	(binStr.charCodeAt(6) << 8) | binStr.charCodeAt(7);
+    var riffLen = (binStr.charCodeAt(7) << 24) | (binStr.charCodeAt(6) << 16) |
+	(binStr.charCodeAt(5) << 8) | binStr.charCodeAt(4);
     if (riffLen != binStr.length - 8)
       throw ('webp file length is ' + binStr.length + ' but RIFF length field is ' + riffLen);
     var arr = new Uint8Array(binStr.length - 16);  // skip RIFF, length, WEBP and VP8x fields.
@@ -274,7 +274,7 @@ var animator = animator || {};
     if (!filename.endsWith('.webm'))
       filename += '.webm';
     var title = filename.substr(0, filename.length - 5);
-    var blob = encoder.encode(title, this.w, this.h, this.frameTimeout(), this.frames.length, this.getFramesVP8.bind(this));
+    var blob = encoder.encode(title, this.w, this.h, this.frameTimeout(), this.frames.length, this.getFrameVP8.bind(this));
     var url = URL.createObjectURL(blob);
     var downloadLink = document.createElement('a');
     downloadLink.download = filename;

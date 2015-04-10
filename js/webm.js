@@ -378,7 +378,7 @@ var webm = webm || {};
   };
 
   webm.Encoder.prototype.encodeLength = function(l) {
-    arr = [];
+    var arr = [];
     if (l == 0) {
       arr.push(0);
     } else if (l < 0x7f) {
@@ -539,7 +539,7 @@ var webm = webm || {};
 
   webm.Encoder.prototype.encodeCuePoint = function(timeCode, track, position, chunks) {
     var len = 0;
-    len += this.encodeUintChunk('CueClusterPosition', offset, chunks);
+    len += this.encodeUintChunk('CueClusterPosition', position, chunks);
     len += this.encodeUintChunk('CueTrack', track, chunks);
     len = this.encodeDataChunk('CueTrackPositions', len, chunks);
     len += this.encodeUintChunk('CueTime', timeCode, chunks);
@@ -554,7 +554,7 @@ var webm = webm || {};
     chunks.push(encodedFlags);
     chunks.push(encodedTimeCode);
     chunks.push(encodedTrackNum);
-    return vp8.length + encodeFlags.length + encodedTimeCode.length + encodedTrackNum.length;
+    return vp8.length + encodedFlags.length + encodedTimeCode.length + encodedTrackNum.length;
   };
 
   webm.Encoder.prototype.encode = function(title, w, h, frameDuration, frameCount, getFrameFunction) {
@@ -584,7 +584,7 @@ var webm = webm || {};
     for (var i = 0; i < clusterCount; i++) {
       var clusterStart = i * framesPerCluster * frameDuration;
       var chunks = [];
-      segmentLength += this.encodeCuePoint(, clusterStart, videoTrackNum, clusterOffset, chunks);
+      segmentLength += this.encodeCuePoint(clusterStart, videoTrackNum, clusterOffset, chunks);
       cueChunks = chunks.concat(cueChunks);
 
       chunks = [];
