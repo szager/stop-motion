@@ -195,14 +195,23 @@ var animator = animator || {};
     return arr;
   };
 
-  an.Animator.prototype.getFrameWebP = function(idx) {
+  an.Animator.prototype.getFrameVP8 = function(idx) {
     this.snapshotContext.clearRect(0, 0, this.w, this.h);
     this.snapshotContext.putImageData(this.frames[idx], 0, 0);
     var dataUrl = this.snapshotCanvas.toDataURL('image/webp', 1.0);
     var binStr = atob(dataUrl.split(',')[1]);
-    var arr = new Uint8Array(binStr.length);
-    for (var i = 0; i < binStr.length; i++)
-      arr[i] = binStr.charCodeAt(i);
+    if (binStr.substr(0, 4) != 'RIFF')
+      throw ('webp file does not start with RIFF.');
+    if (binStr.substr(8, 4) != 'WEBP')
+      throw ('webp file does not have WEBP identifier after RIFF.');
+    var riffLen = (binStr.charCodeAt(4) << 24) | (binStr.charCodeAt(5) << 16) |
+	(binStr.charCodeAt(6) << 8) | binStr.charCodeAt(7);
+    if (riffLen != binStr.length - 8)
+      throw ('webp file length is ' + binStr.length + ' but RIFF length field is ' + riffLen);
+    var arr = new Uint8Array(binStr.length - 16);  // skip RIFF, length, WEBP and VP8x fields.
+    var max = binStr.length;
+    for (var i = 0; i < max; i++)
+      arr[i] = binStr.charCodeAt(i + 16);
     return arr;
   };
 
@@ -237,20 +246,16 @@ var animator = animator || {};
   };
 
   an.Animator.prototype.export = function(filename, cb) {
-    var encoder = new Whammy.Video(1000.0 / this.frameTimeout());
-    for (var i = 0; i < this.frames.length; i++)
-      encoder.add(this.getFrameWebP(i));
-    var blob = encoder.compile();
+    var encoder = new webm.Encoder();
+    filename = filename || 'StopMotion';
+    if (!filename.endsWith('.webm'))
+      filename += '.webm';
+    var title = filename.substr(0, filename.length - 5);
+    var blob = encoder.encode(title, this.w, this.h, this.frameTimeout(), this.frames.length, this.getFramesVP8.bind(this));
     var url = URL.createObjectURL(blob);
     var downloadLink = document.createElement('a');
-    downloadLink.download = filename || "StopMotion.webm";
+    downloadLink.download = filename;
     downloadLink.href = url;
-    if (filename) {
-      if (filename.endsWith('.webm'))
-        this.name = filename.substring(0, filename.length - 5);
-      else
-        this.name = filename;
-    }
     this.exported = true;
     downloadLink.click();
     URL.revokeObjectURL(url);

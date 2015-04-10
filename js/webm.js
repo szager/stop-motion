@@ -193,22 +193,11 @@ var webm = webm || {};
     'WritingApp': [0x57, 0x41],
   };
 
-  webm.Encoder = function() {
-    this.chunks = [];
-    this.byteCount = 0;
-  };
-
-  webm.Encoder.addChunk(c) {
-    this.chunks.push(c);
-    this.byteCount += c.length;
-    return c.length;
-  };
+  webm.Encoder = function() {};
 
   webm.Encoder.prototype.encodeUint = function(n) {
     if (n < 0)
       throw ('Cannot encode ' + n + ' as a uint.');
-    if (n == 0)
-      return new Uint8Array([0]);
 
     // Make the common case fast.
     if (n <= 0xffffffff) {
@@ -254,9 +243,19 @@ var webm = webm || {};
     return new Uint8Array(arr);
   };
 
-  webm.Encoder.prototype.encodeInt = function(n) {
+  webm.Encoder.prototype.encodeInt = function(n, numBytes) {
+    if (numBytes) {
+      var arr = [];
+      for (; numBytes > 0; numBytes--) {
+	arr.push(n & 0xff);
+	n = n >> 8;
+      }
+      arr.reverse();
+      return new Uint8Array(arr);
+    }
+
     if (n == 0)
-      return new Uint8Array([0]);
+      return new Uint8Array([]);
 
     // Make the common case fast.
     if (n >= -0x800000 && n <= 0x7fffffff) {
@@ -284,7 +283,7 @@ var webm = webm || {};
     if (signBit) {
 
       // To encode negative numbers using bitwise operators, use the fact that
-      // x = ~(-1 * x) + 1
+      // x = ~(-x) + 1
       var carryBit = 1;
       if (align > 3) {
         for (var i = numBytes - 1; i >= 0; i--) {
@@ -352,6 +351,25 @@ var webm = webm || {};
     return new Uint8Array(arr.reverse());
   };
 
+  webm.Encoder.prototype.encodeFloat32 = function(f) {
+    var arr = new Uint8Array(new Float32Array([f]).buffer);
+    Array.prototype.reverse.bind(arr)();
+    return arr;
+  };
+
+  webm.Encoder.prototype.encodeFloat64 = function(f) {
+    var arr = new Uint8Array(new Float64Array([f]).buffer);
+    Array.prototype.reverse.bind(arr)();
+    return arr;
+  };
+
+  webm.Encoder.prototype.encodeString = function(s) {
+    var arr = [];
+    for (var i = 0; i < s.length; i++)
+      arr.push(s.charCodeAt(i));
+    return new Uint8Array(arr);
+  };
+
   webm.Encoder.prototype.encodeID = function(id) {
     var code = webm.ID_CODES[id];
     if (!code)
@@ -413,12 +431,179 @@ var webm = webm || {};
     return new Uint8Array(arr);
   };
 
-  webm.Encoder.prototype.encodeChunk = function(id, payload) {
+  /* Note All of the encode*Chunk methods add id, length, and payload in reverse
+     order (i.e., payload, length, id).  This is to avoid calls to Array.unshift(),
+     which is probably inefficient.  After all the chunks have been encoded, the
+     entire array must be reversed (chunks.reverse()).
+  */
+
+  webm.Encoder.prototype.encodeDataChunk = function(id, length, chunks) {
     var encodedID = this.encodeID(id);
-    var encodedLength = this.encodeLength(payload.length);
-    this.chunks.append(encodedID);
-    this.chunks.append(encodedLength);
-    this.chunks.append(payload);
-    return encodedID.length + encodedLength.length + payload.length;
+    var encodedLength = this.encodeLength(length);
+    chunks.push(encodedLength);
+    chunks.push(encodedID);
+    return encodedID.length + encodedLength.length + length;
+  };
+
+  webm.Encoder.prototype.encodeIntChunk = function(id, value, chunks) {
+    var encodedID = this.encodeID(id);
+    var encodedValue = this.encodeInt(value);
+    var encodedLength = this.encodeLength(encodedValue.length);
+    chunks.push(encodedValue);
+    chunks.push(encodedLength);
+    chunks.push(encodedID);
+    return encodedID.length + encodedLength.length + encodedValue.length;
+  };
+
+  webm.Encoder.prototype.encodeUintChunk = function(id, value, chunks) {
+    var encodedID = this.encodeID(id);
+    var encodedValue = this.encodeUint(value);
+    var encodedLength = this.encodeLength(encodedValue.length);
+    chunks.push(encodedValue);
+    chunks.push(encodedLength);
+    chunks.push(encodedID);
+    return encodedID.length + encodedLength.length + encodedValue.length;
+  };
+
+  webm.Encoder.prototype.encodeFloat32Chunk = function(id, value, chunks) {
+    var encodedID = this.encodeID(id);
+    var encodedValue = this.encodeFloat32(value);
+    var encodedLength = this.encodeLength(encodedValue.length);
+    chunks.push(encodedValue);
+    chunks.push(encodedLength);
+    chunks.push(encodedID);
+    return encodedID.length + encodedLength.length + encodedValue.length;
+  };
+
+  webm.Encoder.prototype.encodeFloat64Chunk = function(id, value, chunks) {
+    var encodedID = this.encodeID(id);
+    var encodedValue = this.encodeFloat64(value);
+    var encodedLength = this.encodeLength(encodedValue.length);
+    chunks.push(encodedValue);
+    chunks.push(encodedLength);
+    chunks.push(encodedID);
+    return encodedID.length + encodedLength.length + encodedValue.length;
+  };
+
+  webm.Encoder.prototype.encodeStringChunk = function(id, value, chunks) {
+    var encodedID = this.encodeID(id);
+    var encodedValue = this.encodeString(value);
+    var encodedLength = this.encodeLength(encodedValue.length);
+    chunks.push(encodedValue);
+    chunks.push(encodedLength);
+    chunks.push(encodedID);
+    return encodedID.length + encodedLength.length + encodedValue.length;
+  };
+
+  webm.Encoder.prototype.encodeEBML = function(chunks) {
+    var len = 0;
+    len += this.encodeUintChunk('DocTypeReadVersion', 2, chunks);
+    len += this.encodeUintChunk('DocTypeVersion', 2, chunks);
+    len += this.encodeStringChunk('DocType', 'webm', chunks);
+    len += this.encodeUintChunk('EBMLMaxSizeLength', 8, chunks);
+    len += this.encodeUintChunk('EBMLMaxIDLength', 4, chunks);
+    len += this.encodeUintChunk('EBMLReadVersion', 1, chunks);
+    len += this.encodeUintChunk('EBMLVersion', 1, chunks);
+    return this.encodeDataChunk('EBML', len, chunks);
+  };
+
+  webm.Encoder.prototype.encodeSegmentInfo = function(duration, title, chunks) {
+    var len = 0;
+    len += this.encodeStringChunk('WritingApp', 'stop-motion', chunks);
+    len += this.encodeStringChunk('MuxingApp', 'stop-motion', chunks);
+    if (title)
+      len += this.encodeStringChunk('Title', title, chunks);
+    len += this.encodeUintChunk('TimecodeScale', 1000000, chunks);
+    len += this.encodeFloat64Chunk('Duration', duration, chunks);
+    return this.encodeDataChunk('Info', len, chunks);
+  };
+
+  webm.Encoder.prototype.encodeVideoTrackEntry = function(num, uid, w, h, chunks) {
+    var len = 0;
+    len += this.encodeUintChunk('PixelWidth', w, chunks);
+    len += this.encodeUintChunk('PixelHeight', h, chunks);
+    len += this.encodeUintChunk('FlagInterlaced', 0, chunks);
+    len = this.encodeDataChunk('Video', len, chunks);
+
+    len += this.encodeStringChunk('CodecID', 'V_VP8', chunks);
+    len += this.encodeStringChunk('CodecName', 'VP8', chunks);
+    len += this.encodeUintChunk('FlagLacing', 0, chunks);
+    len += this.encodeUintChunk('FlagDefault', 1, chunks);
+    len += this.encodeUintChunk('FlagEnabled', 1, chunks);
+    len += this.encodeUintChunk('FlagForced', 1, chunks);
+    len += this.encodeUintChunk('TrackType', 1, chunks);
+    len += this.encodeUintChunk('TrackUID', uid, chunks);
+    len += this.encodeUintChunk('TrackNumber', num, chunks);
+    return this.encodeDataChunk('TrackEntry', len, chunks);
+  };
+
+  webm.Encoder.prototype.encodeCuePoint = function(timeCode, track, position, chunks) {
+    var len = 0;
+    len += this.encodeUintChunk('CueClusterPosition', offset, chunks);
+    len += this.encodeUintChunk('CueTrack', track, chunks);
+    len = this.encodeDataChunk('CueTrackPositions', len, chunks);
+    len += this.encodeUintChunk('CueTime', timeCode, chunks);
+    return this.encodeDataChunk('CuePoint', len, chunks);
+  };
+
+  webm.Encoder.prototype.encodeVideoFrame = function(timeCode, track, vp8, chunks) {
+    var encodedFlags = this.encodeUint(0x80);  // Cluster contains keyframes only
+    var encodedTimeCode = this.encodeInt(timeCode, 2);
+    var encodedTrackNum = this.encodeLength(track);
+    chunks.push(vp8);
+    chunks.push(encodedFlags);
+    chunks.push(encodedTimeCode);
+    chunks.push(encodedTrackNum);
+    return vp8.length + encodeFlags.length + encodedTimeCode.length + encodedTrackNum.length;
+  };
+
+  webm.Encoder.prototype.encode = function(title, w, h, frameDuration, frameCount, getFrameFunction) {
+    frameDuration = Math.round(frameDuration);
+    var framesPerCluster = Math.floor(32000 / frameDuration);
+    var clusterCount = Math.ceil(frameCount / framesPerCluster);
+    var segmentDuration = frameDuration * frameCount;
+    var segmentLength = 0;
+    var videoTrackNum = 1;
+    var videoTrackUid = 1;
+
+    var ebmlChunks = [];
+    this.encodeEBML(ebmlChunks);
+
+    var infoChunks = [];
+    segmentLength += this.encodeSegmentInfo(segmentDuration, title, infoChunks);
+
+    var tracksChunks = [];
+    segmentLength += this.encodeDataChunk(
+	'Tracks',
+	this.encodeVideoTrackEntry(videoTrackNum, videoTrackUid, w, h, tracksChunks),
+	tracksChunks);
+
+    var cueChunks = [];
+    var clusterChunks = [];
+    var clusterOffset = segmentLength;
+    for (var i = 0; i < clusterCount; i++) {
+      var clusterStart = i * framesPerCluster * frameDuration;
+      var chunks = [];
+      segmentLength += this.encodeCuePoint(, clusterStart, videoTrackNum, clusterOffset, chunks);
+      cueChunks = chunks.concat(cueChunks);
+
+      chunks = [];
+      var len = 0;
+      var firstFrame = i * framesPerCluster;
+      var lastFrame = Math.min((i + 1) * framesPerCluster, frameCount);
+      for (var j = firstFrame; j < lastFrame; j++) {
+	len += this.encodeVideoFrame((j - firstFrame) * frameDuration, videoTrackNum, getFrameFunction(j), chunks);
+      }
+      len += this.encodeUintChunk('Timecode', clusterStart, chunks);
+      clusterOffset += this.encodeDataChunk('Cluster', len, chunks);
+      clusterChunks = chunks.concat(clusterChunks);
+    }
+    segmentLength += clusterOffset;
+
+    var chunks = [].concat(cueChunks, clusterChunks, tracksChunks, infoChunks);
+    this.encodeDataChunk('Segment', segmentLength, chunks);
+    this.encodeEBML(chunks);
+    chunks.reverse();
+    return new Blob(chunks, {type: "video/webm"});
   };
 })();

@@ -97,7 +97,6 @@ var mng = mng || {};
     for (var i = 0; i < frameCount; i++)
       this.chunks.push(getFrameFunction(i));
     this.writeTrailer();
-    this.blob = new Blob(this.chunks);
     return new Blob(this.chunks);
   };
 
