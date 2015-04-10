@@ -24,6 +24,7 @@ window.onload = function() {
   var saveCancelButton = document.getElementById('saveCancelButton');
   var loadButton = document.getElementById('loadButton');
   var exportButton = document.getElementById('exportButton');
+  var whammyButton = document.getElementById('whammyButton');
   var playbackSpeedSelector = document.getElementById('playbackSpeed');
 
   var captureClicks = function (e) {e.stopPropagation()};
@@ -66,6 +67,21 @@ window.onload = function() {
     saveDialog.close();
     showSpinner();
     an.export(value, hideSpinner);
+  };
+
+  var whammyCB = function () {
+    var value = fileNameInput.value;
+    if (!value.length)
+      value = 'StopMotion';
+    value = value.replace(/\s+/g, '_');
+    value = value.replace(/[^\w\-\.]+/g, '');
+    if (value.endsWith('.mng'))
+      value = value.substring(0, value.length - 5);
+    if (!value.endsWith('.webm'))
+      value += '.webm';
+    saveDialog.close();
+    showSpinner();
+    an.whammyExport(value, hideSpinner);
   };
 
   // Create Animator object and set up callbacks.
@@ -116,6 +132,14 @@ window.onload = function() {
     if (an.name)
       fileNameInput.value = an.name;
     saveConfirmButton.onclick = exportCB;
+    saveDialog.showModal();
+  };
+  whammyButton.onclick = function () {
+    if (!an.frames.length || an.exported)
+      return;
+    if (an.name)
+      fileNameInput.value = an.name;
+    saveConfirmButton.onclick = whammyCB;
     saveDialog.showModal();
   };
   loadButton.onclick = function () {

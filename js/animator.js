@@ -195,6 +195,13 @@ var animator = animator || {};
     return arr;
   };
 
+  an.Animator.prototype.getFrameWebP = function(idx) {
+     this.snapshotContext.clearRect(0, 0, this.w, this.h);
+     this.snapshotContext.putImageData(this.frames[idx], 0, 0);
+     var dataUrl = this.snapshotCanvas.toDataURL('image/webp', 1.0);
+    return dataUrl;
+  };
+
   an.Animator.prototype.getFrameVP8 = function(idx) {
     this.snapshotContext.clearRect(0, 0, this.w, this.h);
     this.snapshotContext.putImageData(this.frames[idx], 0, 0);
@@ -239,6 +246,22 @@ var animator = animator || {};
         this.name = filename;
     }
     this.saved = true;
+    downloadLink.click();
+    URL.revokeObjectURL(url);
+    if (cb)
+      cb();
+  };
+
+  an.Animator.prototype.whammyExport = function(filename, cb) {
+    var encoder = new Whammy.Video(1000.0 / this.frameTimeout());
+    for (var i = 0; i < this.frames.length; i++)
+      encoder.add(this.getFrameWebP(i));
+    var blob = encoder.compile();
+    var url = URL.createObjectURL(blob);
+    var downloadLink = document.createElement('a');
+    downloadLink.download = filename;
+    downloadLink.href = url;
+    this.exported = true;
     downloadLink.click();
     URL.revokeObjectURL(url);
     if (cb)
