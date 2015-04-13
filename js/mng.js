@@ -1,3 +1,4 @@
+/* -*- mode: javascript; js-indent-level: 2 -*- */
 'use strict';
 
 var mng = mng || {};

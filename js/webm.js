@@ -1,4 +1,4 @@
-// -*- mode: javascript; js-indent-level: 2 -*-
+/* -*- mode: javascript; js-indent-level: 2 -*- */
 'use strict';
 
 var webm = webm || {};
@@ -190,12 +190,201 @@ var webm = webm || {};
     'Tracks': [0x16, 0x54, 0xAE, 0x6B],
     'Video': [0xE0],
     'Void': [0xEC],
-    'WritingApp': [0x57, 0x41],
+    'WritingApp': [0x57, 0x41]
+  };
+
+  webm.ID_NAMES = {
+    0x53C0: 'AlphaMode',
+    0x54B3: 'AspectRatioType',
+    0x61A7: 'AttachedFile',
+    0x7446: 'AttachmentLink',
+    0x1941A469: 'Attachments',
+    0xE1: 'Audio',
+    0x6264: 'BitDepth',
+    0xA1: 'Block',
+    0xEE: 'BlockAddID',
+    0xA5: 'BlockAdditional',
+    0x75A1: 'BlockAdditions',
+    0x9B: 'BlockDuration',
+    0xA0: 'BlockGroup',
+    0xA6: 'BlockMore',
+    0xBF: 'CRC-32',
+    0x9F: 'Channels',
+    0x437E: 'ChapCountry',
+    0x437C: 'ChapLanguage',
+    0x6944: 'ChapProcess',
+    0x6955: 'ChapProcessCodecID',
+    0x6911: 'ChapProcessCommand',
+    0x6933: 'ChapProcessData',
+    0x450D: 'ChapProcessPrivate',
+    0x6922: 'ChapProcessTime',
+    0x85: 'ChapString',
+    0xB6: 'ChapterAtom',
+    0x80: 'ChapterDisplay',
+    0x4598: 'ChapterFlagEnabled',
+    0x98: 'ChapterFlagHidden',
+    0x63C3: 'ChapterPhysicalEquiv',
+    0x6EBC: 'ChapterSegmentEditionUID',
+    0x6E67: 'ChapterSegmentUID',
+    0x5654: 'ChapterStringUID',
+    0x92: 'ChapterTimeEnd',
+    0x91: 'ChapterTimeStart',
+    0x8F: 'ChapterTrack',
+    0x89: 'ChapterTrackNumber',
+    0x6924: 'ChapterTranslate',
+    0x69BF: 'ChapterTranslateCodec',
+    0x69FC: 'ChapterTranslateEditionUID',
+    0x69A5: 'ChapterTranslateID',
+    0x73C4: 'ChapterUID',
+    0x1043A770: 'Chapters',
+    0x1F43B675: 'Cluster',
+    0xAA: 'CodecDecodeAll',
+    0x56AA: 'CodecDelay',
+    0x86: 'CodecID',
+    0x258688: 'CodecName',
+    0x63A2: 'CodecPrivate',
+    0xA4: 'CodecState',
+    0x2EB524: 'ColourSpace',
+    0x4254: 'ContentCompAlgo',
+    0x4255: 'ContentCompSettings',
+    0x5034: 'ContentCompression',
+    0x47E1: 'ContentEncAlgo',
+    0x47E2: 'ContentEncKeyID',
+    0x6240: 'ContentEncoding',
+    0x5031: 'ContentEncodingOrder',
+    0x5032: 'ContentEncodingScope',
+    0x5033: 'ContentEncodingType',
+    0x6D80: 'ContentEncodings',
+    0x5035: 'ContentEncryption',
+    0x47E5: 'ContentSigAlgo',
+    0x47E6: 'ContentSigHashAlgo',
+    0x47E4: 'ContentSigKeyID',
+    0x47E3: 'ContentSignature',
+    0x5378: 'CueBlockNumber',
+    0xF1: 'CueClusterPosition',
+    0xEA: 'CueCodecState',
+    0xB2: 'CueDuration',
+    0xBB: 'CuePoint',
+    0x96: 'CueRefTime',
+    0xDB: 'CueReference',
+    0xF0: 'CueRelativePosition',
+    0xB3: 'CueTime',
+    0xF7: 'CueTrack',
+    0xB7: 'CueTrackPositions',
+    0x1C53BB6B: 'Cues',
+    0x4461: 'DateUTC',
+    0x234E7A: 'DefaultDecodedFieldDuration',
+    0x23E383: 'DefaultDuration',
+    0x75A2: 'DiscardPadding',
+    0x54BA: 'DisplayHeight',
+    0x54B2: 'DisplayUnit',
+    0x54B0: 'DisplayWidth',
+    0x4282: 'DocType',
+    0x4285: 'DocTypeReadVersion',
+    0x4287: 'DocTypeVersion',
+    0x4489: 'Duration',
+    0x1A45DFA3: 'EBML',
+    0x42F2: 'EBMLMaxIDLength',
+    0x42F3: 'EBMLMaxSizeLength',
+    0x42F7: 'EBMLReadVersion',
+    0x4286: 'EBMLVersion',
+    0x45B9: 'EditionEntry',
+    0x45DB: 'EditionFlagDefault',
+    0x45BD: 'EditionFlagHidden',
+    0x45DD: 'EditionFlagOrdered',
+    0x45BC: 'EditionUID',
+    0x465C: 'FileData',
+    0x467E: 'FileDescription',
+    0x4660: 'FileMimeType',
+    0x466E: 'FileName',
+    0x46AE: 'FileUID',
+    0x88: 'FlagDefault',
+    0xB9: 'FlagEnabled',
+    0x55AA: 'FlagForced',
+    0x9A: 'FlagInterlaced',
+    0x9C: 'FlagLacing',
+    0x1549A966: 'Info',
+    0xCC: 'LaceNumber',
+    0x22B59C: 'Language',
+    0x55EE: 'MaxBlockAdditionID',
+    0x6DF8: 'MaxCache',
+    0x6DE7: 'MinCache',
+    0x4D80: 'MuxingApp',
+    0x536E: 'Name',
+    0x3E83BB: 'NextFilename',
+    0x3EB923: 'NextUID',
+    0x78B5: 'OutputSamplingFrequency',
+    0x54AA: 'PixelCropBottom',
+    0x54CC: 'PixelCropLeft',
+    0x54DD: 'PixelCropRight',
+    0x54BB: 'PixelCropTop',
+    0xBA: 'PixelHeight',
+    0xB0: 'PixelWidth',
+    0xA7: 'Position',
+    0x3C83AB: 'PrevFilename',
+    0xAB: 'PrevSize',
+    0x3CB923: 'PrevUID',
+    0xFB: 'ReferenceBlock',
+    0xFA: 'ReferencePriority',
+    0xB5: 'SamplingFrequency',
+    0x4DBB: 'Seek',
+    0x114D9B74: 'SeekHead',
+    0x53AB: 'SeekID',
+    0x53AC: 'SeekPosition',
+    0x56BB: 'SeekPreRoll',
+    0x18538067: 'Segment',
+    0x4444: 'SegmentFamily',
+    0x7384: 'SegmentFilename',
+    0x73A4: 'SegmentUID',
+    0x58D7: 'SilentTrackNumber',
+    0x5854: 'SilentTracks',
+    0xA3: 'SimpleBlock',
+    0x67C8: 'SimpleTag',
+    0x8E: 'Slices',
+    0x53B8: 'StereoMode',
+    0x7373: 'Tag',
+    0x63C6: 'TagAttachmentUID',
+    0x4485: 'TagBinary',
+    0x63C4: 'TagChapterUID',
+    0x4484: 'TagDefault',
+    0x63C9: 'TagEditionUID',
+    0x447A: 'TagLanguage',
+    0x45A3: 'TagName',
+    0x4487: 'TagString',
+    0x63C5: 'TagTrackUID',
+    0x1254C367: 'Tags',
+    0x63CA: 'TargetType',
+    0x68CA: 'TargetTypeValue',
+    0x63C0: 'Targets',
+    0xE8: 'TimeSlice',
+    0xE7: 'Timecode',
+    0x2AD7B1: 'TimecodeScale',
+    0x7BA9: 'Title',
+    0xE3: 'TrackCombinePlanes',
+    0xAE: 'TrackEntry',
+    0xE9: 'TrackJoinBlocks',
+    0xED: 'TrackJoinUID',
+    0xD7: 'TrackNumber',
+    0xE2: 'TrackOperation',
+    0x6FAB: 'TrackOverlay',
+    0xE4: 'TrackPlane',
+    0xE6: 'TrackPlaneType',
+    0xE5: 'TrackPlaneUID',
+    0x6624: 'TrackTranslate',
+    0x66BF: 'TrackTranslateCodec',
+    0x66FC: 'TrackTranslateEditionUID',
+    0x66A5: 'TrackTranslateTrackID',
+    0x83: 'TrackType',
+    0x73C5: 'TrackUID',
+    0x1654AE6B: 'Tracks',
+    0xE0: 'Video',
+    0xEC: 'Void',
+    0x5741: 'WritingApp'
   };
 
   webm.Encoder = function() {};
 
-  webm.Encoder.prototype.encodeUint = function(n) {
+  webm.Encoder.encodeUint = function(n) {
     if (n < 0)
       throw ('Cannot encode ' + n + ' as a uint.');
 
@@ -379,9 +568,7 @@ var webm = webm || {};
 
   webm.Encoder.prototype.encodeLength = function(l) {
     var arr = [];
-    if (l == 0) {
-      arr.push(0);
-    } else if (l < 0x7f) {
+    if (l < 0x7f) {
       arr.push(0x80 | l);
     } else if (l < 0x3fff) {
       arr.push(0x40 | (l >> 8));
@@ -402,25 +589,25 @@ var webm = webm || {};
       arr.push((l >> 8) & 0xff);
       arr.push(l & 0xff);
     } else if (l < 0x7ffffffff) {
-      var uintArr = webm.Encoder.prototype.encodeUint(l);
+      var uintArr = webm.Encoder.encodeUint(l);
       if (uintArr.length != 5)
         throw ('Encoding of length ' + l + ' has ' + uintArr.length + ' bytes.');
       uintArr[0] |= 0x8;
       return uintArr;
     } else if (l < 0x3ffffffffff) {
-      var uintArr = webm.Encoder.prototype.encodeUint(l);
+      var uintArr = webm.Encoder.encodeUint(l);
       if (uintArr.length != 6)
         throw ('Encoding of length ' + l + ' has ' + uintArr.length + ' bytes.');
       uintArr[0] |= 0x4;
       return uintArr;
     } else if (l < 0x1ffffffffffff) {
-      var uintArr = webm.Encoder.prototype.encodeUint(l);
+      var uintArr = webm.Encoder.encodeUint(l);
       if (uintArr.length != 7)
         throw ('Encoding of length ' + l + ' has ' + uintArr.length + ' bytes.');
       uintArr[0] |= 0x2;
       return uintArr;
     } else if (l < 0xffffffffffffff) {
-      var uintArr = webm.Encoder.prototype.encodeUint(l);
+      var uintArr = webm.Encoder.encodeUint(l);
       if (uintArr.length != 8)
         throw ('Encoding of length ' + l + ' has ' + uintArr.length + ' bytes.');
       uintArr[0] |= 0x1;
@@ -457,7 +644,7 @@ var webm = webm || {};
 
   webm.Encoder.prototype.encodeUintChunk = function(id, value, chunks) {
     var encodedID = this.encodeID(id);
-    var encodedValue = this.encodeUint(value);
+    var encodedValue = webm.Encoder.encodeUint(value);
     var encodedLength = this.encodeLength(encodedValue.length);
     chunks.push(encodedValue);
     chunks.push(encodedLength);
@@ -547,7 +734,7 @@ var webm = webm || {};
   };
 
   webm.Encoder.prototype.encodeVideoFrame = function(timeCode, track, vp8, chunks) {
-    var encodedFlags = this.encodeUint(0x80);  // Cluster contains keyframes only
+    var encodedFlags = webm.Encoder.encodeUint(0x80);  // Cluster contains keyframes only
     var encodedTimeCode = this.encodeInt(timeCode, 2);
     var encodedTrackNum = this.encodeLength(track);
     chunks.push(vp8);
@@ -565,9 +752,6 @@ var webm = webm || {};
     var segmentLength = 0;
     var videoTrackNum = 1;
     var videoTrackUid = 1;
-
-    var ebmlChunks = [];
-    this.encodeEBML(ebmlChunks);
 
     var infoChunks = [];
     segmentLength += this.encodeSegmentInfo(segmentDuration, title, infoChunks);
@@ -605,5 +789,68 @@ var webm = webm || {};
     this.encodeEBML(chunks);
     chunks.reverse();
     return new Blob(chunks, {type: "video/webm"});
+  };
+
+  webm.Decoder = function() {
+    this.idx = -1;
+  };
+
+  webm.Decoder.prototype.decodeID = function(data) {
+    var idx = this.idx;
+    if (data[idx] & 0x80) {
+      this.idx += 1;
+      return webm.ID_NAMES[data[idx]];
+    } else if (data[idx] & 0x40) {
+      this.idx += 2;
+      return webm.ID_NAMES[(data[idx] << 8) | data[idx+1]];
+    } else if (data[idx] & 0x20) {
+      this.idx += 3;
+      return webm.ID_NAMES[(data[idx] << 16) | (data[idx+1] << 8) | data[idx+2]];
+    } else if (data[idx] & 0x10) {
+      this.idx += 4;
+      return webm.ID_NAMES[(data[idx] << 24) | (data[idx+1] << 16) | (data[idx+2] << 8) | data[idx+3]];
+    }
+    throw ('Mal-formed ID field at position ' + idx);
+  };
+
+  webm.Decoder.prototype.decodeLength = function(data) {
+    var idx = this.idx;
+    if (data[idx] & 0x80) {
+      this.idx += 1;
+      return data[idx] & 0x7f;
+    } else if (data[idx] & 0x40) {
+      this.idx += 2;
+      return ((data[idx] & 0x3f) << 8) | data[idx+1];
+    } else if (data[idx] & 0x20) {
+      this.idx += 3;
+      return ((data[idx] & 0x1f) << 16) | (data[idx+1] << 8) | data[idx+2];
+    } else if (data[idx] & 0x10) {
+      this.idx += 4;
+      return ((data[idx] & 0xf) << 24) | (data[idx+1] << 16) | (data[idx+2] << 8) | data[idx+3];
+    } else if (data[idx] & 0x8) {
+      this.idx += 5;
+      return (((data[idx] & 0x7) * 0x100000000) +
+              ((data[idx+1] << 24) | (data[idx+2] << 16) | (data[idx+3] << 8) | data[idx+4]));
+    } else if (data[idx] & 0x4) {
+      this.idx += 6;
+      return (((data[idx] & 0x3) * 0x10000000000) +
+              (data[idx+1] * 0x100000000) +
+              ((data[idx+2] << 24) | (data[idx+3] << 16) | (data[idx+4] << 8) | data[idx+5]));
+    } else if (data[idx] & 0x2) {
+      this.idx += 7;
+      return (((data[idx] & 0x1) * 0x1000000000000) +
+              (data[idx+2] * 0x10000000000) +
+              (data[idx+2] * 0x100000000) +
+              ((data[idx+3] << 24) | (data[idx+4] << 16) | (data[idx+5] << 8) | data[idx+6]));
+    } else if (data[idx] & 0x1) {
+      this.idx += 8;
+      return ((data[idx+1] * 0x1000000000000) +
+              (data[idx+2] * 0x10000000000) +
+              (data[idx+3] * 0x100000000) +
+              ((data[idx+4] << 24) | (data[idx+5] << 16) | (data[idx+6] << 8) | data[idx+7]));
+    } else {
+      // throw
+    }
+
   };
 })();

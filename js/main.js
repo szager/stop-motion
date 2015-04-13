@@ -1,3 +1,4 @@
+/* -*- mode: javascript; js-indent-level: 2 -*- */
 'use strict';
 
 var an;
@@ -25,6 +26,7 @@ window.onload = function() {
   var loadButton = document.getElementById('loadButton');
   var exportButton = document.getElementById('exportButton');
   var whammyButton = document.getElementById('whammyButton');
+  var compareButton = document.getElementById('compareButton');
   var playbackSpeedSelector = document.getElementById('playbackSpeed');
 
   var captureClicks = function (e) {e.stopPropagation()};
@@ -39,6 +41,10 @@ window.onload = function() {
 //    topContainer.removeEventListener('click', captureClicks, true);
   };
 
+  var doCompare = function(whammyData, webmData) {
+    console.log('Compare!');
+  };
+  
   var saveCB = function () {
     var value = fileNameInput.value;
     if (!value.length)
@@ -141,6 +147,28 @@ window.onload = function() {
       fileNameInput.value = an.name;
     saveConfirmButton.onclick = whammyCB;
     saveDialog.showModal();
+  };
+  
+  compareButton.onclick = function () {
+    if (!an.frames.length || an.exported)
+      return;
+    var webmEncoder = new webm.Encoder();
+    var webmBlob = webmEncoder.encode('test', an.w, an.h, an.frameTimeout(), an.frames.length, an.getFrameVP8.bind(an));
+    var webmReader = new FileReader();
+    webmReader.onloadend = function() {
+      var webmReader = this;
+      var whammyEncoder = new Whammy.Video(1000.0 / an.frameTimeout());
+      for (var i = 0; i < an.frames.length; i++)
+        whammyEncoder.add(an.getFrameWebP(i));
+      var whammyBlob = whammyEncoder.compile();
+      var whammyReader = new FileReader();
+      whammyReader.onloadend = function() {
+        doCompare(this.result, webmReader.result);
+      };
+      whammyReader.readAsBinaryString(whammyBlob);
+    };
+    webmReader.readAsBinaryString(webmBlob);
+
   };
   loadButton.onclick = function () {
     var fileInput = document.createElement('input');

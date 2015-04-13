@@ -1,3 +1,5 @@
+/* -*- mode: javascript; js-indent-level: 2 -*- */
+
 /*
   var vid = new Whammy.Video();
   vid.add(canvas or data url)
