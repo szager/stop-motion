@@ -43,6 +43,10 @@ window.onload = function() {
 
   var doCompare = function(whammyData, webmData) {
     console.log('Compare!');
+    var decoder = new webm.Decoder(whammyData);
+    decoder.verify(true);
+    decoder = new webm.Decoder(webmData);
+    decoder.verify(true);
   };
   
   var saveCB = function () {
@@ -156,6 +160,9 @@ window.onload = function() {
     var webmBlob = webmEncoder.encode('test', an.w, an.h, an.frameTimeout(), an.frames.length, an.getFrameVP8.bind(an));
     var webmReader = new FileReader();
     webmReader.onloadend = function() {
+      var webmArr = new Uint8Array(this.result.length);
+      for (var i = 0; i < this.result.length; i++)
+        webmArr[i] = this.result.charCodeAt(i);
       var webmReader = this;
       var whammyEncoder = new Whammy.Video(1000.0 / an.frameTimeout());
       for (var i = 0; i < an.frames.length; i++)
@@ -163,7 +170,10 @@ window.onload = function() {
       var whammyBlob = whammyEncoder.compile();
       var whammyReader = new FileReader();
       whammyReader.onloadend = function() {
-        doCompare(this.result, webmReader.result);
+        var whammyArr = new Uint8Array(this.result.length);
+        for (var i = 0; i < this.result.length; i++)
+          whammyArr[i] = this.result.charCodeAt(i);
+        doCompare(whammyArr, webmArr);
       };
       whammyReader.readAsBinaryString(whammyBlob);
     };

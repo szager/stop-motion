@@ -382,6 +382,195 @@ var webm = webm || {};
     0x5741: 'WritingApp'
   };
 
+  webm.ID_TYPES = {
+    'EBML': 'Master Elements',
+    'Segment': 'Master Elements',
+    'EBMLVersion': 'Unsigned Integer',
+    'EBMLReadVersion': 'Unsigned Integer',
+    'EBMLMaxIDLength': 'Unsigned Integer',
+    'EBMLMaxSizeLength': 'Unsigned Integer',
+    'DocType': 'String',
+    'DocTypeVersion': 'Unsigned Integer',
+    'DocTypeReadVersion': 'Unsigned Integer',
+    'Void': 'Binary',
+    'CRC-32': 'Binary',
+    'SeekHead': 'Master Elements',
+    'Info': 'Master Elements',
+    'Cluster': 'Master Elements',
+    'Tracks': 'Master Elements',
+    'Cues': 'Master Elements',
+    'Attachments': 'Master Elements',
+    'Chapters': 'Master Elements',
+    'Tags': 'Master Elements',
+    'Seek': 'Master Elements',
+    'SegmentUID': 'Binary',
+    'SegmentFilename': 'UTF-8',
+    'PrevUID': 'Binary',
+    'PrevFilename': 'UTF-8',
+    'NextUID': 'Binary',
+    'NextFilename': 'UTF-8',
+    'SegmentFamily': 'Binary',
+    'ChapterTranslate': 'Master Elements',
+    'TimecodeScale': 'Unsigned Integer',
+    'Duration': 'Float',
+    'DateUTC': 'Date',
+    'Title': 'UTF-8',
+    'MuxingApp': 'UTF-8',
+    'WritingApp': 'UTF-8',
+    'Timecode': 'Unsigned Integer',
+    'SilentTracks': 'Master Elements',
+    'Position': 'Unsigned Integer',
+    'PrevSize': 'Unsigned Integer',
+    'SimpleBlock': 'Binary',
+    'BlockGroup': 'Master Elements',
+    'TrackEntry': 'Master Elements',
+    'CuePoint': 'Master Elements',
+    'AttachedFile': 'Master Elements',
+    'EditionEntry': 'Master Elements',
+    'Tag': 'Master Elements',
+    'SeekID': 'Binary',
+    'SeekPosition': 'Unsigned Integer',
+    'ChapterTranslateEditionUID': 'Unsigned Integer',
+    'ChapterTranslateCodec': 'Unsigned Integer',
+    'ChapterTranslateID': 'Binary',
+    'SilentTrackNumber': 'Unsigned Integer',
+    'Block': 'Binary',
+    'BlockAdditions': 'Master Elements',
+    'BlockDuration': 'Unsigned Integer',
+    'ReferencePriority': 'Unsigned Integer',
+    'ReferenceBlock': 'Signed Integer',
+    'CodecState': 'Binary',
+    'DiscardPadding': 'Signed Integer',
+    'Slices': 'Master Elements',
+    'TrackNumber': 'Unsigned Integer',
+    'TrackUID': 'Unsigned Integer',
+    'TrackType': 'Unsigned Integer',
+    'FlagEnabled': 'Unsigned Integer',
+    'FlagDefault': 'Unsigned Integer',
+    'FlagForced': 'Unsigned Integer',
+    'FlagLacing': 'Unsigned Integer',
+    'MinCache': 'Unsigned Integer',
+    'MaxCache': 'Unsigned Integer',
+    'DefaultDuration': 'Unsigned Integer',
+    'DefaultDecodedFieldDuration': 'Unsigned Integer',
+    'MaxBlockAdditionID': 'Unsigned Integer',
+    'Name': 'UTF-8',
+    'Language': 'String',
+    'CodecID': 'String',
+    'CodecPrivate': 'Binary',
+    'CodecName': 'UTF-8',
+    'AttachmentLink': 'Unsigned Integer',
+    'CodecDecodeAll': 'Unsigned Integer',
+    'TrackOverlay': 'Unsigned Integer',
+    'CodecDelay': 'Unsigned Integer',
+    'SeekPreRoll': 'Unsigned Integer',
+    'TrackTranslate': 'Master Elements',
+    'Video': 'Master Elements',
+    'Audio': 'Master Elements',
+    'TrackOperation': 'Master Elements',
+    'ContentEncodings': 'Master Elements',
+    'CueTime': 'Unsigned Integer',
+    'CueTrackPositions': 'Master Elements',
+    'FileDescription': 'UTF-8',
+    'FileName': 'UTF-8',
+    'FileMimeType': 'String',
+    'FileData': 'Binary',
+    'FileUID': 'Unsigned Integer',
+    'EditionUID': 'Unsigned Integer',
+    'EditionFlagHidden': 'Unsigned Integer',
+    'EditionFlagDefault': 'Unsigned Integer',
+    'EditionFlagOrdered': 'Unsigned Integer',
+    'ChapterAtom': 'Master Elements',
+    'Targets': 'Master Elements',
+    'SimpleTag': 'Master Elements',
+    'BlockMore': 'Master Elements',
+    'TimeSlice': 'Master Elements',
+    'TrackTranslateEditionUID': 'Unsigned Integer',
+    'TrackTranslateCodec': 'Unsigned Integer',
+    'TrackTranslateTrackID': 'Binary',
+    'FlagInterlaced': 'Unsigned Integer',
+    'StereoMode': 'Unsigned Integer',
+    'AlphaMode': 'Unsigned Integer',
+    'PixelWidth': 'Unsigned Integer',
+    'PixelHeight': 'Unsigned Integer',
+    'PixelCropBottom': 'Unsigned Integer',
+    'PixelCropTop': 'Unsigned Integer',
+    'PixelCropLeft': 'Unsigned Integer',
+    'PixelCropRight': 'Unsigned Integer',
+    'DisplayWidth': 'Unsigned Integer',
+    'DisplayHeight': 'Unsigned Integer',
+    'DisplayUnit': 'Unsigned Integer',
+    'AspectRatioType': 'Unsigned Integer',
+    'ColourSpace': 'Binary',
+    'SamplingFrequency': 'Float',
+    'OutputSamplingFrequency': 'Float',
+    'Channels': 'Unsigned Integer',
+    'BitDepth': 'Unsigned Integer',
+    'TrackCombinePlanes': 'Master Elements',
+    'TrackJoinBlocks': 'Master Elements',
+    'ContentEncoding': 'Master Elements',
+    'CueTrack': 'Unsigned Integer',
+    'CueClusterPosition': 'Unsigned Integer',
+    'CueRelativePosition': 'Unsigned Integer',
+    'CueDuration': 'Unsigned Integer',
+    'CueBlockNumber': 'Unsigned Integer',
+    'CueCodecState': 'Unsigned Integer',
+    'CueReference': 'Master Elements',
+    'ChapterUID': 'Unsigned Integer',
+    'ChapterStringUID': 'UTF-8',
+    'ChapterTimeStart': 'Unsigned Integer',
+    'ChapterTimeEnd': 'Unsigned Integer',
+    'ChapterFlagHidden': 'Unsigned Integer',
+    'ChapterFlagEnabled': 'Unsigned Integer',
+    'ChapterSegmentUID': 'Binary',
+    'ChapterSegmentEditionUID': 'Unsigned Integer',
+    'ChapterPhysicalEquiv': 'Unsigned Integer',
+    'ChapterTrack': 'Master Elements',
+    'ChapterDisplay': 'Master Elements',
+    'ChapProcess': 'Master Elements',
+    'TargetTypeValue': 'Unsigned Integer',
+    'TargetType': 'String',
+    'TagTrackUID': 'Unsigned Integer',
+    'TagEditionUID': 'Unsigned Integer',
+    'TagChapterUID': 'Unsigned Integer',
+    'TagAttachmentUID': 'Unsigned Integer',
+    'TagName': 'UTF-8',
+    'TagLanguage': 'String',
+    'TagDefault': 'Unsigned Integer',
+    'TagString': 'UTF-8',
+    'TagBinary': 'Binary',
+    'BlockAddID': 'Unsigned Integer',
+    'BlockAdditional': 'Binary',
+    'LaceNumber': 'Unsigned Integer',
+    'TrackPlane': 'Master Elements',
+    'TrackJoinUID': 'Unsigned Integer',
+    'ContentEncodingOrder': 'Unsigned Integer',
+    'ContentEncodingScope': 'Unsigned Integer',
+    'ContentEncodingType': 'Unsigned Integer',
+    'ContentCompression': 'Master Elements',
+    'ContentEncryption': 'Master Elements',
+    'CueRefTime': 'Unsigned Integer',
+    'ChapterTrackNumber': 'Unsigned Integer',
+    'ChapString': 'UTF-8',
+    'ChapLanguage': 'String',
+    'ChapCountry': 'String',
+    'ChapProcessCodecID': 'Unsigned Integer',
+    'ChapProcessPrivate': 'Binary',
+    'ChapProcessCommand': 'Master Elements',
+    'TrackPlaneUID': 'Unsigned Integer',
+    'TrackPlaneType': 'Unsigned Integer',
+    'ContentCompAlgo': 'Unsigned Integer',
+    'ContentCompSettings': 'Binary',
+    'ContentEncAlgo': 'Unsigned Integer',
+    'ContentEncKeyID': 'Binary',
+    'ContentSignature': 'Binary',
+    'ContentSigKeyID': 'Binary',
+    'ContentSigAlgo': 'Unsigned Integer',
+    'ContentSigHashAlgo': 'Unsigned Integer',
+    'ChapProcessTime': 'Unsigned Integer',
+    'ChapProcessData': 'Binary',
+  };
+
   webm.Encoder = function() {};
 
   webm.Encoder.encodeUint = function(n) {
@@ -764,12 +953,13 @@ var webm = webm || {};
 	tracksChunks);
 
     var cueChunks = [];
+    var cueLength = 0;
     var clusterChunks = [];
     var clusterOffset = segmentLength;
     for (var i = 0; i < clusterCount; i++) {
       var clusterStart = i * framesPerCluster * frameDuration;
       var chunks = [];
-      segmentLength += this.encodeCuePoint(clusterStart, videoTrackNum, clusterOffset, chunks);
+      cueLength += this.encodeCuePoint(clusterStart, videoTrackNum, clusterOffset, chunks);
       cueChunks = chunks.concat(cueChunks);
 
       chunks = [];
@@ -783,6 +973,8 @@ var webm = webm || {};
       clusterOffset += this.encodeDataChunk('Cluster', len, chunks);
       clusterChunks = chunks.concat(clusterChunks);
     }
+    cueLength += this.encodeDataChunk('Cues', cueLength, cueChunks);
+    segmentLength += cueLength;
     segmentLength += clusterOffset;
 
     var chunks = [].concat(cueChunks, clusterChunks, tracksChunks, infoChunks);
@@ -792,11 +984,13 @@ var webm = webm || {};
     return new Blob(chunks, {type: "video/webm"});
   };
 
-  webm.Decoder = function() {
+  webm.Decoder = function(data) {
     this.idx = -1;
+    this.data = data;
   };
 
-  webm.Decoder.prototype.decodeID = function(data) {
+  webm.Decoder.prototype.decodeID = function() {
+    var data = this.data;
     var idx = this.idx;
     if (data[idx] & 0x80) {
       this.idx += 1;
@@ -814,7 +1008,8 @@ var webm = webm || {};
     throw ('Mal-formed ID field at position ' + idx);
   };
 
-  webm.Decoder.prototype.decodeLength = function(data) {
+  webm.Decoder.prototype.decodeLength = function() {
+    var data = this.data;
     var idx = this.idx;
     if (data[idx] & 0x80) {
       this.idx += 1;
@@ -852,6 +1047,29 @@ var webm = webm || {};
     } else {
       // throw
     }
+  };
 
+  webm.Decoder.prototype.verifyChunk = function(verbose, indent) {
+    indent = indent || 0;
+    if (this.idx >= this.data.length)
+      return;
+    var id = this.decodeID();
+    var length = this.decodeLength();
+    if (verbose)
+      console.log(indent + id + ' ' + length);
+    if (webm.ID_TYPES[id] == 'Master Elements') {
+      var max = this.idx + length;
+      while (this.idx < max)
+        this.verifyChunk(verbose, indent + '  ');
+    } else {
+      this.idx += length;
+    }
+  };
+
+  webm.Decoder.prototype.verify = function(verbose) {
+    this.idx = 0;
+    var max = this.data.length;
+    while (this.idx < max)
+      this.verifyChunk(verbose, '');
   };
 })();
