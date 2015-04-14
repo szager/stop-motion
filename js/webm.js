@@ -741,7 +741,8 @@ var webm = webm || {};
     chunks.push(encodedFlags);
     chunks.push(encodedTimeCode);
     chunks.push(encodedTrackNum);
-    return vp8.length + encodedFlags.length + encodedTimeCode.length + encodedTrackNum.length;
+    var videoLength = vp8.length + encodedFlags.length + encodedTimeCode.length + encodedTrackNum.length;
+    return this.encodeDataChunk('SimpleBlock', videoLength, chunks);
   };
 
   webm.Encoder.prototype.encode = function(title, w, h, frameDuration, frameCount, getFrameFunction) {
