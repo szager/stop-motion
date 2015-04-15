@@ -47,6 +47,7 @@ window.onload = function() {
     decoder.verify(true);
     decoder = new webm.Decoder(webmData);
     decoder.verify(true);
+    console.log('Verified');
   };
   
   var saveCB = function () {

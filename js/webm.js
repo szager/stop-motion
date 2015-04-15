@@ -984,6 +984,71 @@ var webm = webm || {};
     return new Blob(chunks, {type: "video/webm"});
   };
 
+  webm.decodeUint = function(data, idx, length) {
+    if (length == 0)
+      return 0;
+    if (length == 1)
+      return data[idx];
+    if (length == 2)
+      return (data[idx] << 8) | data[idx+1];
+    if (length == 3)
+      return (data[idx] << 16) | (data[idx+1] << 8) | data[idx+2];
+    if (length == 4)
+      return (data[idx] << 24) | (data[idx+1] << 16) | (data[idx+2] << 8) | data[idx+3];
+    if (length == 5)
+      return (webm.decodeUint(data, idx, 1) * 0x100000000) + ((data[idx+1] << 24) | (data[idx+2] << 16) | (data[idx+3] << 8) | data[idx+4]);
+    if (length == 6)
+      return (webm.decodeUint(data, idx, 2) * 0x100000000) + ((data[idx+2] << 24) | (data[idx+3] << 16) | (data[idx+4] << 8) | data[idx+5]);
+    if (length == 7)
+      return (webm.decodeUint(data, idx, 3) * 0x100000000) + ((data[idx+3] << 24) | (data[idx+4] << 16) | (data[idx+5] << 8) | data[idx+6]);
+    if (length == 8)
+      return (webm.decodeUint(data, idx, 4) * 0x100000000) + ((data[idx+4] << 24) | (data[idx+5] << 16) | (data[idx+6] << 8) | data[idx+7]);
+    throw ('Cannot decode uint of length ' + length);
+  };
+
+  webm.decodeInt = function(data, idx, length) {
+    if (length == 0)
+      return 0;
+    if (length == 1)
+      return (data[idx] << 24) >> 24;
+    if (length == 2)
+      return ((data[idx] << 24) >> 16) | data[idx+1];
+    if (length == 3)
+      return ((data[idx] << 24) >> 8) | (data[idx+1] << 8) | data[idx+2];
+    if (length == 4)
+      return (data[idx] << 24) | (data[idx+1] << 16) | (data[idx+2] << 8) | data[idx+3];
+
+    if (data[0] & 0x80) {
+      var tmpArr = new Uint8Array(length);
+      for (var i = 0; i < length; i++)
+        tmpArr[i] = (~data[i]) & 0xff;
+      return -(webm.decodeUint(tmpArr, 0, length) + 1);
+    }
+
+    return webm.decodeUint(data, idx, length);
+  };
+
+  webm.decodeFloat32 = function(data, idx) {
+    var arr = new Uint8Array(data.buffer.slice(idx, idx + 4));
+    Array.prototype.reverse.bind(arr)();
+    arr = new Float32Array(arr.buffer);
+    return arr[0];
+  };
+
+  webm.decodeFloat64 = function(data, idx) {
+    var arr = new Uint8Array(data.buffer.slice(idx, idx + 8));
+    Array.prototype.reverse.bind(arr)();
+    arr = new Float64Array(arr.buffer);
+    return arr[0];
+  };
+
+  webm.decodeString = function(data, idx, length) {
+    var str = '';
+    for (var i = 0; i < length; i++)
+      str += String.fromCharCode(data[idx + i]);
+    return str;
+  };
+
   webm.Decoder = function(data) {
     this.idx = -1;
     this.data = data;
@@ -1049,19 +1114,46 @@ var webm = webm || {};
     }
   };
 
+
   webm.Decoder.prototype.verifyChunk = function(verbose, indent) {
     indent = indent || 0;
     if (this.idx >= this.data.length)
       return;
     var id = this.decodeID();
     var length = this.decodeLength();
-    if (verbose)
-      console.log(indent + id + ' ' + length);
-    if (webm.ID_TYPES[id] == 'Master Elements') {
+    var chunkType = webm.ID_TYPES[id];
+    if (chunkType == 'Master Elements') {
+      if (verbose)
+	console.log(indent + id + ' ' + length);
       var max = this.idx + length;
       while (this.idx < max)
         this.verifyChunk(verbose, indent + '  ');
+    } else if (chunkType == 'String' || chunkType == 'UTF-8') {
+      if (verbose)
+	console.log(indent + id + ' ' + length + ' "' + webm.decodeString(this.data, this.idx, length) + '"');
+      this.idx += length;
+    } else if (chunkType == 'Unsigned Integer') {
+      if (verbose)
+	console.log(indent + id + ' ' + length + ' ' + webm.decodeUint(this.data, this.idx, length));
+      this.idx += length;
+    } else if (chunkType == 'Signed Integer') {
+      if (verbose)
+	console.log(indent + id + ' ' + length + ' ' + webm.decodeInt(this.data, this.idx, length));
+      this.idx += length;
+    } else if (chunkType == 'Binary') {
+      if (verbose) {
+	var numBytes = Math.min(8, length);
+	var byteStr = '[';
+	for (var i = 0; i < numBytes; i++)
+	  byteStr += '0x' + this.data[this.idx + i].toString(16) + ', ';
+	byteStr += ']'
+	console.log(indent + id + ' ' + length + ' ' + byteStr);
+      }
+      this.idx += length;
+      
     } else {
+      if (verbose)
+	console.log(indent + id + ' ' + length);
       this.idx += length;
     }
   };

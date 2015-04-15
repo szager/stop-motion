@@ -199,14 +199,11 @@ var animator = animator || {};
   an.Animator.prototype.getFrameWebP = function(idx) {
      this.snapshotContext.clearRect(0, 0, this.w, this.h);
      this.snapshotContext.putImageData(this.frames[idx], 0, 0);
-     var dataUrl = this.snapshotCanvas.toDataURL('image/webp', 1.0);
-    return dataUrl;
+     return this.snapshotCanvas.toDataURL('image/webp', 1.0);
   };
 
   an.Animator.prototype.getFrameVP8 = function(idx) {
-    this.snapshotContext.clearRect(0, 0, this.w, this.h);
-    this.snapshotContext.putImageData(this.frames[idx], 0, 0);
-    var dataUrl = this.snapshotCanvas.toDataURL('image/webp', 1.0);
+    var dataUrl = this.getFrameWebP(idx);
     var binStr = atob(dataUrl.split(',')[1]);
     if (binStr.substr(0, 4) != 'RIFF')
       throw ('webp file does not start with RIFF.');
