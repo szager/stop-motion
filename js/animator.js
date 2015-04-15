@@ -267,12 +267,11 @@ var animator = animator || {};
   };
 
   an.Animator.prototype.export = function(filename, cb) {
-    var encoder = new webm.Encoder();
     filename = filename || 'StopMotion';
     if (!filename.endsWith('.webm'))
       filename += '.webm';
     var title = filename.substr(0, filename.length - 5);
-    var blob = encoder.encode(title, this.w, this.h, this.frameTimeout(), this.frames.length, this.getFrameVP8.bind(this));
+    var blob = webm.encode(title, this.w, this.h, this.frameTimeout(), this.frames.length, this.getFrameVP8.bind(this));
     var url = URL.createObjectURL(blob);
     var downloadLink = document.createElement('a');
     downloadLink.download = filename;

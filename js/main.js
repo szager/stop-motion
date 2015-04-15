@@ -42,11 +42,10 @@ window.onload = function() {
   };
 
   var doCompare = function(whammyData, webmData) {
-    console.log('Compare!');
-    var decoder = new webm.Decoder(whammyData);
-    decoder.verify(true);
-    decoder = new webm.Decoder(webmData);
-    decoder.verify(true);
+    console.log('whammy.js:\n');
+    webm.verify(whammyData, true);
+    console.log('webm.js:\n');
+    webm.verify(webmData, true);
     console.log('Verified');
   };
   
@@ -157,8 +156,7 @@ window.onload = function() {
   compareButton.onclick = function () {
     if (!an.frames.length || an.exported)
       return;
-    var webmEncoder = new webm.Encoder();
-    var webmBlob = webmEncoder.encode('test', an.w, an.h, an.frameTimeout(), an.frames.length, an.getFrameVP8.bind(an));
+    var webmBlob = webm.encode('test', an.w, an.h, an.frameTimeout(), an.frames.length, an.getFrameVP8.bind(an));
     var webmReader = new FileReader();
     webmReader.onloadend = function() {
       var webmArr = new Uint8Array(this.result.length);
