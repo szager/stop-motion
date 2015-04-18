@@ -17,6 +17,8 @@ var animator = animator || {};
     this.name = null;
     this.saved = false;
     this.exported = false;
+    this.framesInFlight = 0;
+    this.loadFinishPending = false;
   };
 
   an.Animator.prototype.videoCannotPlayHandler = function(e) {
@@ -25,7 +27,9 @@ var animator = animator || {};
     this.streamContext.fillText("Cannot connect to camera.", 30, 200);
   };
 
-  an.Animator.prototype.resizeCanvases = function() {
+  an.Animator.prototype.setDimensions = function(w, h) {
+    this.w = w;
+    this.h = h;
     this.streamCanvas.width = this.w;
     this.streamCanvas.height = this.h;
     this.snapshotCanvas.width = this.w;
@@ -33,9 +37,9 @@ var animator = animator || {};
   };
 
   an.Animator.prototype.videoCanPlayHandler = function(e) {
-    this.w = this.streamCanvas.width;
-    this.h = this.video.videoHeight / (this.video.videoWidth / this.w);
-    this.resizeCanvases();
+    var w = this.streamCanvas.width;
+    var h = this.video.videoHeight / (this.video.videoWidth / this.w);
+    this.setDimensions(w, h);
   };
 
   an.Animator.prototype.videoPlayHandler = function() {
@@ -220,11 +224,41 @@ var animator = animator || {};
     return arr;
   };
 
+  an.Animator.prototype.loadFinished() {
+    this.loadFinishPending = false;
+    this.snapshotContext.clearRect(0, 0, width, height);
+    if (this.frames.length) {
+      this.snapshotContext.putImageData(frames[frames.length-1], 0, 0);
+      this.startPlay();
+    }
+  };
+
+  an.Animator.prototype.loadFinishCB = function() {
+    if (this.framesInFlight)
+      this.loadFinishPending = true;
+    else
+      this.loadFinished();
+  };
+
+  an.Animator.prototype.addFrameVP8 = function(blob) {
+    var blobURL = URL.createObjectURL(blob);
+    var image = new Image(this.w, this.h);
+    image.onload = function() {
+      URL.revokeObjectURL(blobURL);
+      this.snapshotContext.clearRect(0, 0, this.w, this.h);
+      this.snapshotContext.drawImage(image, 0, 0, this.w, this.h);
+      this.frames.push(this.snapshotContext.getImageData(0, 0, this.w, this.h));
+      this.framesInFlight--;
+      if (this.loadFinishPending && this.framesInFlight == 0)
+	this.loadFinished();      
+    }
+    this.framesInFlight++;
+    image.src = blobURL;
+  };
+
   an.Animator.prototype.populate = function(width, height, frames) {
-    this.w = width;
-    this.h = height;
+    this.setDimensions(width, height);
     this.frames = frames;
-    this.resizeCanvases();
     this.snapshotContext.clearRect(0, 0, width, height);
     this.snapshotContext.putImageData(frames[frames.length-1], 0, 0);
     this.startPlay();
@@ -288,8 +322,25 @@ var animator = animator || {};
     var reader = new FileReader();
     this.saved = true;
     this.exported = false;
-    reader.onloadend = function() {
-      var decoder = new mng.Decoder(
+    if (file.name.endsWith('.webm')) {
+      reader.onloadend = function() {
+	var result = this.result;
+	var max = result.length;
+	var data = new Uint8Array(max);
+	for (var i = 0; i < max; i++)
+	  data[i] = result.charCodeAt(i);
+	animator.clear();
+	webm.decode(data,
+		    animator.setDimensions.bind(animator),
+		    animator.addFrameVP8.bind(animator),
+		    animator.loadFinishCB.bind(animator));
+	animator.name = file.name.substring(0, file.name.length - 5);
+	if (cb)
+	  cb();
+      };
+    } else {
+      reader.onloadend = function() {
+	var decoder = new mng.Decoder(
 	  this.result,
 	  animator.snapshotContext,
 	  function(width, height, frames) {
@@ -301,8 +352,9 @@ var animator = animator || {};
 	    if (cb)
 	      cb();
 	  }.bind(animator));
-      decoder.decode();
-    };
+	decoder.decode();
+      };
+    }
     reader.readAsBinaryString(file);
   };
 
