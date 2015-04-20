@@ -1,7 +1,7 @@
 {
   "name": "Stop Motion Animator",
   "description": "A simple tool for creating stop motion animation sequences using a webcam.",
-  "version": "0.7",
+  "version": "0.8",
   "manifest_version": 2,
   "app": {
     "background": {
