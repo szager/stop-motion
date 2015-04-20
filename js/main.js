@@ -24,9 +24,6 @@ window.onload = function() {
   var saveConfirmButton = document.getElementById('saveConfirmButton');
   var saveCancelButton = document.getElementById('saveCancelButton');
   var loadButton = document.getElementById('loadButton');
-  var exportButton = document.getElementById('exportButton');
-  var whammyButton = document.getElementById('whammyButton');
-  var compareButton = document.getElementById('compareButton');
   var playbackSpeedSelector = document.getElementById('playbackSpeed');
 
   var captureClicks = function (e) {e.stopPropagation()};
@@ -41,57 +38,19 @@ window.onload = function() {
 //    topContainer.removeEventListener('click', captureClicks, true);
   };
 
-  var doCompare = function(whammyData, webmData) {
-    console.log('whammy.js:\n');
-    webm.verify(whammyData, true);
-    console.log('webm.js:\n');
-    webm.verify(webmData, true);
-    console.log('Verified');
-  };
-  
   var saveCB = function () {
     var value = fileNameInput.value;
     if (!value.length)
       value = 'StopMotion';
     value = value.replace(/\s+/g, '_');
     value = value.replace(/[^\w\-\.]+/g, '');
-    if (value.endsWith('.webm'))
+    if (value.endsWith('.mng'))
       value = value.substring(0, value.length - 4);
-    if (!value.endsWith('.mng'))
-      value += '.mng';
+    if (!value.endsWith('.webm'))
+      value += '.webm';
     saveDialog.close();
     showSpinner();
     an.save(value, hideSpinner);
-  };
-
-  var exportCB = function () {
-    var value = fileNameInput.value;
-    if (!value.length)
-      value = 'StopMotion';
-    value = value.replace(/\s+/g, '_');
-    value = value.replace(/[^\w\-\.]+/g, '');
-    if (value.endsWith('.mng'))
-      value = value.substring(0, value.length - 5);
-    if (!value.endsWith('.webm'))
-      value += '.webm';
-    saveDialog.close();
-    showSpinner();
-    an.export(value, hideSpinner);
-  };
-
-  var whammyCB = function () {
-    var value = fileNameInput.value;
-    if (!value.length)
-      value = 'StopMotion';
-    value = value.replace(/\s+/g, '_');
-    value = value.replace(/[^\w\-\.]+/g, '');
-    if (value.endsWith('.mng'))
-      value = value.substring(0, value.length - 5);
-    if (!value.endsWith('.webm'))
-      value += '.webm';
-    saveDialog.close();
-    showSpinner();
-    an.whammyExport(value, hideSpinner);
   };
 
   // Create Animator object and set up callbacks.
@@ -135,49 +94,6 @@ window.onload = function() {
   };
   saveCancelButton.onclick = function () {
     saveDialog.close();
-  };
-  exportButton.onclick = function () {
-    if (!an.frames.length || an.exported)
-      return;
-    if (an.name)
-      fileNameInput.value = an.name;
-    saveConfirmButton.onclick = exportCB;
-    saveDialog.showModal();
-  };
-  whammyButton.onclick = function () {
-    if (!an.frames.length || an.exported)
-      return;
-    if (an.name)
-      fileNameInput.value = an.name;
-    saveConfirmButton.onclick = whammyCB;
-    saveDialog.showModal();
-  };
-  
-  compareButton.onclick = function () {
-    if (!an.frames.length || an.exported)
-      return;
-    var webmBlob = webm.encode('test', an.w, an.h, an.frameTimeout(), an.frames.length, an.getFrameVP8.bind(an));
-    var webmReader = new FileReader();
-    webmReader.onloadend = function() {
-      var webmArr = new Uint8Array(this.result.length);
-      for (var i = 0; i < this.result.length; i++)
-        webmArr[i] = this.result.charCodeAt(i);
-      var webmReader = this;
-      var whammyEncoder = new Whammy.Video(1000.0 / an.frameTimeout());
-      for (var i = 0; i < an.frames.length; i++)
-        whammyEncoder.add(an.getFrameWebP(i));
-      var whammyBlob = whammyEncoder.compile();
-      var whammyReader = new FileReader();
-      whammyReader.onloadend = function() {
-        var whammyArr = new Uint8Array(this.result.length);
-        for (var i = 0; i < this.result.length; i++)
-          whammyArr[i] = this.result.charCodeAt(i);
-        doCompare(whammyArr, webmArr);
-      };
-      whammyReader.readAsBinaryString(whammyBlob);
-    };
-    webmReader.readAsBinaryString(webmBlob);
-
   };
   loadButton.onclick = function () {
     var fileInput = document.createElement('input');

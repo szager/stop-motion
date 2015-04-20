@@ -1136,7 +1136,7 @@ var webm = webm || {};
       cursor.idx += length;
     } else if (chunkType == 'Binary') {
       if (verbose) {
-	var numBytes = Math.min(8, length);
+	var numBytes = Math.min(16, length);
 	var byteStr = '[';
 	for (var i = 0; i < numBytes; i++)
 	  byteStr += '0x' + cursor.data[cursor.idx + i].toString(16) + ', ';
@@ -1184,7 +1184,7 @@ var webm = webm || {};
       var clusterLength = 0;
       var firstFrame = i * framesPerCluster;
       var lastFrame = Math.min((i + 1) * framesPerCluster, frameCount);
-      for (var j = firstFrame; j < lastFrame; j++) {
+      for (var j = lastFrame - 1; j >= firstFrame; j--) {
 	clusterLength += encodeVideoFrame((j - firstFrame) * frameDuration, videoTrackNum, getFrameFunction(j), chunks);
       }
       clusterLength += encodeUintChunk('Timecode', clusterStart, chunks);
@@ -1213,7 +1213,8 @@ var webm = webm || {};
 
     var w = -1, h = -1;
     var tracksCursor = tracks.cursor();
-    while (var entry = tracksCursor.findChunk('TrackEntry')) {
+    var entry;
+    while (entry = tracksCursor.findChunk('TrackEntry')) {
       var trackType = entry.cursor().findChunk('TrackType');
       if (!trackType || decodeUint(trackType.data, trackType.idx, trackType.length) != 1)
 	continue;
@@ -1233,16 +1234,22 @@ var webm = webm || {};
       sizeCB(w, h);
 
     var segmentCursor = segment.cursor();
-    while (var cluster = segmentCursor.findChunk('Cluster')) {
+    var cluster;
+    while (cluster = segmentCursor.findChunk('Cluster')) {
       var clusterCursor = cluster.cursor();
-      while (var block = clusterCursor.findChunk('SimpleBlock')) {
+      var block;
+      while (block = clusterCursor.findChunk('SimpleBlock')) {
 	var blockCursor = block.cursor();
 	decodeLength(blockCursor);  // Track Number
 	blockCursor.idx += 3;  // Timecode + Flags
-	var riffLength = encodeUint(blockCursor.max - blockCursor.idx + 8, 4);
+	var riffLength = encodeUint(blockCursor.max - blockCursor.idx + 12, 4);
+        Array.prototype.reverse.bind(riffLength)();
+        var vp8Length = encodeUint(blockCursor.max - blockCursor.idx, 4);
+        Array.prototype.reverse.bind(vp8Length)();
 	if (frameCB) {
-	  var vp8Data = block.data.subarray(blockCursor.idx, blockCursor.max);
-	  frameCB(new Blob([riffHeader, riffLength, webpHeader, vp8Header, vp8Data], 'image/webp'));
+	  var vp8Data = new Uint8Array(block.data.subarray(blockCursor.idx, blockCursor.max));
+          var vp8Blob = new Blob([riffHeader, riffLength, webpHeader, vp8Header, vp8Length, vp8Data], {type: 'image/webp'});
+	  frameCB(vp8Blob);
 	}
       }
     }
@@ -1251,9 +1258,11 @@ var webm = webm || {};
   };
 
   webm.verify = function(data, verbose) {
-    var cursor = new Cursor();
+    var cursor = new Cursor(0, data);
     var max = data.length;
     while (cursor.idx < max)
-      verifyChunk(data, cursor, verbose, '');
+      verifyChunk(cursor, verbose, '');
   };
+
+  webm.encodeUint = encodeUint;
 })();
