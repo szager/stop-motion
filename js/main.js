@@ -1,3 +1,4 @@
+/* -*- mode: javascript; js-indent-level: 2 -*- */
 'use strict';
 
 var an;
@@ -23,19 +24,18 @@ window.onload = function() {
   var saveConfirmButton = document.getElementById('saveConfirmButton');
   var saveCancelButton = document.getElementById('saveCancelButton');
   var loadButton = document.getElementById('loadButton');
-  var exportButton = document.getElementById('exportButton');
   var playbackSpeedSelector = document.getElementById('playbackSpeed');
 
   var captureClicks = function (e) {e.stopPropagation()};
 
   var showSpinner = function() {
-    topContainer.style.opacity = 0.5;
-    topContainer.addEventListener('click', captureClicks, true);
+//    topContainer.style.opacity = 0.5;
+//    topContainer.addEventListener('click', captureClicks, true);
   };
 
   var hideSpinner = function() {
-    topContainer.style.opacity = null;
-    topContainer.removeEventListener('click', captureClicks, true);
+//    topContainer.style.opacity = null;
+//    topContainer.removeEventListener('click', captureClicks, true);
   };
 
   var saveCB = function () {
@@ -44,28 +44,13 @@ window.onload = function() {
       value = 'StopMotion';
     value = value.replace(/\s+/g, '_');
     value = value.replace(/[^\w\-\.]+/g, '');
-    if (value.endsWith('.webm'))
-      value = value.substring(0, value.length - 4);
-    if (!value.endsWith('.mng'))
-      value += '.mng';
-    saveDialog.close();
-    showSpinner();
-    an.save(value, hideSpinner);
-  };
-
-  var exportCB = function () {
-    var value = fileNameInput.value;
-    if (!value.length)
-      value = 'StopMotion';
-    value = value.replace(/\s+/g, '_');
-    value = value.replace(/[^\w\-\.]+/g, '');
     if (value.endsWith('.mng'))
-      value = value.substring(0, value.length - 5);
+      value = value.substring(0, value.length - 4);
     if (!value.endsWith('.webm'))
       value += '.webm';
     saveDialog.close();
     showSpinner();
-    an.export(value, hideSpinner);
+    an.save(value, hideSpinner);
   };
 
   // Create Animator object and set up callbacks.
@@ -109,14 +94,6 @@ window.onload = function() {
   };
   saveCancelButton.onclick = function () {
     saveDialog.close();
-  };
-  exportButton.onclick = function () {
-    if (!an.frames.length || an.exported)
-      return;
-    if (an.name)
-      fileNameInput.value = an.name;
-    saveConfirmButton.onclick = exportCB;
-    saveDialog.showModal();
   };
   loadButton.onclick = function () {
     var fileInput = document.createElement('input');
