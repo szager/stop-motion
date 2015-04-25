@@ -147,6 +147,7 @@ var animator = animator || {};
     if (this.isPlaying())
       clearTimeout(this.playTimer);
     this.playTimer = null;
+    this.snapshotContext.clearRect(0, 0, this.w, this.h);
     this.snapshotCanvas.style.visibility = null;
     if (this.streamOn)
       this.video.play();
@@ -182,6 +183,7 @@ var animator = animator || {};
       return;
     this.frames = [];
     this.snapshotContext.clearRect(0, 0, this.w, this.h);
+    this.streamContext.clearRect(0, 0, this.w, this.h);
     this.name = null;
     this.saved = false;
   };
@@ -237,7 +239,7 @@ var animator = animator || {};
       this.loadFinished();
   };
 
-  an.Animator.prototype.addFrameVP8 = function(blob, idx) {
+  an.Animator.prototype.addFrameVP8 = function(frameOffset, blob, idx) {
     var animator = this;
     var blobURL = URL.createObjectURL(blob);
     var image = new Image(this.w, this.h);
@@ -246,7 +248,7 @@ var animator = animator || {};
     image.onload = function() {
       animator.snapshotContext.clearRect(0, 0, animator.w, animator.h);
       animator.snapshotContext.drawImage(this, 0, 0, animator.w, animator.h);
-      animator.frames[idx] = animator.snapshotContext.getImageData(0, 0, animator.w, animator.h);
+      animator.frames[frameOffset + idx] = animator.snapshotContext.getImageData(0, 0, animator.w, animator.h);
       animator.framesInFlight--;
       URL.revokeObjectURL(blobURL);
       if (animator.loadFinishPending && animator.framesInFlight == 0)
@@ -254,9 +256,10 @@ var animator = animator || {};
     }
   };
 
-  an.Animator.prototype.populate = function(width, height, frames) {
+  an.Animator.prototype.populate = function(frameOffset, width, height, frames) {
     this.setDimensions(width, height);
-    this.frames = frames;
+    for (var i = 0; i < frames.length; i++)
+      this.frames[frameOffset + i] = frames[i];
     this.snapshotContext.clearRect(0, 0, width, height);
     this.snapshotContext.putImageData(frames[frames.length-1], 0, 0);
     this.startPlay();
@@ -281,6 +284,7 @@ var animator = animator || {};
 
   an.Animator.prototype.load = function(file, cb) {
     var animator = this;
+    var frameOffset = this.frames.length;
     var reader = new FileReader();
     if (file.name.endsWith('.webm')) {
       reader.onloadend = function() {
@@ -289,10 +293,9 @@ var animator = animator || {};
 	var data = new Uint8Array(max);
 	for (var i = 0; i < max; i++)
 	  data[i] = result.charCodeAt(i);
-	animator.clear();
 	webm.decode(data,
 		    animator.setDimensions.bind(animator),
-		    animator.addFrameVP8.bind(animator),
+		    animator.addFrameVP8.bind(animator, frameOffset),
 		    animator.loadFinishCB.bind(animator));
         this.saved = true;
 	animator.name = file.name.substring(0, file.name.length - 5);
@@ -305,7 +308,7 @@ var animator = animator || {};
 	  this.result,
 	  animator.snapshotContext,
 	  function(width, height, frames) {
-	    this.populate(width, height, frames);
+	    this.populate(frameOffset, width, height, frames);
             this.saved = false;
 	    var name = file.name;
 	    if (name && name.endsWith('.mng'))
