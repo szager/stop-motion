@@ -108,36 +108,46 @@ window.onload = function() {
     fileInput.click();
   }
 
-  // Everything is set up, now connect to camera.
-  MediaStreamTrack.getSources(function(sources) {
-    var videoSources = [];
-    for (var i = 0; i < sources.length; i++)
-      if (sources[i].kind == 'video')
-        videoSources.push(sources[i]);
-    if (videoSources.length > 1) {
-      var canvasColumnDiv = document.getElementById('canvas-column');
-      var selectDiv = document.createElement('div');
-      canvasColumnDiv.appendChild(selectDiv);
-      var cameraSelect = document.createElement('select');
-      cameraSelect.id = 'camera-select';
-      selectDiv.appendChild(cameraSelect);
-      for (var i = 0; i < videoSources.length; i++) {
-        if (videoSources[i].kind != 'video')
-          continue;
-        var cameraOption = document.createElement('option');
-        cameraOption.value = videoSources[i].id;
-        cameraOption.innerText = 'Camera ' + (i + 1);
-        cameraSelect.appendChild(cameraOption);
-        if (i == 0)
-          cameraOption.selected = true;
-      }
-      cameraSelect.onchange = function(e) {
-        an.detachStream();
-        an.attachStream(e.target.value);
-      };
-      an.attachStream(videoSources[0].id);
-    } else {
+  function setUpCameraSelectAndAttach(cameras) {
+    if (!cameras || !cameras.length < 2) {
       an.attachStream();
+      return;
     }
-  });
+    var canvasColumnDiv = document.getElementById('canvas-column');
+    var selectDiv = document.createElement('div');
+    canvasColumnDiv.appendChild(selectDiv);
+    var cameraSelect = document.createElement('select');
+    cameraSelect.id = 'camera-select';
+    selectDiv.appendChild(cameraSelect);
+    for (var i = 0; i < cameras.length; i++) {
+      var cameraOption = document.createElement('option');
+      cameraOption.value = cameras[i];
+      cameraOption.innerText = 'Camera ' + (i + 1);
+      cameraSelect.appendChild(cameraOption);
+      if (i == 0)
+        cameraOption.selected = true;
+    }
+    cameraSelect.onchange = function(e) {
+      an.detachStream();
+      an.attachStream(e.target.value);
+    };
+    an.attachStream(cameras[0].deviceId);
+  }
+
+  // Everything is set up, now connect to camera.
+  if (self.navigator && navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+    navigator.mediaDevices.enumerateDevices().then(function(devices) {
+      setUpCameraSelectAndAttach(
+	  devices.filter(function(d) { return d.kind == 'videoinput'; })
+	         .map(function(d) { return d.deviceId; }));
+    });
+  } else if (self.MediaStreamTrack && MediaStreamTrack.getSources) {
+    MediaStreamTrack.getSources(function(sources) {
+      setUpCameraSelectAndAttach(
+	  sources.filter(function(d) { return d.kind == 'video'; })
+	         .map(function(d) { return d.id; }));
+      });
+  } else {
+    setUpCameraSelectAndAttach();
+  }
 };
