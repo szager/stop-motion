@@ -68,9 +68,9 @@ var animator = animator || {};
     var constraints = {audio: false};
     if (sourceId) {
       constraints.video = {
-	optional: [{
-	  sourceId: sourceId
-	}]
+        optional: [{
+          sourceId: sourceId
+        }]
       };
     } else {
       constraints.video = true;
@@ -108,7 +108,7 @@ var animator = animator || {};
       this.streamContext.clearRect(0, 0, this.w, this.h);
       this.streamOn = false;
       if (this.frames.length)
-	this.drawFrame(this.frames.length - 1, this.streamContext);
+        this.drawFrame(this.frames.length - 1, this.streamContext);
     }
   };
 
@@ -117,8 +117,11 @@ var animator = animator || {};
       return;
     this.snapshotContext.clearRect(0, 0, this.w, this.h);
     this.snapshotContext.drawImage(this.streamCanvas, 0, 0, this.w, this.h);
-    var imageData = this.snapshotContext.getImageData(0, 0, this.w, this.h);
-    this.frames.push(imageData);
+    var imageCanvas = document.createElement('canvas');
+    imageCanvas.width = this.w;
+    imageCanvas.height = this.h;
+    imageCanvas.getContext('2d').drawImage(this.streamCanvas, 0, 0, this.w, this.h);
+    this.frames.push(imageCanvas);
     this.saved = false;
   };
 
@@ -126,7 +129,7 @@ var animator = animator || {};
     this.frames.pop();
     this.snapshotContext.clearRect(0, 0, this.w, this.h);
     if (this.frames.length)
-      this.snapshotContext.putImageData(this.frames[this.frames.length-1], 0, 0);
+      this.snapshotContext.drawImage(this.frames[this.frames.length-1], 0, 0);
     this.saved = false;
   };
 
@@ -155,7 +158,7 @@ var animator = animator || {};
 
   an.Animator.prototype.drawFrame = function(frameNumber, context) {
     context.clearRect(0, 0, this.w, this.h);
-    context.putImageData(this.frames[frameNumber], 0, 0);
+    context.drawImage(this.frames[frameNumber], 0, 0);
   };
 
   an.Animator.prototype.playFrame = function(frameNumber) {
@@ -190,7 +193,7 @@ var animator = animator || {};
 
   an.Animator.prototype.getFramePNG = function(idx) {
     this.snapshotContext.clearRect(0, 0, this.w, this.h);
-    this.snapshotContext.putImageData(this.frames[idx], 0, 0);
+    this.snapshotContext.drawImage(this.frames[idx], 0, 0);
     var dataUrl = this.snapshotCanvas.toDataURL();
     var binStr = atob(dataUrl.split(',')[1]);
     var arr = new Uint8Array(binStr.length - 8);
@@ -201,7 +204,7 @@ var animator = animator || {};
 
   an.Animator.prototype.getFrameWebP = function(idx) {
      this.snapshotContext.clearRect(0, 0, this.w, this.h);
-     this.snapshotContext.putImageData(this.frames[idx], 0, 0);
+     this.snapshotContext.drawImage(this.frames[idx], 0, 0);
      return this.snapshotCanvas.toDataURL('image/webp', 1.0);
   };
 
@@ -213,10 +216,10 @@ var animator = animator || {};
     if (binStr.substr(8, 4) != 'WEBP')
       throw ('webp file does not have WEBP identifier after RIFF.');
     var riffLen = (binStr.charCodeAt(7) << 24) | (binStr.charCodeAt(6) << 16) |
-	(binStr.charCodeAt(5) << 8) | binStr.charCodeAt(4);
+        (binStr.charCodeAt(5) << 8) | binStr.charCodeAt(4);
     if (riffLen != binStr.length - 8)
       throw ('webp file length is ' + binStr.length + ' but RIFF length field is ' + riffLen);
-    var arr = new Uint8Array(binStr.length - 20);  // skip RIFF, riff-length, WEBP, VP8x, and vp8-length fields.
+    var arr = new Uint8Array(binStr.length - 20);  // skip RIFF, riff-length, WEBP, VP8x, and VP8Length fields.
     var max = binStr.length - 20;
     for (var i = 0; i < max; i++)
       arr[i] = binStr.charCodeAt(i + 20);
@@ -227,7 +230,7 @@ var animator = animator || {};
     this.loadFinishPending = false;
     this.snapshotContext.clearRect(0, 0, this.w, this.h);
     if (this.frames.length) {
-      this.snapshotContext.putImageData(this.frames[this.frames.length-1], 0, 0);
+      this.snapshotContext.drawImage(this.frames[this.frames.length-1], 0, 0);
       this.startPlay();
     }
   };
@@ -246,13 +249,15 @@ var animator = animator || {};
     this.framesInFlight++;
     image.src = blobURL;
     image.onload = function() {
-      animator.snapshotContext.clearRect(0, 0, animator.w, animator.h);
-      animator.snapshotContext.drawImage(this, 0, 0, animator.w, animator.h);
-      animator.frames[frameOffset + idx] = animator.snapshotContext.getImageData(0, 0, animator.w, animator.h);
+      var newCanvas = document.createElement('canvas');
+      newCanvas.width = animator.w;
+      newCanvas.height = animator.h;
+      newCanvas.getContext('2d').drawImage(this, 0, 0, animator.w, animator.h);
+      animator.frames[frameOffset + idx] = newCanvas;
       animator.framesInFlight--;
       URL.revokeObjectURL(blobURL);
       if (animator.loadFinishPending && animator.framesInFlight == 0)
-	animator.loadFinished();
+        animator.loadFinished();
     }
   };
 
@@ -288,36 +293,36 @@ var animator = animator || {};
     var reader = new FileReader();
     if (file.name.endsWith('.webm')) {
       reader.onloadend = function() {
-	var result = this.result;
-	var max = result.length;
-	var data = new Uint8Array(max);
-	for (var i = 0; i < max; i++)
-	  data[i] = result.charCodeAt(i);
-	webm.decode(data,
-		    animator.setDimensions.bind(animator),
-		    animator.addFrameVP8.bind(animator, frameOffset),
-		    animator.loadFinishCB.bind(animator));
+        var result = this.result;
+        var max = result.length;
+        var data = new Uint8Array(max);
+        for (var i = 0; i < max; i++)
+          data[i] = result.charCodeAt(i);
+        webm.decode(data,
+                    animator.setDimensions.bind(animator),
+                    animator.addFrameVP8.bind(animator, frameOffset),
+                    animator.loadFinishCB.bind(animator));
         this.saved = true;
-	animator.name = file.name.substring(0, file.name.length - 5);
-	if (cb)
-	  cb();
+        animator.name = file.name.substring(0, file.name.length - 5);
+        if (cb)
+          cb();
       };
     } else {
       reader.onloadend = function() {
-	var decoder = new mng.Decoder(
-	  this.result,
-	  animator.snapshotContext,
-	  function(width, height, frames) {
-	    this.populate(frameOffset, width, height, frames);
+        var decoder = new mng.Decoder(
+          this.result,
+          animator.snapshotContext,
+          function(width, height, frames) {
+            this.populate(frameOffset, width, height, frames);
             this.saved = false;
-	    var name = file.name;
-	    if (name && name.endsWith('.mng'))
-	      name = name.substring(0, name.length - 4);
-	    this.name = name;
-	    if (cb)
-	      cb();
-	  }.bind(animator));
-	decoder.decode();
+            var name = file.name;
+            if (name && name.endsWith('.mng'))
+              name = name.substring(0, name.length - 4);
+            this.name = name;
+            if (cb)
+              cb();
+          }.bind(animator));
+        decoder.decode();
       };
     }
     reader.readAsBinaryString(file);

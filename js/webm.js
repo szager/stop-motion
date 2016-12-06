@@ -629,8 +629,8 @@ var webm = webm || {};
     if (numBytes) {
       var arr = [];
       for (; numBytes > 0; numBytes--) {
-	arr.push(n & 0xff);
-	n = n >> 8;
+        arr.push(n & 0xff);
+        n = n >> 8;
       }
       arr.reverse();
       return new Uint8Array(arr);
@@ -948,12 +948,12 @@ var webm = webm || {};
   function Cursor(c, data, max) {
     if (c) {
       if (typeof(c) == 'object') {
-	this.idx = c.idx;
-	this.data = c.data;
-	this.max = c.max;
-	return;
+        this.idx = c.idx;
+        this.data = c.data;
+        this.max = c.max;
+        return;
       } else {
-	this.idx = c;
+        this.idx = c;
       }
     } else {
       this.idx = 0;
@@ -979,7 +979,7 @@ var webm = webm || {};
       var idx = this.idx;
       this.idx += length;
       if (!type || id == type)
-	return new Chunk(this.data, idx, id, length);
+        return new Chunk(this.data, idx, id, length);
     }
     return null;
   };
@@ -1118,35 +1118,35 @@ var webm = webm || {};
     var chunkType = webm.ID_TYPES[id];
     if (chunkType == 'Master Elements') {
       if (verbose)
-	console.log(indent + id + ' ' + length);
+        console.log(indent + id + ' ' + length);
       var max = cursor.idx + length;
       while (cursor.idx < max)
         verifyChunk(cursor, verbose, indent + '  ');
     } else if (chunkType == 'String' || chunkType == 'UTF-8') {
       if (verbose)
-	console.log(indent + id + ' ' + length + ' "' + decodeString(cursor.data, cursor.idx, length) + '"');
+        console.log(indent + id + ' ' + length + ' "' + decodeString(cursor.data, cursor.idx, length) + '"');
       cursor.idx += length;
     } else if (chunkType == 'Unsigned Integer') {
       if (verbose)
-	console.log(indent + id + ' ' + length + ' ' + decodeUint(cursor.data, cursor.idx, length));
+        console.log(indent + id + ' ' + length + ' ' + decodeUint(cursor.data, cursor.idx, length));
       cursor.idx += length;
     } else if (chunkType == 'Signed Integer') {
       if (verbose)
-	console.log(indent + id + ' ' + length + ' ' + decodeInt(cursor.data, cursor.idx, length));
+        console.log(indent + id + ' ' + length + ' ' + decodeInt(cursor.data, cursor.idx, length));
       cursor.idx += length;
     } else if (chunkType == 'Binary') {
       if (verbose) {
-	var numBytes = Math.min(16, length);
-	var byteStr = '[';
-	for (var i = 0; i < numBytes; i++)
-	  byteStr += '0x' + cursor.data[cursor.idx + i].toString(16) + ', ';
-	byteStr += ']'
-	console.log(indent + id + ' ' + length + ' ' + byteStr);
+        var numBytes = Math.min(16, length);
+        var byteStr = '[';
+        for (var i = 0; i < numBytes; i++)
+          byteStr += '0x' + cursor.data[cursor.idx + i].toString(16) + ', ';
+        byteStr += ']'
+        console.log(indent + id + ' ' + length + ' ' + byteStr);
       }
       cursor.idx += length;
     } else {
       if (verbose)
-	console.log(indent + id + ' ' + length);
+        console.log(indent + id + ' ' + length);
       cursor.idx += length;
     }
   };
@@ -1167,9 +1167,9 @@ var webm = webm || {};
 
     var tracksChunks = [];
     encodeDataChunk(
-	'Tracks',
-	encodeVideoTrackEntry(videoTrackNum, videoTrackUid, w, h, tracksChunks),
-	tracksChunks);
+        'Tracks',
+        encodeVideoTrackEntry(videoTrackNum, videoTrackUid, w, h, tracksChunks),
+        tracksChunks);
 
     var cueChunks = [];
     var clusterChunks = [];
@@ -1185,7 +1185,7 @@ var webm = webm || {};
       var firstFrame = i * framesPerCluster;
       var lastFrame = Math.min((i + 1) * framesPerCluster, frameCount);
       for (var j = lastFrame - 1; j >= firstFrame; j--) {
-	clusterLength += encodeVideoFrame((j - firstFrame) * frameDuration, videoTrackNum, getFrameFunction(j), chunks);
+        clusterLength += encodeVideoFrame((j - firstFrame) * frameDuration, videoTrackNum, getFrameFunction(j), chunks);
       }
       clusterLength += encodeUintChunk('Timecode', clusterStart, chunks);
       encodeDataChunk('Cluster', clusterLength, chunks);
@@ -1217,14 +1217,14 @@ var webm = webm || {};
     while (entry = tracksCursor.findChunk('TrackEntry')) {
       var trackType = entry.cursor().findChunk('TrackType');
       if (!trackType || decodeUint(trackType.data, trackType.idx, trackType.length) != 1)
-	continue;
+        continue;
       var video = entry.cursor().findChunk('Video');
       if (!video)
-	continue;
+        continue;
       var pixelWidth = video.cursor().findChunk('PixelWidth');
       var pixelHeight = video.cursor().findChunk('PixelHeight');
       if (!pixelWidth || !pixelHeight)
-	continue;
+        continue;
       w = decodeUint(pixelWidth.data, pixelWidth.idx, pixelWidth.length);
       h = decodeUint(pixelHeight.data, pixelHeight.idx, pixelHeight.length);
     }
@@ -1240,18 +1240,18 @@ var webm = webm || {};
       var clusterCursor = cluster.cursor();
       var block;
       while (block = clusterCursor.findChunk('SimpleBlock')) {
-	var blockCursor = block.cursor();
-	decodeLength(blockCursor);  // Track Number
-	blockCursor.idx += 3;  // Timecode + Flags
-	var riffLength = encodeUint(blockCursor.max - blockCursor.idx + 12, 4);
+        var blockCursor = block.cursor();
+        decodeLength(blockCursor);  // Track Number
+        blockCursor.idx += 3;  // Timecode + Flags
+        var riffLength = encodeUint(blockCursor.max - blockCursor.idx + 12, 4);
         Array.prototype.reverse.bind(riffLength)();
         var vp8Length = encodeUint(blockCursor.max - blockCursor.idx, 4);
         Array.prototype.reverse.bind(vp8Length)();
-	if (frameCB) {
-	  var vp8Data = new Uint8Array(block.data.subarray(blockCursor.idx, blockCursor.max));
+        if (frameCB) {
+          var vp8Data = new Uint8Array(block.data.subarray(blockCursor.idx, blockCursor.max));
           var vp8Blob = new Blob([riffHeader, riffLength, webpHeader, vp8Header, vp8Length, vp8Data], {type: 'image/webp'});
-	  frameCB(vp8Blob, frameIdx++);
-	}
+          frameCB(vp8Blob, frameIdx++);
+        }
       }
     }
     if (finishedCB)
