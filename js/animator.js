@@ -205,7 +205,7 @@ var animator = animator || {};
   an.Animator.prototype.getFrameWebP = function(idx) {
      this.snapshotContext.clearRect(0, 0, this.w, this.h);
      this.snapshotContext.drawImage(this.frames[idx], 0, 0);
-     return this.snapshotCanvas.toDataURL('image/webp', 1.0);
+     return this.snapshotCanvas.toDataURL('image/webp');
   };
 
   an.Animator.prototype.getFrameVP8 = function(idx) {
