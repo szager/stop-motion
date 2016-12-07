@@ -1,5 +1,3 @@
-application: stop-action
-version: 0
 runtime: python27
 api_version: 1
 threadsafe: true
@@ -8,6 +6,7 @@ handlers:
 - url: /
   static_files: index.html
   upload: index.html
+  secure: always
 - url: /images/(.*)
   static_files: images/\1
   upload: images/.*\.png
