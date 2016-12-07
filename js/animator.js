@@ -151,6 +151,8 @@ var animator = animator || {};
       clearTimeout(this.playTimer);
     this.playTimer = null;
     this.snapshotContext.clearRect(0, 0, this.w, this.h);
+    if (this.frames.length)
+      this.snapshotContext.drawImage(this.frames[this.frames.length-1], 0, 0, this.w, this.h);
     this.snapshotCanvas.style.visibility = null;
     if (this.streamOn)
       this.video.play();
@@ -227,19 +229,12 @@ var animator = animator || {};
   };
 
   an.Animator.prototype.loadFinished = function() {
-    this.loadFinishPending = false;
     this.snapshotContext.clearRect(0, 0, this.w, this.h);
     if (this.frames.length) {
-      this.snapshotContext.drawImage(this.frames[this.frames.length-1], 0, 0);
+      this.snapshotContext.clearRect(0, 0, this.w, this.h);
+      this.snapshotContext.drawImage(this.frames[this.frames.length-1], 0, 0, this.w, this.h);
       this.startPlay();
     }
-  };
-
-  an.Animator.prototype.loadFinishCB = function() {
-    if (this.framesInFlight)
-      this.loadFinishPending = true;
-    else
-      this.loadFinished();
   };
 
   an.Animator.prototype.addFrameVP8 = function(frameOffset, blob, idx) {
@@ -248,6 +243,18 @@ var animator = animator || {};
     var image = new Image(this.w, this.h);
     this.framesInFlight++;
     image.src = blobURL;
+    image.onerror = function(e) {
+      if (image.triedvp8l) {
+        console.log(e.type);
+        animator.framesInFlight--;
+        return;
+      }
+      image.triedvp8l = true;
+      URL.revokeObjectURL(blobURL);
+      blob = webm.vp8tovp8l(blob);
+      blobURL = URL.createObjectURL(blob);
+      image.src = blobURL;
+    };
     image.onload = function() {
       var newCanvas = document.createElement('canvas');
       newCanvas.width = animator.w;
@@ -256,9 +263,9 @@ var animator = animator || {};
       animator.frames[frameOffset + idx] = newCanvas;
       animator.framesInFlight--;
       URL.revokeObjectURL(blobURL);
-      if (animator.loadFinishPending && animator.framesInFlight == 0)
+      if (animator.framesInFlight == 0)
         animator.loadFinished();
-    }
+    };
   };
 
   an.Animator.prototype.populate = function(frameOffset, width, height, frames) {
@@ -300,8 +307,7 @@ var animator = animator || {};
           data[i] = result.charCodeAt(i);
         webm.decode(data,
                     animator.setDimensions.bind(animator),
-                    animator.addFrameVP8.bind(animator, frameOffset),
-                    animator.loadFinishCB.bind(animator));
+                    animator.addFrameVP8.bind(animator, frameOffset));
         this.saved = true;
         animator.name = file.name.substring(0, file.name.length - 5);
         if (cb)
