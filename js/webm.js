@@ -1154,7 +1154,7 @@ var webm = webm || {};
   /* Public API begins here */
 
   webm.vp8tovp8l = function(blob) {
-    var vp8lHeader = [86, 80, 56, 76];  // ['V', 'P', '8', 'L']
+    var vp8lHeader = new Uint8Array([86, 80, 56, 76]);  // ['V', 'P', '8', 'L']
     blob = new Blob([blob.slice(0, 12), vp8lHeader, blob.slice(16)], {type: 'image/webp'});
     return blob;
   };
@@ -1206,7 +1206,7 @@ var webm = webm || {};
     return new Blob(chunks, {type: "video/webm"});
   };
 
-  webm.decode = function(data, sizeCB, frameCB, finishedCB) {
+  webm.decode = function(data, sizeCB, frameCB) {
     var riffHeader = new Uint8Array([82, 73, 70, 70]);  // 'RIFF'
     var webpHeader = new Uint8Array([87, 69, 66, 80]);  // 'WEBP'
     var vp8Header = new Uint8Array([86, 80, 56, 32]);  // 'VP8 '
@@ -1260,8 +1260,6 @@ var webm = webm || {};
         }
       }
     }
-    if (finishedCB)
-      finishedCB();
   };
 
   webm.verify = function(data, verbose) {
