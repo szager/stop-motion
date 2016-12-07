@@ -248,6 +248,15 @@ var animator = animator || {};
     var image = new Image(this.w, this.h);
     this.framesInFlight++;
     image.src = blobURL;
+    image.onerror = function() {
+      if (image.triedvp8l)
+        return;
+      image.triedvp8l = true;
+      URL.revokeObjectURL(blobURL);
+      blob = webm.vp8tovp8l(blob);
+      blobURL = URL.createObjectURL(blob);
+      image.src = blobURL;
+    };
     image.onload = function() {
       var newCanvas = document.createElement('canvas');
       newCanvas.width = animator.w;
@@ -258,7 +267,7 @@ var animator = animator || {};
       URL.revokeObjectURL(blobURL);
       if (animator.loadFinishPending && animator.framesInFlight == 0)
         animator.loadFinished();
-    }
+    };
   };
 
   an.Animator.prototype.populate = function(frameOffset, width, height, frames) {
