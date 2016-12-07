@@ -1153,6 +1153,12 @@ var webm = webm || {};
 
   /* Public API begins here */
 
+  webm.vp8tovp8l = function(blob) {
+    var vp8lHeader = [86, 80, 56, 76];  // ['V', 'P', '8', 'L']
+    blob = new Blob([blob.slice(0, 12), vp8lHeader, blob.slice(16)], {type: 'image/webp'});
+    return blob;
+  };
+  
   webm.encode = function(title, w, h, frameDuration, frameCount, getFrameFunction) {
     frameDuration = Math.round(frameDuration);
     var framesPerCluster = Math.floor(32000 / frameDuration);
