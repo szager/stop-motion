@@ -249,8 +249,10 @@ var animator = animator || {};
     this.framesInFlight++;
     image.src = blobURL;
     image.onerror = function() {
-      if (image.triedvp8l)
+      if (image.triedvp8l) {
+        animator.framesInFlight--;
         return;
+      }
       image.triedvp8l = true;
       URL.revokeObjectURL(blobURL);
       blob = webm.vp8tovp8l(blob);
