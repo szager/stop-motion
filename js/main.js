@@ -109,7 +109,7 @@ window.onload = function() {
   }
 
   function setUpCameraSelectAndAttach(cameras) {
-    if (!cameras || !cameras.length < 2) {
+    if (!cameras || cameras.length < 2) {
       an.attachStream();
       return;
     }
