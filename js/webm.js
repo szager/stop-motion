@@ -571,10 +571,25 @@ var webm = webm || {};
     'ChapProcessData': 'Binary',
   };
 
-  function addLength(tot, x) {return tot + x.length};
-  function lengthSum(arr) {return Array.prototype.reduce.bind(arr)(addLength, 0)}
+  function lengthSum(arr) {
+    return Array.prototype.reduce.bind(arr)(function(tot, x) { return tot + x.length }, 0);
+  }
 
   function encodeUint(n, numBytes) {
+    var arr;
+
+    if (typeof n == "string") {
+      arr = [];
+      if (n.substr(0, 2) != "0x")
+        throw "Unexpected string-formatted uint: " + n;
+      n = n.substr(2);
+      while (n) {
+        arr.push(parseInt(n.substr(-2), 16));
+        n = n.slice(0, -2);
+      }
+      return new Uint8Array(arr.reverse());
+    }
+    
     if (n < 0)
       throw ('Cannot encode ' + n + ' as a uint.');
 
@@ -583,7 +598,7 @@ var webm = webm || {};
 
     // Make the common case fast.
     if (n <= 0xffffffff) {
-      var arr = [];
+      arr = [];
       while (n) {
         arr.push(n & 0xff);
         n = n >>> 8;
@@ -596,8 +611,8 @@ var webm = webm || {};
     fb[6] = 0x10 | (fb[6] & 0xf);
     fb[7] = 0;
     var align = 7 - (exponent % 8);
-    var numBytes = Math.ceil(exponent / 8);
-    var arr = new Uint8Array(numBytes);
+    numBytes = Math.ceil(exponent / 8);
+    arr = new Uint8Array(numBytes);
     if (align > 3) {
       for (var i = 0; i < numBytes; i++) {
         if (i > 7) {
@@ -623,7 +638,7 @@ var webm = webm || {};
     }
 
     return new Uint8Array(arr);
-  };
+  }
 
   function encodeInt(n, numBytes) {
     if (numBytes) {
@@ -731,33 +746,33 @@ var webm = webm || {};
     if ((arr[arr.length - 1] >> 7) ^ signBit)
       arr.push(signBit ? 0xff : 0);
     return new Uint8Array(arr.reverse());
-  };
+  }
 
   function encodeFloat32(f) {
     var arr = new Uint8Array(new Float32Array([f]).buffer);
     Array.prototype.reverse.bind(arr)();
     return arr;
-  };
+  }
 
   function encodeFloat64(f) {
     var arr = new Uint8Array(new Float64Array([f]).buffer);
     Array.prototype.reverse.bind(arr)();
     return arr;
-  };
+  }
 
   function encodeString(s) {
     var arr = [];
     for (var i = 0; i < s.length; i++)
       arr.push(s.charCodeAt(i));
     return new Uint8Array(arr);
-  };
+  }
 
   function encodeID(id) {
     var code = webm.ID_CODES[id];
     if (!code)
       throw ('Unknown webm chunk id: ' + id);
     return new Uint8Array(code);
-  };
+  }
 
   function encodeLength(l) {
     var arr = [];
@@ -809,134 +824,196 @@ var webm = webm || {};
       throw ('Cannot encode length ' + l);
     }
     return new Uint8Array(arr);
-  };
+  }
 
-  /* Note All of the encode*Chunk methods add id, length, and payload in reverse
-     order (i.e., payload, length, id).  This is to avoid calls to Array.unshift(),
-     which is probably inefficient.  After all the chunks have been encoded, the
-     entire array must be reversed (chunks.reverse()).
-  */
-
-  function encodeDataChunk(id, length, chunks) {
+  function encodeChunkHeader(id, length, chunks) {
     var encodedID = encodeID(id);
     var encodedLength = encodeLength(length);
-    chunks.push(encodedLength);
     chunks.push(encodedID);
-    return encodedID.length + encodedLength.length + length;
-  };
+    chunks.push(encodedLength);
+    return encodedID.byteLength + encodedLength.byteLength + length;
+  }
+
+  function encodeChunk(id, value, valueEncoder, chunks) {
+    let encodedValue = valueEncoder(value);
+    let result = encodeChunkHeader(id, encodedValue.byteLength, chunks);
+    chunks.push(encodedValue);
+    return result;
+  }
+
+  function encodeDataChunk(id, data, dataLen, chunks) {
+    let result = encodeChunkHeader(id, dataLen, chunks);
+    chunks.push(...data);
+    return result;
+  }
 
   function encodeIntChunk(id, value, chunks) {
-    var encodedID = encodeID(id);
-    var encodedValue = encodeInt(value);
-    var encodedLength = encodeLength(encodedValue.length);
-    chunks.push(encodedValue);
-    chunks.push(encodedLength);
-    chunks.push(encodedID);
-    return encodedID.length + encodedLength.length + encodedValue.length;
-  };
+    return encodeChunk(id, value, encodeInt, chunks);
+  }
 
   function encodeUintChunk(id, value, chunks) {
-    var encodedID = encodeID(id);
-    var encodedValue = encodeUint(value);
-    var encodedLength = encodeLength(encodedValue.length);
-    chunks.push(encodedValue);
-    chunks.push(encodedLength);
-    chunks.push(encodedID);
-    return encodedID.length + encodedLength.length + encodedValue.length;
-  };
+    return encodeChunk(id, value, encodeUint, chunks);
+  }
 
   function encodeFloat32Chunk(id, value, chunks) {
-    var encodedID = encodeID(id);
-    var encodedValue = encodeFloat32(value);
-    var encodedLength = encodeLength(encodedValue.length);
-    chunks.push(encodedValue);
-    chunks.push(encodedLength);
-    chunks.push(encodedID);
-    return encodedID.length + encodedLength.length + encodedValue.length;
-  };
+    return encodeChunk(id, value, encodeFloat32, chunks);
+  }
 
   function encodeFloat64Chunk(id, value, chunks) {
-    var encodedID = encodeID(id);
-    var encodedValue = encodeFloat64(value);
-    var encodedLength = encodeLength(encodedValue.length);
-    chunks.push(encodedValue);
-    chunks.push(encodedLength);
-    chunks.push(encodedID);
-    return encodedID.length + encodedLength.length + encodedValue.length;
-  };
+    return encodeChunk(id, value, encodeFloat64, chunks);
+  }
 
   function encodeStringChunk(id, value, chunks) {
-    var encodedID = encodeID(id);
-    var encodedValue = encodeString(value);
-    var encodedLength = encodeLength(encodedValue.length);
+    return encodeChunk(id, value, encodeString, chunks);
+  }
+
+  function encodePosition(id, positions, chunks) {
+    let encodedValue = new Uint8Array([0, 0, 0, 0]);
+    let result = encodeChunkHeader(id, 4, chunks);
     chunks.push(encodedValue);
-    chunks.push(encodedLength);
-    chunks.push(encodedID);
-    return encodedID.length + encodedLength.length + encodedValue.length;
-  };
+    positions.push(encodedValue);
+    return result;
+  }
+
+  function mungePositions(positions, n) {
+    for (let i = 0; i < positions.length; i++)
+      positions[i].set(encodeUint(n, positions[i].byteLength));
+  }
 
   function encodeEBML(chunks) {
-    var len = 0;
-    len += encodeUintChunk('DocTypeReadVersion', 2, chunks);
-    len += encodeUintChunk('DocTypeVersion', 2, chunks);
-    len += encodeStringChunk('DocType', 'webm', chunks);
-    len += encodeUintChunk('EBMLMaxSizeLength', 8, chunks);
-    len += encodeUintChunk('EBMLMaxIDLength', 4, chunks);
-    len += encodeUintChunk('EBMLReadVersion', 1, chunks);
-    len += encodeUintChunk('EBMLVersion', 1, chunks);
-    return encodeDataChunk('EBML', len, chunks);
-  };
+    let blockChunks = [];
+    let len = encodeUintChunk('EBMLVersion', 1, blockChunks);
+    len += encodeUintChunk('EBMLReadVersion', 1, blockChunks);
+    len += encodeUintChunk('EBMLMaxIDLength', 4, blockChunks);
+    len += encodeUintChunk('EBMLMaxSizeLength', 8, blockChunks);
+    len += encodeStringChunk('DocType', 'webm', blockChunks);
+    len += encodeUintChunk('DocTypeVersion', 2, blockChunks);
+    len += encodeUintChunk('DocTypeReadVersion', 2, blockChunks);
+    return encodeDataChunk('EBML', blockChunks, len, chunks);
+  }
+
+  function encodeSeek(id, positions, chunks) {
+    let seekChunks = [];
+    let encodedID = encodeID(id);
+    let seekLen = encodeDataChunk('SeekID', [encodedID], encodedID.byteLength, seekChunks);
+    seekLen += encodePosition('SeekPosition', positions, seekChunks);
+    return encodeDataChunk('Seek', seekChunks, seekLen, chunks);
+  }
+
+  function encodeFirstSeekHeader(positions, subsequentSeekHeader, chunks) {
+    let seekHeadChunks = [];
+    let seekHeadLen = 0;
+    let ids = ['Info', 'Tracks', 'Cues', 'Cluster'];
+    if (subsequentSeekHeader)
+      ids.push('SeekHead');
+    for (let id of ids) {
+      let idPositions = [];
+      positions[id] = idPositions;
+      seekHeadLen += encodeSeek(id, idPositions, seekHeadChunks);
+    }
+    return encodeDataChunk('SeekHead', seekHeadChunks, seekHeadLen, chunks);
+  }
+
+  function encodeTrailingSeekHeader(clusterPositions, chunks) {
+    let seekHeadChunks = [];
+    let seekHeadLen = 0;
+    for (let i = 0; i < clusterPositions.length; i++) {
+      encodeSeek('Cluster', clusterPositions[i], chunks);
+    }
+  }
 
   function encodeSegmentInfo(duration, title, chunks) {
-    var len = 0;
-    len += encodeStringChunk('WritingApp', 'stop-motion', chunks);
-    len += encodeStringChunk('MuxingApp', 'stop-motion', chunks);
+    let blockChunks = [];
+    let len = encodeFloat64Chunk('Duration', duration, blockChunks);
+    len += encodeUintChunk('TimecodeScale', 1000000, blockChunks);
     if (title)
-      len += encodeStringChunk('Title', title, chunks);
-    len += encodeUintChunk('TimecodeScale', 1000000, chunks);
-    len += encodeFloat64Chunk('Duration', duration, chunks);
-    return encodeDataChunk('Info', len, chunks);
-  };
+      len += encodeStringChunk('Title', title, blockChunks);
+    len += encodeStringChunk('MuxingApp', 'https://stop-action.appspot.com', blockChunks);
+    len += encodeStringChunk('WritingApp', 'https://stop-action.appspot.com', blockChunks);
+    return encodeDataChunk('Info', blockChunks, len, chunks);
+  }
 
   function encodeVideoTrackEntry(num, uid, w, h, chunks) {
-    var len = 0;
-    len += encodeUintChunk('PixelWidth', w, chunks);
-    len += encodeUintChunk('PixelHeight', h, chunks);
-    len += encodeUintChunk('FlagInterlaced', 0, chunks);
-    len = encodeDataChunk('Video', len, chunks);
+    let blockChunks = [];
+    let blockLen = encodeUintChunk('TrackNumber', num, blockChunks);
+    blockLen += encodeUintChunk('TrackUID', uid, blockChunks);
+    blockLen += encodeUintChunk('TrackType', 1, blockChunks);
+    blockLen += encodeUintChunk('FlagForced', 1, blockChunks);
+    blockLen += encodeUintChunk('FlagEnabled', 1, blockChunks);
+    blockLen += encodeUintChunk('FlagDefault', 1, blockChunks);
+    blockLen += encodeUintChunk('FlagLacing', 0, blockChunks);
+    blockLen += encodeStringChunk('CodecName', 'VP8', blockChunks);
+    blockLen += encodeStringChunk('CodecID', 'V_VP8', blockChunks);
+    let videoChunks = [];
+    let videoLen = encodeUintChunk('FlagInterlaced', 0, videoChunks);
+    videoLen += encodeUintChunk('PixelHeight', h, videoChunks);
+    videoLen += encodeUintChunk('PixelWidth', w, videoChunks);
+    blockLen += encodeDataChunk('Video', videoChunks, videoLen, blockChunks);
+    return encodeDataChunk('TrackEntry', blockChunks, blockLen, chunks);
+  }
 
-    len += encodeStringChunk('CodecID', 'V_VP8', chunks);
-    len += encodeStringChunk('CodecName', 'VP8', chunks);
-    len += encodeUintChunk('FlagLacing', 0, chunks);
-    len += encodeUintChunk('FlagDefault', 1, chunks);
-    len += encodeUintChunk('FlagEnabled', 1, chunks);
-    len += encodeUintChunk('FlagForced', 1, chunks);
-    len += encodeUintChunk('TrackType', 1, chunks);
-    len += encodeUintChunk('TrackUID', uid, chunks);
-    len += encodeUintChunk('TrackNumber', num, chunks);
-    return encodeDataChunk('TrackEntry', len, chunks);
-  };
+  function encodeTracks(videoTrackNum, videoTrackUid, w, h, chunks, audioTrackEntryChunk) {
+    var tracksChunks = [];
+    var tracksLength = 0;
+    if (videoTrackUid)
+      tracksLength += encodeVideoTrackEntry(videoTrackNum, videoTrackUid, w, h, tracksChunks);
+    if (audioTrackEntryChunk) {
+      tracksLength += encodeDataChunk(
+          'TrackEntry', [audioTrackEntryChunk], audioTrackEntryChunk.byteLength, tracksChunks);
+    }
+    return encodeDataChunk('Tracks', tracksChunks, tracksLength, chunks);
+  }
 
-  function encodeCuePoint(timeCode, track, position, chunks) {
-    var len = 0;
-    len += encodeUintChunk('CueClusterPosition', position, chunks);
-    len += encodeUintChunk('CueTrack', track, chunks);
-    len = encodeDataChunk('CueTrackPositions', len, chunks);
-    len += encodeUintChunk('CueTime', timeCode, chunks);
-    return encodeDataChunk('CuePoint', len, chunks);
-  };
+  function encodeCuePoint(timeCode, track, blockNum, position, chunks) {
+    let positionChunks = [];
+    let positionLen = encodeUintChunk('CueTrack', track, positionChunks);
+    positionLen += encodePosition('CueClusterPosition', position, positionChunks);
+    if (blockNum)
+      positionLen += encodeUintChunk('CueBlockNumber', blockNum, positionChunks);
 
-  function encodeVideoFrame(timeCode, track, vp8, chunks) {
-    var encodedFlags = encodeUint(0x80);  // Cluster contains keyframes only
-    var encodedTimeCode = encodeInt(timeCode, 2);
-    var encodedTrackNum = encodeLength(track);
-    chunks.push(vp8);
-    chunks.push(encodedFlags);
-    chunks.push(encodedTimeCode);
-    chunks.push(encodedTrackNum);
-    var videoLength = vp8.length + encodedFlags.length + encodedTimeCode.length + encodedTrackNum.length;
-    return encodeDataChunk('SimpleBlock', videoLength, chunks);
-  };
+    let cuePointChunks = [];
+    let cuePointLen = encodeUintChunk('CueTime', timeCode, cuePointChunks);
+    cuePointLen += encodeDataChunk('CueTrackPositions', positionChunks, positionLen, cuePointChunks);
+    
+    return encodeDataChunk('CuePoint', cuePointChunks, cuePointLen, chunks);
+  }
+
+  function setBlockTimecode(block, timecode) {
+    let cursor = new Cursor(block);
+    decodeLength(cursor);  // track number
+    block.set(encodeInt(timecode, 2), cursor.idx);
+  }
+
+  function addAudioBlocks(clusterStart, until, audioBlocks, chunks) {
+    let result = 0;
+    while (audioBlocks.length) {
+      let audioBlock = audioBlocks.pop();
+      if (audioBlock[0] > until) {
+        audioBlocks.push(audioBlock);
+        break;
+      }
+      let clusterRelativeTimecode = audioBlock[0] - clusterStart;
+      setBlockTimecode(audioBlock[1], clusterRelativeTimecode);
+      result += encodeChunkHeader('SimpleBlock', audioBlock[1].byteLength, chunks);
+      chunks.push(audioBlock[1]);
+    }
+    return result;
+  }
+
+  function encodeVideoFrame(clusterStart, timeCode, track, vp8, audioBlocks, chunks) {
+    let result = addAudioBlocks(clusterStart, timeCode, audioBlocks, chunks);
+    let videoBlockChunks = [];
+    let encodedTrackNum = encodeLength(track);
+    let encodedTimeCode = encodeInt(timeCode - clusterStart, 2);
+    let encodedFlags = encodeUint(0x80);  // Block contains keyframes only
+    videoBlockChunks.push(encodedTrackNum);
+    videoBlockChunks.push(encodedTimeCode);
+    videoBlockChunks.push(encodedFlags);
+    videoBlockChunks.push(vp8);
+    let videoBlockLength = vp8.byteLength + encodedFlags.byteLength + encodedTimeCode.byteLength + encodedTrackNum.byteLength;
+    result += encodeDataChunk('SimpleBlock', videoBlockChunks, videoBlockLength, chunks);
+    return result;
+  }
 
   function Chunk(data, idx, type, length) {
     this.data = data;
@@ -945,37 +1022,25 @@ var webm = webm || {};
     this.length = length;
   }
 
-  function Cursor(c, data, max) {
-    if (c) {
-      if (typeof(c) == 'object') {
-        this.idx = c.idx;
-        this.data = c.data;
-        this.max = c.max;
-        return;
-      } else {
-        this.idx = c;
-      }
-    } else {
-      this.idx = 0;
-    }
+  function Cursor(data, idx, max) {
     this.data = data;
-    this.max = max || this.data.length;
-  }
-
-  function ChunkIterator(chunk, type) {
-    this.chunk = chunk;
-    this.cursor = chunk.cursor();
-    this.type = type;
+    this.idx = idx || 0;
+    this.max = max || data.byteLength;
   }
 
   Chunk.prototype.cursor = function() {
-    return new Cursor(this.idx, this.data, this.idx + this.length);
+    return new Cursor(this.data, this.idx, this.idx + this.length);
+  };
+
+  Cursor.prototype.clone = function(cursor) {
+    return new Cursor(this.data, this.idx, this.max);
   };
 
   Cursor.prototype.findChunk = function(type) {
     while (this.idx < this.max) {
       var id = decodeID(this);
-      var length = decodeLength(this);
+      var lengthField = decodeLength(this);
+      var length = Math.min(lengthField, this.max - this.idx);
       var idx = this.idx;
       this.idx += length;
       if (!type || id == type)
@@ -984,8 +1049,11 @@ var webm = webm || {};
     return null;
   };
 
-  function decodeUint(data, idx, length) {
-    if (length == 0)
+  function decodeUint(cursor) {
+    var idx = cursor.idx;
+    var length = cursor.max - idx;
+    var data = cursor.data;
+    if (length === 0)
       return 0;
     if (length == 1)
       return data[idx];
@@ -994,19 +1062,17 @@ var webm = webm || {};
     if (length == 3)
       return (data[idx] << 16) | (data[idx+1] << 8) | data[idx+2];
     if (length == 4)
-      return (data[idx] << 24) | (data[idx+1] << 16) | (data[idx+2] << 8) | data[idx+3];
-    if (length == 5)
-      return (decodeUint(data, idx, 1) * 0x100000000) + ((data[idx+1] << 24) | (data[idx+2] << 16) | (data[idx+3] << 8) | data[idx+4]);
-    if (length == 6)
-      return (decodeUint(data, idx, 2) * 0x100000000) + ((data[idx+2] << 24) | (data[idx+3] << 16) | (data[idx+4] << 8) | data[idx+5]);
-    if (length == 7)
-      return (decodeUint(data, idx, 3) * 0x100000000) + ((data[idx+3] << 24) | (data[idx+4] << 16) | (data[idx+5] << 8) | data[idx+6]);
-    if (length == 8)
-      return (decodeUint(data, idx, 4) * 0x100000000) + ((data[idx+4] << 24) | (data[idx+5] << 16) | (data[idx+6] << 8) | data[idx+7]);
-    throw ('Cannot decode uint of length ' + length);
-  };
+      return ((data[idx] << 24) | (data[idx+1] << 16) | (data[idx+2] << 8) | data[idx+3]) >>> 0;
+    if (length > 8)
+      throw ('Cannot decode uint of length ' + length);
+    return "0x" + Array.prototype.map.bind(cursor.data.slice(cursor.idx, cursor.max))(
+      function(i) { return i.toString(16) }).join("");
+  }
 
-  function decodeInt(data, idx, length) {
+  function decodeInt(cursor) {
+    var idx = cursor.idx;
+    var length = cursor.max - idx;
+    var data = cursor.data;
     if (length == 0)
       return 0;
     if (length == 1)
@@ -1018,137 +1084,499 @@ var webm = webm || {};
     if (length == 4)
       return (data[idx] << 24) | (data[idx+1] << 16) | (data[idx+2] << 8) | data[idx+3];
 
-    if (data[0] & 0x80) {
+    if (data[idx] & 0x80) {
       var tmpArr = new Uint8Array(length);
       for (var i = 0; i < length; i++)
         tmpArr[i] = (~data[i]) & 0xff;
-      return -(decodeUint(tmpArr, 0, length) + 1);
+      return -(decodeUint(new Cursor(tmpArr, 0, length)) + 1);
     }
 
-    return decodeUint(data, idx, length);
-  };
+    return decodeUint(cursor);
+  }
 
-  function decodeFloat32(data, idx) {
-    var arr = new Uint8Array(data.buffer.slice(idx, idx + 4));
-    Array.prototype.reverse.bind(arr)();
-    arr = new Float32Array(arr.buffer);
-    return arr[0];
-  };
+  function decodeFloat32(cursor) {
+    return new DataView(cursor.data.buffer, cursor.idx).getFloat32(0);
+  }
 
-  function decodeFloat64(data, idx) {
-    var arr = new Uint8Array(data.buffer.slice(idx, idx + 8));
-    Array.prototype.reverse.bind(arr)();
-    arr = new Float64Array(arr.buffer);
-    return arr[0];
-  };
+  function decodeFloat64(cursor) {
+    return new DataView(cursor.data.buffer, cursor.idx).getFloat64(0);
+  }
 
-  function decodeString(data, idx, length) {
+  function decodeFloat(cursor) {
+    var length = cursor.max - cursor.idx;
+    if (length == 4)
+      return decodeFloat32(cursor);
+    if (length == 8)
+      return decodeFloat64(cursor);
+    throw "Unrecognized float length: " + length;
+  }
+
+  function decodeString(cursor) {
+    var data = cursor.data;
+    var max = cursor.max;
     var str = '';
-    for (var i = 0; i < length; i++)
-      str += String.fromCharCode(data[idx + i]);
+    for (var i = cursor.idx; i < max; i++)
+      str += String.fromCharCode(data[i]);
     return str;
-  };
+  }
 
   function decodeID(cursor) {
     var data = cursor.data;
     var idx = cursor.idx;
-    if (data[idx] & 0x80) {
+    var firstByte = data[idx];
+    if (firstByte & 0x80) {
       cursor.idx = idx + 1;
-      return webm.ID_NAMES[data[idx]];
-    } else if (data[idx] & 0x40) {
+      return webm.ID_NAMES[firstByte];
+    } else if (firstByte & 0x40) {
       cursor.idx = idx + 2;
-      return webm.ID_NAMES[(data[idx] << 8) | data[idx+1]];
-    } else if (data[idx] & 0x20) {
+      return webm.ID_NAMES[(firstByte << 8) | data[idx+1]];
+    } else if (firstByte & 0x20) {
       cursor.idx = idx + 3;
-      return webm.ID_NAMES[(data[idx] << 16) | (data[idx+1] << 8) | data[idx+2]];
-    } else if (data[idx] & 0x10) {
+      return webm.ID_NAMES[(firstByte << 16) | (data[idx+1] << 8) | data[idx+2]];
+    } else if (firstByte & 0x10) {
       cursor.idx = idx + 4;
-      return webm.ID_NAMES[(data[idx] << 24) | (data[idx+1] << 16) | (data[idx+2] << 8) | data[idx+3]];
+      return webm.ID_NAMES[(firstByte << 24) | (data[idx+1] << 16) | (data[idx+2] << 8) | data[idx+3]];
     }
     throw ('Mal-formed ID field at position ' + idx);
-  };
+  }
 
   function decodeLength(cursor) {
     var data = cursor.data;
     var idx = cursor.idx;
-    if (data[idx] & 0x80) {
+    var firstByte = data[idx];
+    var result = -1;
+    if (firstByte & 0x80) {
       cursor.idx = idx + 1;
-      return data[idx] & 0x7f;
-    } else if (data[idx] & 0x40) {
+      result = firstByte & 0x7f;
+    } else if (firstByte & 0x40) {
       cursor.idx = idx + 2;
-      return ((data[idx] & 0x3f) << 8) | data[idx+1];
-    } else if (data[idx] & 0x20) {
+      result = ((firstByte & 0x3f) << 8) | data[idx+1];
+    } else if (firstByte & 0x20) {
       cursor.idx = idx + 3;
-      return ((data[idx] & 0x1f) << 16) | (data[idx+1] << 8) | data[idx+2];
-    } else if (data[idx] & 0x10) {
+      result = ((firstByte & 0x1f) << 16) | (data[idx+1] << 8) | data[idx+2];
+    } else if (firstByte & 0x10) {
       cursor.idx = idx + 4;
-      return ((data[idx] & 0xf) << 24) | (data[idx+1] << 16) | (data[idx+2] << 8) | data[idx+3];
-    } else if (data[idx] & 0x8) {
+      result = ((firstByte & 0xf) << 24) | (data[idx+1] << 16) | (data[idx+2] << 8) | data[idx+3];
+    } else if (firstByte & 0x8) {
       cursor.idx = idx + 5;
-      return (((data[idx] & 0x7) * 0x100000000) +
+      result = (((firstByte & 0x7) * 0x100000000) +
               ((data[idx+1] << 24) | (data[idx+2] << 16) | (data[idx+3] << 8) | data[idx+4]));
-    } else if (data[idx] & 0x4) {
+    } else if (firstByte & 0x4) {
       cursor.idx = idx + 6;
-      return (((data[idx] & 0x3) * 0x10000000000) +
+      result = (((firstByte & 0x3) * 0x10000000000) +
               (data[idx+1] * 0x100000000) +
               ((data[idx+2] << 24) | (data[idx+3] << 16) | (data[idx+4] << 8) | data[idx+5]));
-    } else if (data[idx] & 0x2) {
+    } else if (firstByte & 0x2) {
       cursor.idx = idx + 7;
-      return (((data[idx] & 0x1) * 0x1000000000000) +
+      result = (((firstByte & 0x1) * 0x1000000000000) +
               (data[idx+2] * 0x10000000000) +
               (data[idx+2] * 0x100000000) +
               ((data[idx+3] << 24) | (data[idx+4] << 16) | (data[idx+5] << 8) | data[idx+6]));
-    } else if (data[idx] & 0x1) {
+    } else if (firstByte & 0x1) {
       cursor.idx = idx + 8;
-      return ((data[idx+1] * 0x1000000000000) +
+      result = ((data[idx+1] * 0x1000000000000) +
               (data[idx+2] * 0x10000000000) +
               (data[idx+3] * 0x100000000) +
               ((data[idx+4] << 24) | (data[idx+5] << 16) | (data[idx+6] << 8) | data[idx+7]));
     } else {
       // throw
     }
-  };
+    return result;
+  }
+
+  function verifyID(cursor) {
+    var cursorIdx = cursor.idx;
+    var id = decodeID(cursor);
+    if (id) {
+      var encodedId = encodeID(id);
+      if (encodedId.byteLength != cursor.idx - cursorIdx)
+        throw "ID round trip has different length";
+      for (var i = 0; i < encodedId.byteLength; i++) {
+        if (encodedId[i] != cursor.data[cursorIdx + i])
+          throw "ID round trip differs at byte " + i;
+      }
+    }
+    return id;
+  }
+
+  function verifyLength(cursor) {
+    var lengthIdx = cursor.idx;
+    var length = decodeLength(cursor);
+    if (cursor.idx - lengthIdx < 8) {
+      var encodedLength = encodeLength(length);
+      if (length != decodeLength(new Cursor(encodedLength)))
+        throw "Length round trip does not match.";
+    }
+    return length;
+  }
+  
+  function verifyString(cursor, length) {
+    var str = decodeString(cursor);
+    var encodedStr = encodeString(str);
+    if (encodedStr.byteLength != length)
+      throw "Encoded string length mismatch";
+    for (var i = 0; i < length; i++) {
+      if (cursor.data[cursor.idx+i] != encodedStr[i])
+        throw "Encoded string mismatch at character " + i;
+    }
+    return str;
+  }
+
+  function verifyUint(cursor) {
+    var val = decodeUint(cursor);
+    var encodedVal = encodeUint(val);
+    if (val != decodeUint(new Cursor(encodedVal)))
+      throw "Encoded uint mismatch";
+    return val;
+  }
+
+  function verifyInt(cursor) {
+    var val = decodeInt(cursor);
+    var encodedVal = encodeInt(val);
+    if (val != decodeInt(new Cursor(encodedVal)))
+      throw "Encoded int mismatch";
+    return val;
+  }
+  
+  function verifyFloat32(cursor) {
+    var val = decodeFloat32(cursor);
+    var encodedVal = encodeFloat32(val);
+    if (val != decodeFloat32(new Cursor(encodedVal)))
+      throw "Encoded float32 mismatch";
+    return val;
+  }
+
+  function verifyFloat64(cursor) {
+    var val = decodeFloat64(cursor);
+    var encodedVal = encodeFloat64(val);
+    if (val != decodeFloat64(new Cursor(encodedVal)))
+      throw "Encoded float64 mismatch";
+    return val;
+  }
 
   function verifyChunk(cursor, verbose, indent) {
-    indent = indent || 0;
-    if (cursor.idx >= cursor.data.length)
+    indent = indent || '';
+    if (cursor.idx >= cursor.data.byteLength)
       return;
-    var id = decodeID(cursor);
-    var length = decodeLength(cursor);
+
+    var idCursor = cursor.clone();
+    var id = verifyID(cursor);
+    var idStr = id + ' [' + idCursor.idx + ']';
+
+    var lengthCursor = cursor.clone();
+    var length = verifyLength(cursor);
+
     var chunkType = webm.ID_TYPES[id];
+    var chunkCursor = new Cursor(cursor.data, cursor.idx, cursor.idx + length);
     if (chunkType == 'Master Elements') {
       if (verbose)
-        console.log(indent + id + ' ' + length);
-      var max = cursor.idx + length;
+        console.log(indent + idStr + ' len=' + length);
+      let max = Math.min(cursor.idx + length, cursor.data.byteLength);
       while (cursor.idx < max)
-        verifyChunk(cursor, verbose, indent + '  ');
+        verifyChunk(cursor, verbose, indent + '..');
     } else if (chunkType == 'String' || chunkType == 'UTF-8') {
+      let str = verifyString(chunkCursor, length);
       if (verbose)
-        console.log(indent + id + ' ' + length + ' "' + decodeString(cursor.data, cursor.idx, length) + '"');
+        console.log(indent + idStr + ' len=' + length + ' "' + str + '"');
       cursor.idx += length;
     } else if (chunkType == 'Unsigned Integer') {
+      let val = verifyUint(chunkCursor);
       if (verbose)
-        console.log(indent + id + ' ' + length + ' ' + decodeUint(cursor.data, cursor.idx, length));
+        console.log(indent + idStr + ' len=' + length + ' val=' + val);
       cursor.idx += length;
     } else if (chunkType == 'Signed Integer') {
+      let val = verifyInt(chunkCursor);
       if (verbose)
-        console.log(indent + id + ' ' + length + ' ' + decodeInt(cursor.data, cursor.idx, length));
+        console.log(indent + idStr + ' len=' + length + ' val=' + val);
       cursor.idx += length;
-    } else if (chunkType == 'Binary') {
+    } else if (chunkType == 'Float') {
+      if (verbose) {
+        if (length == 4) {
+          let val = verifyFloat32(chunkCursor);
+          console.log(indent + idStr + ' len=' + length + ' val=' + val);
+        } else if (length == 8) {
+          let val = verifyFloat64(chunkCursor);
+          console.log(indent + idStr + ' len=' + length + ' val=' + val);
+        } else {
+          console.log(indent + idStr + ' len=' + length + ' val=???');
+        }
+      }
+      cursor.idx += length;
+    } else {
       if (verbose) {
         var numBytes = Math.min(16, length);
         var byteStr = '[';
         for (var i = 0; i < numBytes; i++)
           byteStr += '0x' + cursor.data[cursor.idx + i].toString(16) + ', ';
-        byteStr += ']'
-        console.log(indent + id + ' ' + length + ' ' + byteStr);
+        if (length > numBytes)
+          byteStr += '... ';
+        byteStr += ']';
+        if (id == 'SimpleBlock') {
+          var blockCursor = cursor.clone();
+          var trackNum = decodeLength(blockCursor);
+          var timeCode = decodeUint(new Cursor(blockCursor.data, blockCursor.idx, blockCursor.idx + 2));
+          console.log(indent + idStr + ' len=' + length + ' track=' + trackNum + ' timeCode=' + timeCode + ' ' + byteStr);
+        } else {
+          console.log(indent + idStr + ' len=' + length + ' ' + byteStr);
+        }
       }
       cursor.idx += length;
-    } else {
-      if (verbose)
-        console.log(indent + id + ' ' + length);
-      cursor.idx += length;
     }
+  }
+
+  function getAudioBlocks(webmBuffer, trackNum, audioBlocks) {
+    if (!webmBuffer)
+      return null;
+
+    webmBuffer = new Uint8Array(webmBuffer);
+    let segment = new Cursor(webmBuffer).findChunk('Segment');
+    let info = segment.cursor().findChunk('Info');
+    let timecodeScale = info.cursor().findChunk('TimecodeScale');
+    let audioTimecodeScale = decodeUint(timecodeScale.cursor());
+    if (audioTimecodeScale != 1000000)
+      throw "Cannot encode audio with TimecodeScale " + audioTimecodeScale;
+
+    let tracksCursor = segment.cursor().findChunk('Tracks').cursor();
+    let audioTrackEntryChunk;
+    let origTrackNum = -1;
+    let uintEncodedTrackNum;
+    let lengthEncodedTrackNum;
+    for (let trackEntry = tracksCursor.findChunk('TrackEntry');
+         trackEntry;
+         trackEntry = tracksCursor.findChunk('TrackEntry')) {
+      let trackType = trackEntry.cursor().findChunk('TrackType');
+      if (!trackType || Number(decodeUint(trackType.cursor())) != 2)
+        continue;
+
+      let trackNumEntry = trackEntry.cursor().findChunk('TrackNumber');
+      if (!trackNumEntry)
+        continue;
+      origTrackNum = Number(decodeUint(trackNumEntry.cursor()));
+      if (trackNum != origTrackNum) {
+        uintEncodedTrackNum = encodeUint(trackNum);
+        lengthEncodedTrackNum = encodeLength(trackNum);
+        if (trackNumEntry.length != uintEncodedTrackNum.byteLength)
+          throw "encoded uint size mismatch while munging audio track number";
+        trackNumEntry.data.set(uintEncodedTrackNum, trackNumEntry.idx);
+      }
+      audioTrackEntryChunk = webmBuffer.slice(trackEntry.idx, trackEntry.idx + trackEntry.length);
+    }
+
+    if (!audioTrackEntryChunk)
+      return null;
+
+    let segmentCursor = segment.cursor();
+    for (let cluster = segmentCursor.findChunk('Cluster');
+         cluster;
+         cluster = segmentCursor.findChunk('Cluster')) {
+      let clusterTimecode = cluster.cursor().findChunk('Timecode');
+      let clusterStartTime = decodeUint(clusterTimecode.cursor());
+      let clusterCursor = cluster.cursor();
+      for (let block = clusterCursor.findChunk('SimpleBlock');
+           block;
+           block = clusterCursor.findChunk('SimpleBlock')) {
+        let blockCursor = block.cursor();
+        let trackNumIdx = blockCursor.idx;
+        let decodedTrackNum = decodeLength(blockCursor);
+        if (decodedTrackNum != origTrackNum)
+          continue;
+        if (trackNum != origTrackNum) {
+          if (blockCursor.idx - trackNumIdx != lengthEncodedTrackNum.byteLength)
+            throw "encoded length size mismatch while munging audio track number";
+          webmBuffer.set(lengthEncodedTrackNum, trackNumIdx);
+        }
+        let blockTimeCode = decodeUint(new Cursor(blockCursor.data, blockCursor.idx, blockCursor.idx + 2));
+        audioBlocks.push([clusterStartTime + blockTimeCode,
+                          webmBuffer.slice(block.idx, block.idx + block.length)]);
+      }
+    }
+    // Put audioBlocks in reverse order, so that successive calls to pop() will
+    // return blocks in forward order.
+    audioBlocks.reverse();
+    return audioTrackEntryChunk;
+  }
+
+  function webpToVP8(blob) {
+    let promise = new Promise(function(resolve, reject) {
+      let fr = new FileReader();
+      fr.addEventListener("loadend", function() {
+        resolve(new Uint8Array(this.result.slice(20)));
+      });
+      fr.readAsArrayBuffer(blob);
+    });
+    return promise;
+  }
+
+  function Encoder(title, w, h, frameDuration, webpPromises, audioBuffer) {
+    this.title = title;
+    this.w = w;
+    this.h = h;
+    this.frameDuration = Math.round(frameDuration);
+    this.webpPromises = webpPromises;
+    this.audioBuffer = audioBuffer;
+
+    if (webpPromises.length) {
+      this.videoTrackNum = 1;
+      this.audioTrackNum = 2;
+    } else {
+      this.videoTrackNum = 0;
+      this.audioTrackNum = 1;
+    }
+    this.audioBlocks = [];
+    this.position = 0;
+    this.clusterPosition = 0;
+    this.frameNum = 0;
+    this.lastCuePoint = -1001;
+    this.cueChunks = [];
+    this.cueLength = 0;
+    this.clusters = [];
+    this.clusterPositions = [];
+    this.segmentChunks = [];
+    this.seekHeaderPositions = {};
+    this.clusterChunks = [];
+    this.clusterStart = 0;
+    this.blockChunks = [];
+    this.clusterLength = 0;
+    this.blockNum = 0;
+  }
+
+  Encoder.prototype.encode = function() {
+    let promise = new Promise(function(resolve, reject) {
+      let videoTrackUid = this.webpPromises.length ? 1 : 0;
+      let audioTrackEntryChunk = getAudioBlocks(this.audioBuffer, this.audioTrackNum, this.audioBlocks);
+      let segmentDuration = this.frameDuration * this.webpPromises.length;
+      if (this.audioBlocks.length)
+        segmentDuration = Math.max(segmentDuration, this.audioBlocks[0][0]);
+        
+      let numClusters = Math.ceil(segmentDuration / 0x10000);
+      this.position += encodeFirstSeekHeader(this.seekHeaderPositions, numClusters > 1, this.segmentChunks);
+      this.clusterPosition = this.seekHeaderPositions.Cluster;
+      
+      mungePositions(this.seekHeaderPositions.Info, this.position);
+      this.position += encodeSegmentInfo(segmentDuration, this.title, this.segmentChunks);
+  
+      mungePositions(this.seekHeaderPositions.Tracks, this.position);
+      this.position += encodeTracks(this.videoTrackNum, videoTrackUid, this.w, this.h, this.segmentChunks, audioTrackEntryChunk);
+
+      if (this.webpPromises.length) {
+        this.encodeNextCluster(resolve, reject);
+      } else {
+        this.finishSegment(resolve, reject);
+      }
+    }.bind(this));
+    return promise;
+  };
+
+  Encoder.prototype.encodeNextCluster = function(resolve, reject) {
+    this.clusterChunks = [];
+    this.clusterStart = this.frameNum * this.frameDuration;
+    if (this.audioBlocks.length)
+        this.clusterStart = Math.min(this.clusterStart, this.audioBlocks[this.audioBlocks.length-1][0]);
+    this.blockNum = 0;
+    
+    this.blockChunks = [];
+    this.clusterLength = encodeUintChunk('Timecode', this.clusterStart, this.blockChunks);
+    this.clusterLength += encodePosition('Position', this.clusterPosition, this.blockChunks);
+    this.encodeNextBlock(resolve, reject);
+  };
+  
+  Encoder.prototype.finishCluster = function(resolve, reject) {
+    if (this.frameNum >= this.webpPromises.length)
+      this.clusterLength += addAudioBlocks(this.clusterStart, this.clusterStart + 0x7fff, this.audioBlocks, this.blockChunks);
+    this.clusterLength = encodeDataChunk('Cluster', this.blockChunks, this.clusterLength, this.clusterChunks);
+    this.clusters.push([this.clusterLength, this.clusterChunks]);
+    this.clusterPositions.push(this.clusterPosition);
+    this.clusterPosition = [];
+
+    if (this.frameNum < this.webpPromises.length) {
+      this.encodeNextCluster(resolve, reject);
+      return;
+    }
+    
+    this.finishSegment(resolve, reject);
+  };
+  
+  Encoder.prototype.encodeNextBlock = function(resolve, reject) {
+    if (this.frameNum >= this.webpPromises.length || (this.frameNum * this.frameDuration) - this.clusterStart > 0x7fff) {
+      this.finishCluster(resolve, reject);
+      return;
+    }
+    let audioBlocksLength = this.audioBlocks.length;
+    let frameTime = this.frameNum * this.frameDuration;
+    this.webpPromises[this.frameNum++].then(function(blob) {
+      webpToVP8(blob).then(function(vp8) {
+        this.clusterLength += encodeVideoFrame(this.clusterStart, frameTime, this.videoTrackNum, vp8, this.audioBlocks, this.blockChunks);
+        this.blockNum += audioBlocksLength - this.audioBlocks.length;
+        if (frameTime - this.lastCuePoint > 1000) {
+          this.lastCuePoint = frameTime;
+          this.cueLength += encodeCuePoint(frameTime, this.videoTrackNum, this.blockNum, this.clusterPosition, this.cueChunks);
+        }
+        this.blockNum++;
+        this.encodeNextBlock(resolve, reject);
+      }.bind(this));
+    }.bind(this));
+  };
+
+  Encoder.prototype.encodeTrailingAudio = function() {
+    while (this.audioBlocks.length) {
+      let block = this.audioBlocks[this.audioBlocks.length-1];
+      this.clusterStart = block[0];
+
+      this.blockChunks = [];
+      this.clusterLength = encodeUintChunk('Timecode', this.clusterStart, this.blockChunks);
+      this.clusterLength += encodePosition('Position', this.clusterPosition, this.blockChunks);
+      this.clusterLength += addAudioBlocks(this.clusterStart, this.clusterStart + 0x7fff, this.audioBlocks, this.blockChunks);
+
+      this.clusterChunks = [];
+      this.clusterLength = encodeDataChunk('Cluster', this.blockChunks, this.clusterLength, this.clusterChunks);
+      this.clusters.push([this.clusterLength, this.clusterChunks]);
+      this.clusterPositions.push(this.clusterPosition);
+      this.clusterPosition = [];
+    }
+  };
+
+  Encoder.prototype.mungePositions = function() {
+    mungePositions(this.seekHeaderPositions.Cues, this.position);
+    this.position += encodeDataChunk('Cues', this.cueChunks, this.cueLength, this.segmentChunks);
+
+    mungePositions(this.clusterPositions[0], this.position);
+    this.position += this.clusters[0][0];
+    this.clusterChunks = this.clusters[0][1];
+    this.segmentChunks.push(...this.clusterChunks);
+    
+    if (this.seekHeaderPositions.SeekHeader) {
+      mungePositions(this.seekHeaderPositions.SeekHeader, this.position);
+      this.position += encodeTrailingSeekHeader(this.clusterPositions.slice(1), this.segmentChunks);
+    }
+    
+    for (let i = 1; i < this.clusters.length; i++) {
+      mungePositions(this.clusterPositions[i], this.position);
+      this.position += this.clusters[i][0];
+      this.clusterChunks = this.clusters[i][1];
+      this.segmentChunks.push(...this.clusterChunks);
+    }
+  };
+  
+  Encoder.prototype.finishSegment = function(resolve, reject) {
+    this.encodeTrailingAudio();
+    this.mungePositions();
+    let chunks = [];
+    let len = encodeEBML(chunks);
+    len += encodeChunkHeader('Segment', this.position, chunks);
+    len += this.position;
+    chunks.push(...this.segmentChunks);
+    if (webm.debug) {
+      let testBuffer = new Uint8Array(len);
+      let i = 0;
+      for (let j = 0; j < chunks.length; j++) {
+        let chunk = chunks[j];
+        for (let k = 0; k < chunk.length; k++)
+          testBuffer[i++] = chunk[k];
+      }
+      webm.verify(testBuffer, true);
+    }
+    let mimeType = this.webpPromises.length ? "video/webm" : "audio/webm";
+    resolve(new Blob(chunks, {type: mimeType}));
   };
 
   /* Public API begins here */
@@ -1159,80 +1587,50 @@ var webm = webm || {};
     return blob;
   };
   
-  webm.encode = function(title, w, h, frameDuration, frameCount, getFrameFunction) {
-    frameDuration = Math.round(frameDuration);
-    var framesPerCluster = Math.floor(32000 / frameDuration);
-    var clusterCount = Math.ceil(frameCount / framesPerCluster);
-    var segmentDuration = frameDuration * frameCount;
-    var videoTrackNum = 1;
-    var videoTrackUid = 1;
-    var len = 0;
-
-    var infoChunks = [];
-    encodeSegmentInfo(segmentDuration, title, infoChunks);
-
-    var tracksChunks = [];
-    encodeDataChunk(
-        'Tracks',
-        encodeVideoTrackEntry(videoTrackNum, videoTrackUid, w, h, tracksChunks),
-        tracksChunks);
-
-    var cueChunks = [];
-    var clusterChunks = [];
-    for (var i = 0; i < clusterCount; i++) {
-      var clusterOffset = lengthSum(infoChunks) + lengthSum(tracksChunks) + lengthSum(clusterChunks);
-      var clusterStart = i * framesPerCluster * frameDuration;
-      var chunks = [];
-      encodeCuePoint(clusterStart, videoTrackNum, clusterOffset, chunks);
-      cueChunks = chunks.concat(cueChunks);
-
-      chunks = [];
-      var clusterLength = 0;
-      var firstFrame = i * framesPerCluster;
-      var lastFrame = Math.min((i + 1) * framesPerCluster, frameCount);
-      for (var j = lastFrame - 1; j >= firstFrame; j--) {
-        clusterLength += encodeVideoFrame((j - firstFrame) * frameDuration, videoTrackNum, getFrameFunction(j), chunks);
-      }
-      clusterLength += encodeUintChunk('Timecode', clusterStart, chunks);
-      encodeDataChunk('Cluster', clusterLength, chunks);
-      clusterChunks = chunks.concat(clusterChunks);
-    }
-    encodeDataChunk('Cues', lengthSum(cueChunks), cueChunks);
-    var chunks = [].concat(cueChunks, clusterChunks, tracksChunks, infoChunks);
-    var segmentLength = lengthSum(cueChunks) + lengthSum(clusterChunks) + lengthSum(tracksChunks) + lengthSum(infoChunks);
-    encodeDataChunk('Segment', segmentLength, chunks);
-    encodeEBML(chunks);
-    chunks.reverse();
-    return new Blob(chunks, {type: "video/webm"});
+  webm.encode = function(title, w, h, frameDuration, webpPromises, audioBuffer) {
+    let encoder = new Encoder(title, w, h, frameDuration, webpPromises, audioBuffer);
+    return encoder.encode();
   };
 
-  webm.decode = function(data, sizeCB, frameCB) {
+  webm.decode = function(buffer, sizeCB, frameRateCB, frameCB, audioCB) {
     var riffHeader = new Uint8Array([82, 73, 70, 70]);  // 'RIFF'
     var webpHeader = new Uint8Array([87, 69, 66, 80]);  // 'WEBP'
     var vp8Header = new Uint8Array([86, 80, 56, 32]);  // 'VP8 '
-    var segment = new Cursor(0, data).findChunk('Segment');
+    var segment = new Cursor(new Uint8Array(buffer)).findChunk('Segment');
     if (!segment)
       return;
     var tracks = segment.cursor().findChunk('Tracks');
     if (!tracks)
       return;
+    var hasAudio = false;
 
     var w = -1, h = -1;
+    var videoTrackNum = -1;
     var tracksCursor = tracks.cursor();
-    var entry;
-    while (entry = tracksCursor.findChunk('TrackEntry')) {
+    for (let entry = tracksCursor.findChunk('TrackEntry');
+         entry;
+         entry = tracksCursor.findChunk('TrackEntry')) {
       var trackType = entry.cursor().findChunk('TrackType');
-      if (!trackType || decodeUint(trackType.data, trackType.idx, trackType.length) != 1)
+      if (!trackType)
         continue;
-      var video = entry.cursor().findChunk('Video');
-      if (!video)
-        continue;
-      var pixelWidth = video.cursor().findChunk('PixelWidth');
-      var pixelHeight = video.cursor().findChunk('PixelHeight');
-      if (!pixelWidth || !pixelHeight)
-        continue;
-      w = decodeUint(pixelWidth.data, pixelWidth.idx, pixelWidth.length);
-      h = decodeUint(pixelHeight.data, pixelHeight.idx, pixelHeight.length);
+      trackType = Number(decodeUint(trackType.cursor()));
+      if (trackType == 1) {  // video track
+        let trackNumber = entry.cursor().findChunk('TrackNumber');
+        if (!trackNumber)
+          continue;
+        videoTrackNum = Number(decodeUint(trackNumber.cursor()));
+        let video = entry.cursor().findChunk('Video');
+        if (!video)
+          continue;
+        let pixelWidth = video.cursor().findChunk('PixelWidth');
+        let pixelHeight = video.cursor().findChunk('PixelHeight');
+        if (!pixelWidth || !pixelHeight)
+          continue;
+        w = Number(decodeUint(pixelWidth.cursor()));
+        h = Number(decodeUint(pixelHeight.cursor()));
+      } else if (trackType == 2) {  // audio track
+        hasAudio = true;
+      }
     }
     if (w == -1 || h == -1)
       throw ('Could not decode height/width from Segment/Tracks/TrackEntry/Video/Pixel[Width|Height] section.');
@@ -1242,32 +1640,63 @@ var webm = webm || {};
     var segmentCursor = segment.cursor();
     var cluster;
     var frameIdx = 0;
+    var frameTimes = [];
     while (cluster = segmentCursor.findChunk('Cluster')) {
+      var clusterTimecode = decodeUint(cluster.cursor().findChunk('Timecode'));
       var clusterCursor = cluster.cursor();
       var block;
       while (block = clusterCursor.findChunk('SimpleBlock')) {
         var blockCursor = block.cursor();
-        decodeLength(blockCursor);  // Track Number
-        blockCursor.idx += 3;  // Timecode + Flags
-        var riffLength = encodeUint(blockCursor.max - blockCursor.idx + 12, 4);
-        Array.prototype.reverse.bind(riffLength)();
-        var vp8Length = encodeUint(blockCursor.max - blockCursor.idx, 4);
-        Array.prototype.reverse.bind(vp8Length)();
-        if (frameCB) {
-          var vp8Data = new Uint8Array(block.data.subarray(blockCursor.idx, blockCursor.max));
-          var vp8Blob = new Blob([riffHeader, riffLength, webpHeader, vp8Header, vp8Length, vp8Data], {type: 'image/webp'});
-          frameCB(vp8Blob, frameIdx++);
+        let trackNum = decodeLength(blockCursor);  // Track Number
+        if (trackNum == videoTrackNum) {
+          frameTimes.push(decodeInt(new Cursor(blockCursor.data, blockCursor.idx, blockCursor.idx + 2)));
+          if (frameRateCB && frameTimes.length == 2)
+            frameRateCB(1000 / (frameTimes[1] - frameTimes[0]));
+          blockCursor.idx += 3;  // Timecode + Flags
+          var riffLength = encodeUint(blockCursor.max - blockCursor.idx + 12, 4);
+          Array.prototype.reverse.bind(riffLength)();
+          var vp8Length = encodeUint(blockCursor.max - blockCursor.idx, 4);
+          Array.prototype.reverse.bind(vp8Length)();
+          if (frameCB) {
+            var vp8Data = new Uint8Array(block.data.subarray(blockCursor.idx, blockCursor.max));
+            var vp8Blob = new Blob([riffHeader, riffLength, webpHeader, vp8Header, vp8Length, vp8Data], {type: 'image/webp'});
+            frameCB(vp8Blob, frameIdx++);
+          }
         }
       }
     }
+
+    if (!hasAudio || !audioCB)
+      return;
+
+    let encoder = new Encoder("", 0, 0, 0, [], buffer);
+    encoder.encode().then(function(blob) {
+      audioCB(blob);
+    });
   };
 
-  webm.verify = function(data, verbose) {
-    var cursor = new Cursor(0, data);
-    var max = data.length;
+  webm.verify = function(buffer, verbose) {
+    var cursor = new Cursor(new Uint8Array(buffer));
+    var max = buffer.byteLength;
     while (cursor.idx < max)
       verifyChunk(cursor, verbose, '');
   };
 
+  webm.debug = false;
   webm.encodeUint = encodeUint;
+  webm.encodeInt = encodeInt;
+  webm.encodeFloat32 = encodeFloat32;
+  webm.encodeFloat64 = encodeFloat64;
+  webm.encodeString = encodeString;
+  webm.encodeID = encodeID;
+  webm.encodeLength = encodeLength;
+  webm.decodeUint = decodeUint;
+  webm.decodeInt = decodeInt;
+  webm.decodeFloat32 = decodeFloat32;
+  webm.decodeFloat64 = decodeFloat64;
+  webm.decodeString = decodeString;
+  webm.decodeID = decodeID;
+  webm.decodeLength = decodeLength;
+  webm.Chunk = Chunk;
+  webm.Cursor = Cursor;
 })();
