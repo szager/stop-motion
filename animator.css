@@ -74,6 +74,7 @@ canvas, video {
   margin: 10px;
   width: 92px;
   min-height: 92px;
+  justify-content: space-between;
 }
 .button72 > .iconContainer {
   will-change: transform;
