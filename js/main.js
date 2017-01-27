@@ -210,7 +210,7 @@ window.onload = function() {
       an.attachStream();
       return;
     }
-    var videoColumnDiv = document.getElementById('video-column');`
+    var videoColumnDiv = document.getElementById('video-column');
     var selectDiv = document.createElement('div');
     videoColumnDiv.appendChild(selectDiv);
     var cameraSelect = document.createElement('select');
