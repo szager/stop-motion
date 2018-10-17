@@ -85,11 +85,15 @@ window.addEventListener('load', evt => {
     }
   }));
   toggleButton.onclick = () => {
-    an.toggleVideo();
-    if (an.video.paused)
-      toggleButton.firstChild.src = "images/on72.png";
-    else
+    an.toggleVideo().then(isPlaying => {
+      if (isPlaying) {
+	toggleButton.firstChild.src = "images/off72.png";
+      } else {
+	toggleButton.firstChild.src = "images/on72.png";
+      }
+    }).catch(err => {
       toggleButton.firstChild.src = "images/off72.png";
+    });
   };
   captureButton.onclick = () => {
     an.capture();

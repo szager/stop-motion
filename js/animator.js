@@ -26,8 +26,8 @@ var animator = animator || {};
   };
 
   animator.Animator.prototype.videoCannotPlayHandler = function(e) {
-    console.log('navigator.getUserMedia error: ', e);
-    this.messageDiv.innerHTML = "Cannot connect to camera.";
+    console.log('navigator.mediaDevices.getUserMedia error: ', e);
+    this.messageDiv.innerText = "Cannot connect to camera.";
   };
 
   animator.Animator.prototype.setDimensions = function(w, h) {
@@ -40,6 +40,7 @@ var animator = animator || {};
   };
 
   animator.Animator.prototype.attachStream = function(sourceId) {
+    this.messageDiv.innerText = "";
     let constraints = {
       audio: false,
       frameRate: 15,
@@ -56,15 +57,11 @@ var animator = animator || {};
     } else {
       constraints.video = true;
     }
-    navigator.getUserMedia(
-      constraints,
-      function(stream) {
-        this.video.srcObject = stream;
-        this.videoStream = stream;
-        this.streamOn = true;
-      }.bind(this),
-      this.videoCannotPlayHandler.bind(this)
-    );
+    return navigator.mediaDevices.getUserMedia(constraints).then(stream => {
+      this.video.srcObject = stream;
+      this.videoStream = stream;
+      this.streamOn = true;
+    }).catch(this.videoCannotPlayHandler.bind(this));
   };
 
   animator.Animator.prototype.detachStream = function () {
@@ -82,15 +79,19 @@ var animator = animator || {};
 
   animator.Animator.prototype.toggleVideo = function() {
     if (this.video.paused) {
-      if (this.video.srcObject.active) {
-        this.video.play();
+      if (this.video.srcObject && this.video.srcObject.active) {
         this.streamOn = true;
+        return this.video.play()
+	    .then(() => { return true; })
+	    .catch(() => { return false; });
       } else {
-        this.attachStream(this.videoSourceId);
+        return this.attachStream(this.videoSourceId);
       }
     } else {
       this.video.pause();
+      this.detachStream();
       this.streamOn = false;
+      return new Promise((resolve, reject) => { resolve(false) });
     }
   };
 
@@ -102,11 +103,11 @@ var animator = animator || {};
     imageCanvas.height = this.h;
     imageCanvas.getContext('2d').drawImage(this.video, 0, 0, this.w, this.h);
     this.frames.push(imageCanvas);
-    let promise = new Promise(function(resolve, reject) {
+    let promise = new Promise(((resolve, reject) => {
       imageCanvas.toBlob(function(blob) { resolve(blob) }, 'image/webp');
       this.snapshotContext.clearRect(0, 0, this.w, this.h);
       this.snapshotContext.drawImage(imageCanvas, 0, 0, this.w, this.h);
-    }.bind(this));
+    }).bind(this));
     this.frameWebps.push(promise);
   };
 
@@ -256,7 +257,7 @@ var animator = animator || {};
     if (!filename.endsWith('.webm'))
       filename += '.webm';
     let title = filename.substr(0, filename.length - 5);
-    return this.encode(title).then(function(blob) {
+    return this.encode(title).then((blob => {
       this.exported = blob;
       let url = URL.createObjectURL(blob);
       let downloadLink = document.createElement('a');
@@ -265,7 +266,7 @@ var animator = animator || {};
       downloadLink.click();
       URL.revokeObjectURL(url);
       return blob;
-    }.bind(this));
+    }).bind(this));
   };
 
   animator.Animator.prototype.encode = function(title) {
@@ -301,7 +302,7 @@ var animator = animator || {};
   };
 
   animator.Animator.prototype.recordAudio = function(stream) {
-    let promise = new Promise(function(resolve, reject) {
+    let promise = new Promise(((resolve, reject) => {
       if (!this.frames.length) {
         resolve(null);
         return;
@@ -312,18 +313,18 @@ var animator = animator || {};
         return;
       }
       this.audioRecorder = new MediaRecorder(stream, {mimeType: "audio/webm;codecs=opus"});
-      this.audioRecorder.ondataavailable = function(evt) {
+      this.audioRecorder.ondataavailable = (evt => {
         this.audioChunks.push(evt.data);
-      }.bind(this);
-      this.audioRecorder.onstop = function(evt) {
+      }).bind(this);
+      this.audioRecorder.onstop = (evt => {
         this.audioRecorder = null;
         this.setAudioSrc(new Blob(this.audioChunks, {'type': 'audio/webm;codecs=opus'}));
         this.audioChunks = [];
         resolve(this.audioBlob);
-      }.bind(this);
+      }).bind(this);
       this.startPlay(true);
       this.audioRecorder.start();
-    }.bind(this));
+    }).bind(this));
     return promise;
   };
 
