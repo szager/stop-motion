@@ -2,13 +2,9 @@
 'use strict';
 
 var animator = animator || {};
-var MediaRecorder = MediaRecorder || {};
-var webm = webm || {};
 
 (function() {
-  var an = animator;
-
-  an.Animator = function(video, snapshotCanvas, playCanvas, messageDiv) {
+  animator.Animator = function(video, snapshotCanvas, playCanvas, messageDiv) {
     this.video = video;
     this.videoStream = null;
     this.snapshotCanvas = snapshotCanvas;
@@ -29,12 +25,12 @@ var webm = webm || {};
     this.setDimensions(snapshotCanvas.width, snapshotCanvas.height);
   };
 
-  an.Animator.prototype.videoCannotPlayHandler = function(e) {
+  animator.Animator.prototype.videoCannotPlayHandler = function(e) {
     console.log('navigator.getUserMedia error: ', e);
     this.messageDiv.innerHTML = "Cannot connect to camera.";
   };
 
-  an.Animator.prototype.setDimensions = function(w, h) {
+  animator.Animator.prototype.setDimensions = function(w, h) {
     this.w = w;
     this.h = h;
     this.video.width = w;
@@ -43,8 +39,8 @@ var webm = webm || {};
     this.snapshotCanvas.height = this.h;
   };
 
-  an.Animator.prototype.attachStream = function(sourceId) {
-    var constraints = {
+  animator.Animator.prototype.attachStream = function(sourceId) {
+    let constraints = {
       audio: false,
       frameRate: 15,
       width: 640,
@@ -71,7 +67,7 @@ var webm = webm || {};
     );
   };
 
-  an.Animator.prototype.detachStream = function () {
+  animator.Animator.prototype.detachStream = function () {
     if (!this.video.srcObject)
       return;
     this.video.pause();
@@ -80,11 +76,11 @@ var webm = webm || {};
     this.video.srcObject = null;
   };
 
-  an.Animator.prototype.isPlaying = function() {
+  animator.Animator.prototype.isPlaying = function() {
     return Boolean(this.playTimer);
   };
 
-  an.Animator.prototype.toggleVideo = function() {
+  animator.Animator.prototype.toggleVideo = function() {
     if (this.video.paused) {
       if (this.video.srcObject.active) {
         this.video.play();
@@ -98,10 +94,10 @@ var webm = webm || {};
     }
   };
 
-  an.Animator.prototype.capture = function() {
+  animator.Animator.prototype.capture = function() {
     if (!this.streamOn)
       return;
-    var imageCanvas = document.createElement('canvas');
+    let imageCanvas = document.createElement('canvas');
     imageCanvas.width = this.w;
     imageCanvas.height = this.h;
     imageCanvas.getContext('2d').drawImage(this.video, 0, 0, this.w, this.h);
@@ -114,7 +110,7 @@ var webm = webm || {};
     this.frameWebps.push(promise);
   };
 
-  an.Animator.prototype.undoCapture = function() {
+  animator.Animator.prototype.undoCapture = function() {
     this.frames.pop();
     this.frameWebps.pop();
     this.snapshotContext.clearRect(0, 0, this.w, this.h);
@@ -122,11 +118,11 @@ var webm = webm || {};
       this.snapshotContext.drawImage(this.frames[this.frames.length-1], 0, 0);
   };
 
-  an.Animator.prototype.frameTimeout = function() {
+  animator.Animator.prototype.frameTimeout = function() {
     return 1000.0 / 24;
   };
 
-  an.Animator.prototype.startPlay = function(noAudio) {
+  animator.Animator.prototype.startPlay = function(noAudio) {
     if (!this.frames.length)
       return;
     this.snapshotCanvas.style.visibility = 'hidden';
@@ -139,7 +135,7 @@ var webm = webm || {};
     }
   };
 
-  an.Animator.prototype.endPlay = function() {
+  animator.Animator.prototype.endPlay = function() {
     if (this.isPlaying())
       clearTimeout(this.playTimer);
     this.playTimer = null;
@@ -153,12 +149,12 @@ var webm = webm || {};
       this.video.play();
   };
 
-  an.Animator.prototype.drawFrame = function(frameNumber, context) {
+  animator.Animator.prototype.drawFrame = function(frameNumber, context) {
     context.clearRect(0, 0, this.w, this.h);
     context.drawImage(this.frames[frameNumber], 0, 0);
   };
 
-  an.Animator.prototype.playFrame = function(frameNumber) {
+  animator.Animator.prototype.playFrame = function(frameNumber) {
     if (frameNumber >= this.frames.length) {
       if (this.audioRecorder && this.audioRecorder.state == "recording")
         this.audioRecorder.stop();
@@ -169,14 +165,14 @@ var webm = webm || {};
     this.playTimer = setTimeout(this.playFrame.bind(this, frameNumber), this.frameTimeout());
   };
 
-  an.Animator.prototype.togglePlay = function() {
+  animator.Animator.prototype.togglePlay = function() {
     if (this.isPlaying())
       this.endPlay();
     else
       this.startPlay();
   };
 
-  an.Animator.prototype.clear = function() {
+  animator.Animator.prototype.clear = function() {
     if (this.isPlaying())
       this.endPlay();
     if (this.audioBlob)
@@ -191,18 +187,18 @@ var webm = webm || {};
     this.name = null;
   };
 
-  an.Animator.prototype.getFramePNG = function(idx) {
+  animator.Animator.prototype.getFramePNG = function(idx) {
     this.snapshotContext.clearRect(0, 0, this.w, this.h);
     this.snapshotContext.drawImage(this.frames[idx], 0, 0);
-    var dataUrl = this.snapshotCanvas.toDataURL();
-    var binStr = atob(dataUrl.split(',')[1]);
-    var arr = new Uint8Array(binStr.length - 8);
-    for (var i = 8; i < binStr.length; i++)
+    let dataUrl = this.snapshotCanvas.toDataURL();
+    let binStr = atob(dataUrl.split(',')[1]);
+    let arr = new Uint8Array(binStr.length - 8);
+    for (let i = 8; i < binStr.length; i++)
       arr[i-8] = binStr.charCodeAt(i);
     return arr;
   };
 
-  an.Animator.prototype.loadFinished = function() {
+  animator.Animator.prototype.loadFinished = function() {
     this.snapshotContext.clearRect(0, 0, this.w, this.h);
     if (this.frames.length) {
       this.snapshotContext.clearRect(0, 0, this.w, this.h);
@@ -211,10 +207,10 @@ var webm = webm || {};
     }
   };
 
-  an.Animator.prototype.addFrameVP8 = function(frameOffset, blob, idx) {
-    var this_animator = this;
-    var blobURL = URL.createObjectURL(blob);
-    var image = new Image(this.w, this.h);
+  animator.Animator.prototype.addFrameVP8 = function(frameOffset, blob, idx) {
+    let this_animator = this;
+    let blobURL = URL.createObjectURL(blob);
+    let image = new Image(this.w, this.h);
     this.framesInFlight++;
     image.src = blobURL;
     image.onerror = function(e) {
@@ -230,7 +226,7 @@ var webm = webm || {};
       image.src = blobURL;
     };
     image.onload = function() {
-      var newCanvas = document.createElement('canvas');
+      let newCanvas = document.createElement('canvas');
       newCanvas.width = this_animator.w;
       newCanvas.height = this_animator.h;
       newCanvas.getContext('2d').drawImage(this, 0, 0, this_animator.w, this_animator.h);
@@ -242,8 +238,8 @@ var webm = webm || {};
         this_animator.loadFinished();
     };
   };
-  
-  an.Animator.prototype.setAudioSrc = function(blob) {
+
+  animator.Animator.prototype.setAudioSrc = function(blob) {
     this.audioBlob = blob;
     if (this.audio) {
       URL.revokeObjectURL(this.audio.src);
@@ -255,15 +251,15 @@ var webm = webm || {};
     }
   };
 
-  an.Animator.prototype.save = function(filename) {
+  animator.Animator.prototype.save = function(filename) {
     filename = filename || 'StopMotion';
     if (!filename.endsWith('.webm'))
       filename += '.webm';
-    var title = filename.substr(0, filename.length - 5);
+    let title = filename.substr(0, filename.length - 5);
     return this.encode(title).then(function(blob) {
       this.exported = blob;
       let url = URL.createObjectURL(blob);
-      var downloadLink = document.createElement('a');
+      let downloadLink = document.createElement('a');
       downloadLink.download = filename;
       downloadLink.href = url;
       downloadLink.click();
@@ -271,8 +267,8 @@ var webm = webm || {};
       return blob;
     }.bind(this));
   };
-  
-  an.Animator.prototype.encode = function(title) {
+
+  animator.Animator.prototype.encode = function(title) {
     if (!this.audioBlob)
       return webm.encode(title, this.w, this.h, this.frameTimeout(), this.frameWebps, null);
     let fr = new FileReader();
@@ -287,10 +283,10 @@ var webm = webm || {};
     return promise;
   };
 
-  an.Animator.prototype.load = function(file, finishCB, frameRateCB) {
-    var animator = this;
-    var frameOffset = this.frames.length;
-    var reader = new FileReader();
+  animator.Animator.prototype.load = function(file, finishCB, frameRateCB) {
+    let animator = this;
+    let frameOffset = this.frames.length;
+    let reader = new FileReader();
     reader.onloadend = function() {
       webm.decode(this.result,
                   animator.setDimensions.bind(animator),
@@ -304,13 +300,13 @@ var webm = webm || {};
     reader.readAsArrayBuffer(file);
   };
 
-  an.Animator.prototype.recordAudio = function(stream) {
+  animator.Animator.prototype.recordAudio = function(stream) {
     let promise = new Promise(function(resolve, reject) {
       if (!this.frames.length) {
         resolve(null);
         return;
       }
-      var state = this.audioRecorder ? this.audioRecorder.state : "inactive";
+      let state = this.audioRecorder ? this.audioRecorder.state : "inactive";
       if (state == "recording") {
         resolve(null);
         return;
@@ -330,8 +326,8 @@ var webm = webm || {};
     }.bind(this));
     return promise;
   };
-  
-  an.Animator.prototype.clearAudio = function() {
+
+  animator.Animator.prototype.clearAudio = function() {
     if (this.audioRecorder)
       return;
     this.setAudioSrc(null);

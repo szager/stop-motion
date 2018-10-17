@@ -42,10 +42,24 @@ canvas, video {
  color:red;
  transform:translateX(-645px);
 }
+#progress-line {
+  stroke: currentColor;
+  stroke-width: 2px;
+}
+#progress-circle {
+ stroke: none;
+ fill:currentColor;
+}
 #speed-container {
   display: flex;
   flex-flow: row nowrap;
   justify-content: space-between;
+}
+.speed-label {
+  flex: 0 1 auto;
+}
+#playbackSpeed {
+  flex: 99 0 auto;
 }
 #control-column {
   flex: 1 1;
@@ -95,12 +109,30 @@ canvas, video {
   text-align: center;
   width:100%;
 }
+#installButton {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 212px;
+  min-height: 92px;
+  border-radius: 15px;
+  background-color: blue;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  text-align: center;
+  color: white;
+  font-family: Arial;
+}
 .center-circle {
   cx: calc(var(--width)/2);
   cy: calc(var(--height)/2);
 }
 pre {
   font: normal normal normal 24px/normal Arial;
+}
+.not-recording {
+  color: black;
 }
 
 .ripple-decay {

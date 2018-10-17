@@ -9,10 +9,10 @@ handlers:
   secure: always
 - url: /images/(.*)
   static_files: images/\1
-  upload: images/.*\.png
+  upload: images/.*\.(png|svg)
 - url: /js/(.*)
   static_files: js/\1
   upload: js/.*\.js
 - url: /(.*)
   static_files: \1
-  upload: .*\.(html|css)
+  upload: .*\.(html|css|js|json)

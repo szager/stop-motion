@@ -1,57 +1,57 @@
 /* -*- mode: javascript; js-indent-level: 2 -*- */
 'use strict';
 
-var an;
+var main = main || {};
 
-window.onload = function() {
-  navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+window.addEventListener('load', evt => {
+  let videoContainer = document.getElementById('video-container');
+  let video = document.getElementById('video');
+  let topContainer = document.getElementById('top-container');
+  let snapshotCanvas = document.getElementById('snapshot-canvas');
+  let playCanvas = document.getElementById('play-canvas');
+  let videoMessage = document.getElementById('video-message');
+  let toggleButton = document.getElementById('toggleButton');
+  let captureButton = document.getElementById('captureButton');
+  let undoButton = document.getElementById('undoButton');
+  let playButton = document.getElementById('playButton');
+  let clearButton = document.getElementById('clearButton');
+  let clearConfirmDialog = document.getElementById('clearConfirmDialog');
+  let clearConfirmButton = document.getElementById('clearConfirmButton');
+  let clearCancelButton = document.getElementById('clearCancelButton');
+  let saveButton = document.getElementById('saveButton');
+  let saveDialog = document.getElementById('saveDialog');
+  let fileNameInput = saveDialog.querySelector('input');
+  let saveConfirmButton = document.getElementById('saveConfirmButton');
+  let saveCancelButton = document.getElementById('saveCancelButton');
+  let loadButton = document.getElementById('loadButton');
+  let recordAudioButton = document.getElementById('recordAudioButton');
+  let clearAudioButton = document.getElementById('clearAudioButton');
+  let playbackSpeedSelector = document.getElementById('playbackSpeed');
+  let recordingIcons = document.querySelectorAll('.recording');
+  let notRecordingIcons = document.querySelectorAll('.not-recording');
+  let countdown = document.getElementById('countdown');
+  let progressMarker = document.getElementById("progress-marker");
+  let installButton = document.getElementById("installButton");
 
-  var videoContainer = document.getElementById('video-container');
-  var video = document.getElementById('video');
-  //var audio = document.getElementById('audio');
-  var topContainer = document.getElementById('top-container');
-  var snapshotCanvas = document.getElementById('snapshot-canvas');
-  var playCanvas = document.getElementById('play-canvas');
-  var videoMessage = document.getElementById('video-message');
-  var toggleButton = document.getElementById('toggleButton');
-  var captureButton = document.getElementById('captureButton');
-  var undoButton = document.getElementById('undoButton');
-  var playButton = document.getElementById('playButton');
-  var clearButton = document.getElementById('clearButton');
-  var clearConfirmDialog = document.getElementById('clearConfirmDialog');
-  var clearConfirmButton = document.getElementById('clearConfirmButton');
-  var clearCancelButton = document.getElementById('clearCancelButton');
-  var saveButton = document.getElementById('saveButton');
-  var saveDialog = document.getElementById('saveDialog');
-  var fileNameInput = saveDialog.querySelector('input');
-  var saveConfirmButton = document.getElementById('saveConfirmButton');
-  var saveCancelButton = document.getElementById('saveCancelButton');
-  var loadButton = document.getElementById('loadButton');
-  var recordAudioButton = document.getElementById('recordAudioButton');
-  var clearAudioButton = document.getElementById('clearAudioButton');
-  var playbackSpeedSelector = document.getElementById('playbackSpeed');
-  var recordingIcons = document.querySelectorAll('.recording');
-  var notRecordingIcons = document.querySelectorAll('.not-recording');
-  var countdown = document.getElementById('countdown');
-  var progressMarker = document.getElementById("progress-marker");
-  var audioStream;
-  
-  var isRecording = false;
-  
-  var captureClicks = function (e) {e.stopPropagation()};
+  let an;
+  let audioStream;
 
-  var showSpinner = function() {
+  let isRecording = false;
+
+  let captureClicks = e => {e.stopPropagation()};
+
+  let showSpinner = () => {
 //    topContainer.style.opacity = 0.5;
 //    topContainer.addEventListener('click', captureClicks, true);
   };
 
-  var hideSpinner = function() {
+  let hideSpinner = () => {
 //    topContainer.style.opacity = null;
 //    topContainer.removeEventListener('click', captureClicks, true);
   };
 
-  var saveCB = function () {
-    var value = fileNameInput.value;
+  let saveCB = () => {
+    let value = fileNameInput.value;
     if (!value.length)
       value = 'StopMotion';
     value = value.replace(/\s+/g, '_');
@@ -62,18 +62,17 @@ window.onload = function() {
       value += '.webm';
     saveDialog.close();
     showSpinner();
-    var startTime = performance.now();
+    let startTime = performance.now();
     an.save(value).then(hideSpinner);
   };
-  
+
   // Create Animator object and set up callbacks.
-  //an = new animator.Animator(video, audio, snapshotCanvas, playCanvas, videoMessage);
-  an = new animator.Animator(video, snapshotCanvas, playCanvas, videoMessage);
-  an.frameTimeout = function() {
+  main.animator = an = new animator.Animator(video, snapshotCanvas, playCanvas, videoMessage);
+  an.frameTimeout = () => {
     return 1000.0 / playbackSpeedSelector.value;
   };
 
-  window.addEventListener("keydown", function(e) {
+  window.addEventListener("keydown", (e => {
     if (e.altKey || e.ctrlKey || e.shiftKey || clearConfirmDialog.open || saveDialog.open)
       return;
     if (e.code == "Space") {
@@ -84,52 +83,52 @@ window.onload = function() {
       e.preventDefault();
       undoButton.click();
     }
-  });
-  toggleButton.onclick = function() {
+  }));
+  toggleButton.onclick = () => {
     an.toggleVideo();
     if (an.video.paused)
       toggleButton.firstChild.src = "images/on72.png";
     else
       toggleButton.firstChild.src = "images/off72.png";
   };
-  captureButton.onclick = function () {
+  captureButton.onclick = () => {
     an.capture();
     captureButton.style.backgroundColor = "#4682b4";
-    setTimeout(function() {captureButton.style.backgroundColor = "";}, 250);
+    setTimeout(() => {captureButton.style.backgroundColor = "";}, 250);
   };
-  undoButton.onclick = function() {
+  undoButton.onclick = () => {
     an.undoCapture();
     undoButton.style.backgroundColor = "#4682b4";
-    setTimeout(function() {undoButton.style.backgroundColor = "";}, 250);
+    setTimeout(() => {undoButton.style.backgroundColor = "";}, 250);
   };
 
-  progressMarker.addEventListener("animationend", function() {
+  progressMarker.addEventListener("animationend", () => {
     progressMarker.classList.toggle("slide-right");
     progressMarker.style.transform = "translateX(0px)";
-    setTimeout(function() {
+    setTimeout(() => {
       progressMarker.style.transform = "translateX(-650px)";
     }, 1000);
   });
 
-  playButton.onclick = function() {
+  playButton.onclick = () => {
     progressMarker.style.animationDuration = (an.frames.length / playbackSpeedSelector.value) + "s";
     progressMarker.classList.add("slide-right");
     an.togglePlay();
   };
 
-  clearButton.onclick = function() {
+  clearButton.onclick = () => {
     if (!an.frames.length)
       return;
     clearConfirmDialog.showModal();
   };
-  clearConfirmButton.onclick = function () {
+  clearConfirmButton.onclick = () => {
     an.clear();
     clearConfirmDialog.close();
   };
-  clearCancelButton.onclick = function () {
+  clearCancelButton.onclick = () => {
     clearConfirmDialog.close();
   };
-  saveButton.onclick = function () {
+  saveButton.onclick = () => {
     if (!an.frames.length)
       return;
     if (an.name)
@@ -137,18 +136,18 @@ window.onload = function() {
     saveConfirmButton.onclick = saveCB;
     saveDialog.showModal();
   };
-  
-  saveCancelButton.onclick = function () {
+
+  saveCancelButton.onclick = () => {
     saveDialog.close();
   };
-  
-  loadButton.onclick = function () {
-    var fileInput = document.createElement('input');
+
+  loadButton.onclick = () => {
+    let fileInput = document.createElement('input');
     fileInput.type = "file";
-    fileInput.addEventListener("change", function () {
+    fileInput.addEventListener("change", () => {
       if (this.files[0]) {
         showSpinner();
-        an.load(this.files[0], hideSpinner, function(frameRate) {
+        an.load(this.files[0], hideSpinner, frameRate => {
           playbackSpeedSelector.value = frameRate;
         });
       }
@@ -156,29 +155,29 @@ window.onload = function() {
     fileInput.click();
   };
 
-  function updateRecordingIcons(showNotRecording, showCountdown, showRecording) {
-    recordingIcons.forEach(function(e) { e.style.display = (showRecording ? "" : "none") });
-    notRecordingIcons.forEach(function(e) { e.style.display = (showNotRecording ? "" : "none") });
+  let updateRecordingIcons = (showNotRecording, showCountdown, showRecording) => {
+    recordingIcons.forEach(e => { e.style.display = (showRecording ? "" : "none") });
+    notRecordingIcons.forEach(e => { e.style.display = (showNotRecording ? "" : "none") });
     countdown.style.display = (showCountdown ? "" : "none");
-  }
+  };
   updateRecordingIcons(true, false, false);
 
-  countdown.addEventListener("animationstart", function() {
+  countdown.addEventListener("animationstart", () => {
     this.firstElementChild.innerHTML = "3";
   });
-  countdown.addEventListener("animationiteration", function() {
+  countdown.addEventListener("animationiteration", () => {
     this.firstElementChild.innerHTML = (parseInt(this.firstElementChild.innerHTML) - 1).toString();
   });
-  countdown.addEventListener("animationend", function() {
+  countdown.addEventListener("animationend", () => {
     this.firstElementChild.innerHTML = "";
     if (isRecording) {
       progressMarker.style.animationDuration = (an.frames.length / playbackSpeedSelector.value) + "s";
       progressMarker.classList.add("slide-right");
-      an.recordAudio(audioStream).then(function() {
+      an.recordAudio(audioStream).then(() => {
         isRecording = false;
         updateRecordingIcons(true, false, false);
         audioStream.getAudioTracks()[0].stop();
-        audioStream = null;
+        main.audio = audioStream = null;
       });
       updateRecordingIcons(false, false, true);
     } else {
@@ -186,65 +185,94 @@ window.onload = function() {
     }
   });
 
-  recordAudioButton.onclick = function() {
+  recordAudioButton.onclick = () => {
     if (!an.frames.length)
       return;
     if (isRecording) {
       an.endPlay();
       updateRecordingIcons(true, false, false);
-    } else {
-      navigator.mediaDevices.getUserMedia({audio: true, video: false}).then(function(stream) {
-        audioStream = stream;
+      isRecord = false;
+    } else if (self.navigator &&
+               navigator.mediaDevices &&
+               navigator.mediaDevices.getUserMedia) {
+      navigator.mediaDevices.getUserMedia({audio: true, video: false})
+          .then(stream => {
+        main.audio = audioStream = stream;
         updateRecordingIcons(false, true, false);
       });
+      isRecording = true;
+    } else {
+      isRecording = false;
     }
-    isRecording = !isRecording;
   };
-  
-  clearAudioButton.onclick = function() {
+
+  clearAudioButton.onclick = () => {
     an.clearAudio();
   };
-  
-  function setUpCameraSelectAndAttach(cameras) {
+
+  let setUpCameraSelectAndAttach = cameras => {
     if (!cameras || cameras.length < 2) {
       an.attachStream();
       return;
     }
-    var videoColumnDiv = document.getElementById('video-column');
-    var selectDiv = document.createElement('div');
+    let videoColumnDiv = document.getElementById('video-column');
+    let selectDiv = document.createElement('div');
     videoColumnDiv.appendChild(selectDiv);
-    var cameraSelect = document.createElement('select');
+    let cameraSelect = document.createElement('select');
     cameraSelect.id = 'camera-select';
     selectDiv.appendChild(cameraSelect);
-    for (var i = 0; i < cameras.length; i++) {
-      var cameraOption = document.createElement('option');
+    for (let i = 0; i < cameras.length; i++) {
+      let cameraOption = document.createElement('option');
       cameraOption.value = cameras[i];
       cameraOption.innerText = 'Camera ' + (i + 1);
       cameraSelect.appendChild(cameraOption);
       if (i === 0)
         cameraOption.selected = true;
     }
-    cameraSelect.onchange = function(e) {
+    cameraSelect.onchange = e => {
       an.detachStream();
       an.attachStream(e.target.value);
     };
     an.attachStream(cameras[0].deviceId);
-  }
+  };
 
   // Everything is set up, now connect to camera.
   if (self.navigator && navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
-    navigator.mediaDevices.enumerateDevices().then(function(devices) {
+    navigator.mediaDevices.enumerateDevices().then(devices => {
       setUpCameraSelectAndAttach(
-          devices.filter(function(d) { return d.kind == 'videoinput'; })
-                 .map(function(d) { return d.deviceId; }));
+          devices.filter(d => { return d.kind == 'videoinput'; })
+                 .map(d => { return d.deviceId; }));
     });
   } else if (self.MediaStreamTrack && MediaStreamTrack.getSources) {
-    MediaStreamTrack.getSources(function(sources) {
+    MediaStreamTrack.getSources(sources => {
       setUpCameraSelectAndAttach(
-          sources.filter(function(d) { return d.kind == 'video'; })
-                 .map(function(d) { return d.id; }));
+          sources.filter(d => { return d.kind == 'video'; })
+                 .map(d => { return d.id; }));
       });
   } else {
     setUpCameraSelectAndAttach();
   }
-};
+
+  // Set up service worker and cache
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').then(
+        registration => {
+          console.log('Service worker registered.');
+        },
+        err => {
+          console.log('Service worker failed to register: ', err);
+        });
+  };
+
+  // Set up Add to Home Screen prompt
+  let deferredPrompt;
+  window.addEventListener('beforeinstallprompt', evt => {
+    e.preventDefault();
+    deferredPrompt = e;
+    installButton.style.display = "";
+    installButton.addEventListener("click", evt => {
+      evt.target.parentNode.removeChild(evt.target);
+      deferredPrompt.prompt();
+    });
+  });
+});

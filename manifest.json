@@ -1,21 +1,26 @@
 {
+  "short_name": "StopMotion",
   "name": "Stop Motion Animator",
-  "description": "A simple tool for creating stop motion animation sequences using a webcam.",
-  "version": "0.12",
-  "manifest_version": 2,
-  "app": {
-    "background": {
-      "scripts": ["js/background.js"]
+  "icons": [
+    {
+      "src": "/images/icon2-128.png",
+      "type": "image/png",
+      "sizes": "128x128"
+    },
+    {
+      "src": "/images/icon2-48.png",
+      "type": "image/png",
+      "sizes": "48x48"
+    },
+    {
+      "src": "/images/icon2-16.png",
+      "type": "image/png",
+      "sizes": "16x16"
     }
-  },
-  "permissions": [
-    {"fileSystem": ["write", "directory"]},
-    "videoCapture",
-    "audioCapture"
   ],
-  "icons": {
-    "128": "images/icon2-128.png",
-    "48": "images/icon2-48.png",
-    "16": "images/icon2-16.png"
-  }
+  "start_url": "/index.html",
+  "background_color": "#000000",
+  "display": "standalone",
+  "scope": "/",
+  "theme_color": "#b0c4de"
 }
