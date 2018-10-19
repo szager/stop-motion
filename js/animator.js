@@ -3,8 +3,8 @@
 
 var animator = animator || {};
 
-(function() {
-  animator.Animator = function(video, snapshotCanvas, playCanvas, messageDiv) {
+(() => {
+  animator.Animator = ((video, snapshotCanvas, playCanvas, messageDiv) => {
     this.video = video;
     this.videoStream = null;
     this.snapshotCanvas = snapshotCanvas;
@@ -12,6 +12,7 @@ var animator = animator || {};
     this.playCanvas = playCanvas;
     this.playContext = playCanvas.getContext('2d');
     this.messageDiv = messageDiv;
+    this.playbackSpeed = 24.0;
     this.frames = [];
     this.frameWebps = [];
     this.streamOn = true;
@@ -23,23 +24,28 @@ var animator = animator || {};
     this.audioChunks = [];
     this.audioBlob = null;
     this.setDimensions(snapshotCanvas.width, snapshotCanvas.height);
-  };
+  });
 
-  animator.Animator.prototype.videoCannotPlayHandler = function(e) {
+  animator.Animator.prototype.setPlaybackSpeed = (speed => {
+    if (speed > 0)
+      this.playbackSpeed = speed;
+  });
+
+  animator.Animator.prototype.videoCannotPlayHandler = (e => {
     console.log('navigator.mediaDevices.getUserMedia error: ', e);
     this.messageDiv.innerText = "Cannot connect to camera.";
-  };
+  });
 
-  animator.Animator.prototype.setDimensions = function(w, h) {
+  animator.Animator.prototype.setDimensions = ((w, h) => {
     this.w = w;
     this.h = h;
     this.video.width = w;
     this.video.height = h;
     this.snapshotCanvas.width = this.w;
     this.snapshotCanvas.height = this.h;
-  };
+  });
 
-  animator.Animator.prototype.attachStream = function(sourceId) {
+  animator.Animator.prototype.attachStream = (sourceId => {
     this.messageDiv.innerText = "";
     let constraints = {
       audio: false,
@@ -62,28 +68,28 @@ var animator = animator || {};
       this.videoStream = stream;
       this.streamOn = true;
     }).catch(this.videoCannotPlayHandler.bind(this));
-  };
+  });
 
-  animator.Animator.prototype.detachStream = function () {
+  animator.Animator.prototype.detachStream = (() => {
     if (!this.video.srcObject)
       return;
     this.video.pause();
     this.video.srcObject.getVideoTracks()[0].stop();
     this.streamOn = false;
     this.video.srcObject = null;
-  };
+  });
 
-  animator.Animator.prototype.isPlaying = function() {
+  animator.Animator.prototype.isPlaying = (() => {
     return Boolean(this.playTimer);
-  };
+  });
 
-  animator.Animator.prototype.toggleVideo = function() {
+  animator.Animator.prototype.toggleVideo = (() => {
     if (this.video.paused) {
       if (this.video.srcObject && this.video.srcObject.active) {
         this.streamOn = true;
         return this.video.play()
-	    .then(() => { return true; })
-	    .catch(() => { return false; });
+            .then(() => { return true; })
+            .catch(() => { return false; });
       } else {
         return this.attachStream(this.videoSourceId);
       }
@@ -93,9 +99,9 @@ var animator = animator || {};
       this.streamOn = false;
       return new Promise((resolve, reject) => { resolve(false) });
     }
-  };
+  });
 
-  animator.Animator.prototype.capture = function() {
+  animator.Animator.prototype.capture = (() => {
     if (!this.streamOn)
       return;
     let imageCanvas = document.createElement('canvas');
@@ -104,26 +110,32 @@ var animator = animator || {};
     imageCanvas.getContext('2d').drawImage(this.video, 0, 0, this.w, this.h);
     this.frames.push(imageCanvas);
     let promise = new Promise(((resolve, reject) => {
-      imageCanvas.toBlob(function(blob) { resolve(blob) }, 'image/webp');
+      if (self.requestIdleCallback) {
+        requestIdleCallback(() => {
+          imageCanvas.toBlob(blob => { resolve(blob) }, 'image/webp');
+        });
+      } else {
+        imageCanvas.toBlob(blob => { resolve(blob) }, 'image/webp');
+      }
       this.snapshotContext.clearRect(0, 0, this.w, this.h);
       this.snapshotContext.drawImage(imageCanvas, 0, 0, this.w, this.h);
     }).bind(this));
     this.frameWebps.push(promise);
-  };
+  });
 
-  animator.Animator.prototype.undoCapture = function() {
+  animator.Animator.prototype.undoCapture = (() => {
     this.frames.pop();
     this.frameWebps.pop();
     this.snapshotContext.clearRect(0, 0, this.w, this.h);
     if (this.frames.length)
       this.snapshotContext.drawImage(this.frames[this.frames.length-1], 0, 0);
-  };
+  });
 
-  animator.Animator.prototype.frameTimeout = function() {
-    return 1000.0 / 24;
-  };
+  animator.Animator.prototype.frameTimeout = (() => {
+    return 1000.0 / this.playbackSpeed;
+  });
 
-  animator.Animator.prototype.startPlay = function(noAudio) {
+  animator.Animator.prototype.startPlay = (noAudio => {
     if (!this.frames.length)
       return;
     this.snapshotCanvas.style.visibility = 'hidden';
@@ -134,46 +146,46 @@ var animator = animator || {};
       this.audio.currentTime = 0;
       this.audio.play();
     }
-  };
+  });
 
-  animator.Animator.prototype.endPlay = function() {
+  animator.Animator.prototype.endPlay = (() => {
     if (this.isPlaying())
       clearTimeout(this.playTimer);
     this.playTimer = null;
-    if (this.audioRecorder && this.audioRecorder.state == "recording")
-      setTimeout(this.audioRecorder.stop, this.frameTimeout());
-    if (this.audio)
+    if (this.audioRecorder && this.audioRecorder.state == "recording") {
+      this.audioRecorder.stop();
+    } else if (this.audio) {
       this.audio.pause();
+    }
     this.playContext.clearRect(0, 0, this.w, this.h);
     this.snapshotCanvas.style.visibility = '';
     if (this.streamOn)
       this.video.play();
-  };
+  });
 
-  animator.Animator.prototype.drawFrame = function(frameNumber, context) {
+  animator.Animator.prototype.drawFrame = ((frameNumber, context) => {
     context.clearRect(0, 0, this.w, this.h);
     context.drawImage(this.frames[frameNumber], 0, 0);
-  };
+  });
 
-  animator.Animator.prototype.playFrame = function(frameNumber) {
+  animator.Animator.prototype.playFrame = (frameNumber => {
     if (frameNumber >= this.frames.length) {
-      if (this.audioRecorder && this.audioRecorder.state == "recording")
-        this.audioRecorder.stop();
       this.playTimer = setTimeout(this.endPlay.bind(this), 1000);
-      return;
+    } else {
+      this.drawFrame(frameNumber++, this.playContext);
+      this.playTimer = setTimeout(this.playFrame.bind(this, frameNumber),
+				  this.frameTimeout());
     }
-    this.drawFrame(frameNumber++, this.playContext);
-    this.playTimer = setTimeout(this.playFrame.bind(this, frameNumber), this.frameTimeout());
-  };
+  });
 
-  animator.Animator.prototype.togglePlay = function() {
+  animator.Animator.prototype.togglePlay = (() => {
     if (this.isPlaying())
       this.endPlay();
     else
       this.startPlay();
-  };
+  });
 
-  animator.Animator.prototype.clear = function() {
+  animator.Animator.prototype.clear = (() => {
     if (this.isPlaying())
       this.endPlay();
     if (this.audioBlob)
@@ -186,9 +198,9 @@ var animator = animator || {};
     this.snapshotContext.clearRect(0, 0, this.w, this.h);
     this.playContext.clearRect(0, 0, this.w, this.h);
     this.name = null;
-  };
+  });
 
-  animator.Animator.prototype.getFramePNG = function(idx) {
+  animator.Animator.prototype.getFramePNG = (idx => {
     this.snapshotContext.clearRect(0, 0, this.w, this.h);
     this.snapshotContext.drawImage(this.frames[idx], 0, 0);
     let dataUrl = this.snapshotCanvas.toDataURL();
@@ -197,50 +209,55 @@ var animator = animator || {};
     for (let i = 8; i < binStr.length; i++)
       arr[i-8] = binStr.charCodeAt(i);
     return arr;
-  };
+  });
 
-  animator.Animator.prototype.loadFinished = function() {
+  animator.Animator.prototype.loadFinished = (() => {
     this.snapshotContext.clearRect(0, 0, this.w, this.h);
     if (this.frames.length) {
       this.snapshotContext.clearRect(0, 0, this.w, this.h);
       this.snapshotContext.drawImage(this.frames[this.frames.length-1], 0, 0, this.w, this.h);
       this.startPlay();
     }
-  };
+  });
 
-  animator.Animator.prototype.addFrameVP8 = function(frameOffset, blob, idx) {
-    let this_animator = this;
+  animator.Animator.prototype.addFrameVP8 = ((frameOffset, blob, idx) => {
     let blobURL = URL.createObjectURL(blob);
     let image = new Image(this.w, this.h);
     this.framesInFlight++;
-    image.src = blobURL;
-    image.onerror = function(e) {
-      if (image.triedvp8l) {
-        console.log(e.type);
-        this_animator.framesInFlight--;
-        return;
+    image.addEventListener("error", (error => {
+      if (image.getAttribute('triedvp8l')) {
+        console.log(error);
+	this.framesInFlight--;
+	URL.revokeObjectURL(blobURL);
+	image.src = null;
+	if (this.framesInFlight === 0)
+          this.loadFinished();
+      } else {
+        image.setAttribute('triedvp8l', true);
+	URL.revokeObjectURL(blobURL);
+        blob = webm.vp8tovp8l(blob);
+        blobURL = URL.createObjectURL(blob);
+        image.src = blobURL;
       }
-      image.triedvp8l = true;
-      URL.revokeObjectURL(blobURL);
-      blob = webm.vp8tovp8l(blob);
-      blobURL = URL.createObjectURL(blob);
-      image.src = blobURL;
-    };
-    image.onload = function() {
+    }).bind(this));
+    image.addEventListener("load", (evt => {
       let newCanvas = document.createElement('canvas');
-      newCanvas.width = this_animator.w;
-      newCanvas.height = this_animator.h;
-      newCanvas.getContext('2d').drawImage(this, 0, 0, this_animator.w, this_animator.h);
-      this_animator.frames[frameOffset + idx] = newCanvas;
-      this_animator.frameWebps[frameOffset + idx] = new Promise(function(resolve, reject) { resolve(blob); });
-      this_animator.framesInFlight--;
+      newCanvas.width = this.w;
+      newCanvas.height = this.h;
+      newCanvas.getContext('2d').drawImage(evt.target, 0, 0, this.w, this.h);
+      this.frames[frameOffset + idx] = newCanvas;
+      this.frameWebps[frameOffset + idx] = new Promise((resolve, reject) => {
+	resolve(blob);
+      });
+      this.framesInFlight--;
       URL.revokeObjectURL(blobURL);
-      if (this_animator.framesInFlight === 0)
-        this_animator.loadFinished();
-    };
-  };
+      if (this.framesInFlight === 0)
+        this.loadFinished();
+    }).bind(this));
+    image.src = blobURL;
+  });
 
-  animator.Animator.prototype.setAudioSrc = function(blob) {
+  animator.Animator.prototype.setAudioSrc = (blob => {
     this.audioBlob = blob;
     if (this.audio) {
       URL.revokeObjectURL(this.audio.src);
@@ -250,9 +267,9 @@ var animator = animator || {};
       this.audio = document.createElement('audio');
       this.audio.src = URL.createObjectURL(blob);
     }
-  };
+  });
 
-  animator.Animator.prototype.save = function(filename) {
+  animator.Animator.prototype.save = (filename => {
     filename = filename || 'StopMotion';
     if (!filename.endsWith('.webm'))
       filename += '.webm';
@@ -267,29 +284,29 @@ var animator = animator || {};
       URL.revokeObjectURL(url);
       return blob;
     }).bind(this));
-  };
+  });
 
-  animator.Animator.prototype.encode = function(title) {
+  animator.Animator.prototype.encode = (title => {
     if (!this.audioBlob)
       return webm.encode(title, this.w, this.h, this.frameTimeout(), this.frameWebps, null);
     let fr = new FileReader();
     let an = this;
-    let promise = new Promise(function(resolve, reject) {
-      fr.addEventListener("loadend", function() {
+    let promise = new Promise((resolve, reject) => {
+      fr.addEventListener("loadend", evt => {
         webm.encode(title, an.w, an.h, an.frameTimeout(), an.frameWebps, this.result)
-            .then(function(blob) { resolve(blob) });
+            .then(resolve);
       });
       fr.readAsArrayBuffer(an.audioBlob);
     });
     return promise;
-  };
+  });
 
-  animator.Animator.prototype.load = function(file, finishCB, frameRateCB) {
+  animator.Animator.prototype.load = ((file, finishCB, frameRateCB) => {
     let animator = this;
     let frameOffset = this.frames.length;
     let reader = new FileReader();
-    reader.onloadend = function() {
-      webm.decode(this.result,
+    reader.addEventListener("loadend", evt => {
+      webm.decode(evt.target.result,
                   animator.setDimensions.bind(animator),
                   frameRateCB,
                   animator.addFrameVP8.bind(animator, frameOffset),
@@ -297,11 +314,11 @@ var animator = animator || {};
       animator.name = file.name.substring(0, file.name.length - 5);
       if (finishCB)
         finishCB();
-    };
+    });
     reader.readAsArrayBuffer(file);
-  };
+  });
 
-  animator.Animator.prototype.recordAudio = function(stream) {
+  animator.Animator.prototype.recordAudio = (stream => {
     let promise = new Promise(((resolve, reject) => {
       if (!this.frames.length) {
         resolve(null);
@@ -326,11 +343,11 @@ var animator = animator || {};
       this.audioRecorder.start();
     }).bind(this));
     return promise;
-  };
+  });
 
-  animator.Animator.prototype.clearAudio = function() {
+  animator.Animator.prototype.clearAudio = (() => {
     if (this.audioRecorder)
       return;
     this.setAudioSrc(null);
-  };
+  });
 })();

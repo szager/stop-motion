@@ -90,6 +90,9 @@ canvas, video {
   min-height: 92px;
   justify-content: space-between;
 }
+.button72 .pressed {
+  background-color: #4682b4;
+}
 .button72 > .iconContainer {
   will-change: transform;
   width: 72px;

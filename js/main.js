@@ -3,53 +3,40 @@
 
 var main = main || {};
 
+(() => {
+  // Set up service worker
+  if (self.navigator && 'serviceWorker' in navigator)
+    navigator.serviceWorker.register('/sw.js');
+
+  // Set up Add to Home Screen prompt
+  window.addEventListener('beforeinstallprompt', prompt => {
+    prompt.preventDefault();
+    let installButton = document.getElementById("installButton");
+    installButton.style.display = "";
+    installButton.addEventListener("click", evt => {
+      evt.target.parentNode.removeChild(evt.target);
+      prompt.prompt();
+    });
+  });
+})();
+
 window.addEventListener('load', evt => {
-  let videoContainer = document.getElementById('video-container');
+  // Create Animator object and set up callbacks.
   let video = document.getElementById('video');
-  let topContainer = document.getElementById('top-container');
   let snapshotCanvas = document.getElementById('snapshot-canvas');
   let playCanvas = document.getElementById('play-canvas');
   let videoMessage = document.getElementById('video-message');
-  let toggleButton = document.getElementById('toggleButton');
-  let captureButton = document.getElementById('captureButton');
-  let undoButton = document.getElementById('undoButton');
-  let playButton = document.getElementById('playButton');
-  let clearButton = document.getElementById('clearButton');
-  let clearConfirmDialog = document.getElementById('clearConfirmDialog');
-  let clearConfirmButton = document.getElementById('clearConfirmButton');
-  let clearCancelButton = document.getElementById('clearCancelButton');
-  let saveButton = document.getElementById('saveButton');
+  let an = new animator.Animator(video, snapshotCanvas, playCanvas, videoMessage);
+  main.animator = an;
+
+  let playbackSpeedSelector = document.getElementById('playbackSpeed');
+  let playbackSpeed = () => {
+    return playbackSpeedSelector.value;
+  }
+  an.setPlaybackSpeed(playbackSpeed());
+
   let saveDialog = document.getElementById('saveDialog');
   let fileNameInput = saveDialog.querySelector('input');
-  let saveConfirmButton = document.getElementById('saveConfirmButton');
-  let saveCancelButton = document.getElementById('saveCancelButton');
-  let loadButton = document.getElementById('loadButton');
-  let recordAudioButton = document.getElementById('recordAudioButton');
-  let clearAudioButton = document.getElementById('clearAudioButton');
-  let playbackSpeedSelector = document.getElementById('playbackSpeed');
-  let recordingIcons = document.querySelectorAll('.recording');
-  let notRecordingIcons = document.querySelectorAll('.not-recording');
-  let countdown = document.getElementById('countdown');
-  let progressMarker = document.getElementById("progress-marker");
-  let installButton = document.getElementById("installButton");
-
-  let an;
-  let audioStream;
-
-  let isRecording = false;
-
-  let captureClicks = e => {e.stopPropagation()};
-
-  let showSpinner = () => {
-//    topContainer.style.opacity = 0.5;
-//    topContainer.addEventListener('click', captureClicks, true);
-  };
-
-  let hideSpinner = () => {
-//    topContainer.style.opacity = null;
-//    topContainer.removeEventListener('click', captureClicks, true);
-  };
-
   let saveCB = () => {
     let value = fileNameInput.value;
     if (!value.length)
@@ -61,17 +48,23 @@ window.addEventListener('load', evt => {
     if (!value.endsWith('.webm'))
       value += '.webm';
     saveDialog.close();
-    showSpinner();
-    let startTime = performance.now();
-    an.save(value).then(hideSpinner);
+    let topContainer = document.getElementById('top-container');
+    let captureClicks = (e => { e.stopPropagation() });
+    topContainer.style.opacity = 0.5;
+    topContainer.addEventListener('click', captureClicks, true);
+    an.save(value).then(() => {
+      topContainer.style.opacity = null;
+      topContainer.removeEventListener('click', captureClicks, true);
+    }).catch(err => {
+      console.log(err);
+      topContainer.style.opacity = null;
+      topContainer.removeEventListener('click', captureClicks, true);
+    });
   };
 
-  // Create Animator object and set up callbacks.
-  main.animator = an = new animator.Animator(video, snapshotCanvas, playCanvas, videoMessage);
-  an.frameTimeout = () => {
-    return 1000.0 / playbackSpeedSelector.value;
-  };
-
+  let captureButton = document.getElementById('captureButton');
+  let undoButton = document.getElementById('undoButton');
+  let clearConfirmDialog = document.getElementById('clearConfirmDialog');
   window.addEventListener("keydown", (e => {
     if (e.altKey || e.ctrlKey || e.shiftKey || clearConfirmDialog.open || saveDialog.open)
       return;
@@ -84,28 +77,36 @@ window.addEventListener('load', evt => {
       undoButton.click();
     }
   }));
-  toggleButton.onclick = () => {
+
+  let toggleButton = document.getElementById('toggleButton');
+  toggleButton.addEventListener("click", evt => {
     an.toggleVideo().then(isPlaying => {
       if (isPlaying) {
-	toggleButton.firstChild.src = "images/off72.png";
+	evt.target.firstChild.src = "images/off72.png";
       } else {
-	toggleButton.firstChild.src = "images/on72.png";
+	evt.target.firstChild.src = "images/on72.png";
       }
     }).catch(err => {
-      toggleButton.firstChild.src = "images/off72.png";
+      evt.target.firstChild.src = "images/off72.png";
     });
-  };
-  captureButton.onclick = () => {
-    an.capture();
-    captureButton.style.backgroundColor = "#4682b4";
-    setTimeout(() => {captureButton.style.backgroundColor = "";}, 250);
-  };
-  undoButton.onclick = () => {
-    an.undoCapture();
-    undoButton.style.backgroundColor = "#4682b4";
-    setTimeout(() => {undoButton.style.backgroundColor = "";}, 250);
-  };
+  });
 
+  let pressButton = (button => {
+    button.classList.add('pressed');
+    setTimeout(() => { button.classList.remove('pressed') }, 250);
+  });
+
+  captureButton.addEventListener("click", evt => {
+    an.capture();
+    pressButton(evt.target);
+  });
+
+  undoButton.addEventListener("click", evt => {
+    an.undoCapture();
+    pressButton(evt.target);
+  });
+
+  let progressMarker = document.getElementById("progress-marker");
   progressMarker.addEventListener("animationend", () => {
     progressMarker.classList.toggle("slide-right");
     progressMarker.style.transform = "translateX(0px)";
@@ -114,38 +115,49 @@ window.addEventListener('load', evt => {
     }, 1000);
   });
 
-  playButton.onclick = () => {
-    progressMarker.style.animationDuration = (an.frames.length / playbackSpeedSelector.value) + "s";
+  let playButton = document.getElementById('playButton');
+  playButton.addEventListener("click", evt => {
+    progressMarker.style.animationDuration = (an.frames.length / playbackSpeed()) + "s";
     progressMarker.classList.add("slide-right");
     an.togglePlay();
-  };
+  });
 
-  clearButton.onclick = () => {
+  let clearButton = document.getElementById('clearButton');
+  clearButton.addEventListener("click", evt => {
     if (!an.frames.length)
       return;
     clearConfirmDialog.showModal();
-  };
-  clearConfirmButton.onclick = () => {
+  });
+
+  let clearConfirmButton = document.getElementById('clearConfirmButton');
+  clearConfirmButton.addEventListener("click", evt => {
     an.clear();
     clearConfirmDialog.close();
-  };
-  clearCancelButton.onclick = () => {
+  });
+
+  let clearCancelButton = document.getElementById('clearCancelButton');
+  clearCancelButton.addEventListener("click", evt => {
     clearConfirmDialog.close();
-  };
-  saveButton.onclick = () => {
+  });
+
+  let saveButton = document.getElementById('saveButton');
+  saveButton.addEventListener("click", evt => {
     if (!an.frames.length)
       return;
     if (an.name)
       fileNameInput.value = an.name;
-    saveConfirmButton.onclick = saveCB;
+    let saveConfirmButton = document.getElementById('saveConfirmButton');
+    saveConfirmButton.addEventListener("click", saveCB);
     saveDialog.showModal();
-  };
+  });
 
-  saveCancelButton.onclick = () => {
+  let saveCancelButton = document.getElementById('saveCancelButton');
+  saveCancelButton.addEventListener("click", evt => {
     saveDialog.close();
-  };
+  });
 
-  loadButton.onclick = () => {
+  let loadButton = document.getElementById('loadButton');
+  loadButton.addEventListener("click", evt => {
     let fileInput = document.createElement('input');
     fileInput.type = "file";
     fileInput.addEventListener("change", () => {
@@ -157,8 +169,13 @@ window.addEventListener('load', evt => {
       }
     }, false);
     fileInput.click();
-  };
+  });
 
+  let audioStream;
+  let isRecording = false;
+  let recordingIcons = document.querySelectorAll('.recording');
+  let notRecordingIcons = document.querySelectorAll('.not-recording');
+  let countdown = document.getElementById('countdown');
   let updateRecordingIcons = (showNotRecording, showCountdown, showRecording) => {
     recordingIcons.forEach(e => { e.style.display = (showRecording ? "" : "none") });
     notRecordingIcons.forEach(e => { e.style.display = (showNotRecording ? "" : "none") });
@@ -175,7 +192,7 @@ window.addEventListener('load', evt => {
   countdown.addEventListener("animationend", () => {
     this.firstElementChild.innerHTML = "";
     if (isRecording) {
-      progressMarker.style.animationDuration = (an.frames.length / playbackSpeedSelector.value) + "s";
+      progressMarker.style.animationDuration = (an.frames.length / playbackSpeed()) + "s";
       progressMarker.classList.add("slide-right");
       an.recordAudio(audioStream).then(() => {
         isRecording = false;
@@ -189,7 +206,8 @@ window.addEventListener('load', evt => {
     }
   });
 
-  recordAudioButton.onclick = () => {
+  let recordAudioButton = document.getElementById('recordAudioButton');
+  recordAudioButton.addEventListener("click", evt => {
     if (!an.frames.length)
       return;
     if (isRecording) {
@@ -208,11 +226,10 @@ window.addEventListener('load', evt => {
     } else {
       isRecording = false;
     }
-  };
+  });
 
-  clearAudioButton.onclick = () => {
-    an.clearAudio();
-  };
+  let clearAudioButton = document.getElementById('clearAudioButton');
+  clearAudioButton.addEventListener("click", an.clearAudio.bind(an));
 
   let setUpCameraSelectAndAttach = cameras => {
     if (!cameras || cameras.length < 2) {
@@ -256,27 +273,4 @@ window.addEventListener('load', evt => {
   } else {
     setUpCameraSelectAndAttach();
   }
-
-  // Set up service worker and cache
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js').then(
-        registration => {
-          console.log('Service worker registered.');
-        },
-        err => {
-          console.log('Service worker failed to register: ', err);
-        });
-  };
-
-  // Set up Add to Home Screen prompt
-  let deferredPrompt;
-  window.addEventListener('beforeinstallprompt', evt => {
-    e.preventDefault();
-    deferredPrompt = e;
-    installButton.style.display = "";
-    installButton.addEventListener("click", evt => {
-      evt.target.parentNode.removeChild(evt.target);
-      deferredPrompt.prompt();
-    });
-  });
 });

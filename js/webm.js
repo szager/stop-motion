@@ -3,8 +3,8 @@
 
 var webm = webm || {};
 
-(function() {
-  webm.ID_CODES = {
+(() => {
+  const ID_CODES = {
     'AlphaMode': [0x53, 0xC0],
     'AspectRatioType': [0x54, 0xB3],
     'AttachedFile': [0x61, 0xA7],
@@ -193,7 +193,7 @@ var webm = webm || {};
     'WritingApp': [0x57, 0x41]
   };
 
-  webm.ID_NAMES = {
+  const ID_NAMES = {
     0x53C0: 'AlphaMode',
     0x54B3: 'AspectRatioType',
     0x61A7: 'AttachedFile',
@@ -382,200 +382,209 @@ var webm = webm || {};
     0x5741: 'WritingApp'
   };
 
-  webm.ID_TYPES = {
-    'EBML': 'Master Elements',
-    'Segment': 'Master Elements',
-    'EBMLVersion': 'Unsigned Integer',
-    'EBMLReadVersion': 'Unsigned Integer',
-    'EBMLMaxIDLength': 'Unsigned Integer',
-    'EBMLMaxSizeLength': 'Unsigned Integer',
-    'DocType': 'String',
-    'DocTypeVersion': 'Unsigned Integer',
-    'DocTypeReadVersion': 'Unsigned Integer',
-    'Void': 'Binary',
-    'CRC-32': 'Binary',
-    'SeekHead': 'Master Elements',
-    'Info': 'Master Elements',
-    'Cluster': 'Master Elements',
-    'Tracks': 'Master Elements',
-    'Cues': 'Master Elements',
-    'Attachments': 'Master Elements',
-    'Chapters': 'Master Elements',
-    'Tags': 'Master Elements',
-    'Seek': 'Master Elements',
-    'SegmentUID': 'Binary',
-    'SegmentFilename': 'UTF-8',
-    'PrevUID': 'Binary',
-    'PrevFilename': 'UTF-8',
-    'NextUID': 'Binary',
-    'NextFilename': 'UTF-8',
-    'SegmentFamily': 'Binary',
-    'ChapterTranslate': 'Master Elements',
-    'TimecodeScale': 'Unsigned Integer',
-    'Duration': 'Float',
-    'DateUTC': 'Date',
-    'Title': 'UTF-8',
-    'MuxingApp': 'UTF-8',
-    'WritingApp': 'UTF-8',
-    'Timecode': 'Unsigned Integer',
-    'SilentTracks': 'Master Elements',
-    'Position': 'Unsigned Integer',
-    'PrevSize': 'Unsigned Integer',
-    'SimpleBlock': 'Binary',
-    'BlockGroup': 'Master Elements',
-    'TrackEntry': 'Master Elements',
-    'CuePoint': 'Master Elements',
-    'AttachedFile': 'Master Elements',
-    'EditionEntry': 'Master Elements',
-    'Tag': 'Master Elements',
-    'SeekID': 'Binary',
-    'SeekPosition': 'Unsigned Integer',
-    'ChapterTranslateEditionUID': 'Unsigned Integer',
-    'ChapterTranslateCodec': 'Unsigned Integer',
-    'ChapterTranslateID': 'Binary',
-    'SilentTrackNumber': 'Unsigned Integer',
-    'Block': 'Binary',
-    'BlockAdditions': 'Master Elements',
-    'BlockDuration': 'Unsigned Integer',
-    'ReferencePriority': 'Unsigned Integer',
-    'ReferenceBlock': 'Signed Integer',
-    'CodecState': 'Binary',
-    'DiscardPadding': 'Signed Integer',
-    'Slices': 'Master Elements',
-    'TrackNumber': 'Unsigned Integer',
-    'TrackUID': 'Unsigned Integer',
-    'TrackType': 'Unsigned Integer',
-    'FlagEnabled': 'Unsigned Integer',
-    'FlagDefault': 'Unsigned Integer',
-    'FlagForced': 'Unsigned Integer',
-    'FlagLacing': 'Unsigned Integer',
-    'MinCache': 'Unsigned Integer',
-    'MaxCache': 'Unsigned Integer',
-    'DefaultDuration': 'Unsigned Integer',
-    'DefaultDecodedFieldDuration': 'Unsigned Integer',
-    'MaxBlockAdditionID': 'Unsigned Integer',
-    'Name': 'UTF-8',
-    'Language': 'String',
-    'CodecID': 'String',
-    'CodecPrivate': 'Binary',
-    'CodecName': 'UTF-8',
-    'AttachmentLink': 'Unsigned Integer',
-    'CodecDecodeAll': 'Unsigned Integer',
-    'TrackOverlay': 'Unsigned Integer',
-    'CodecDelay': 'Unsigned Integer',
-    'SeekPreRoll': 'Unsigned Integer',
-    'TrackTranslate': 'Master Elements',
-    'Video': 'Master Elements',
-    'Audio': 'Master Elements',
-    'TrackOperation': 'Master Elements',
-    'ContentEncodings': 'Master Elements',
-    'CueTime': 'Unsigned Integer',
-    'CueTrackPositions': 'Master Elements',
-    'FileDescription': 'UTF-8',
-    'FileName': 'UTF-8',
-    'FileMimeType': 'String',
-    'FileData': 'Binary',
-    'FileUID': 'Unsigned Integer',
-    'EditionUID': 'Unsigned Integer',
-    'EditionFlagHidden': 'Unsigned Integer',
-    'EditionFlagDefault': 'Unsigned Integer',
-    'EditionFlagOrdered': 'Unsigned Integer',
-    'ChapterAtom': 'Master Elements',
-    'Targets': 'Master Elements',
-    'SimpleTag': 'Master Elements',
-    'BlockMore': 'Master Elements',
-    'TimeSlice': 'Master Elements',
-    'TrackTranslateEditionUID': 'Unsigned Integer',
-    'TrackTranslateCodec': 'Unsigned Integer',
-    'TrackTranslateTrackID': 'Binary',
-    'FlagInterlaced': 'Unsigned Integer',
-    'StereoMode': 'Unsigned Integer',
-    'AlphaMode': 'Unsigned Integer',
-    'PixelWidth': 'Unsigned Integer',
-    'PixelHeight': 'Unsigned Integer',
-    'PixelCropBottom': 'Unsigned Integer',
-    'PixelCropTop': 'Unsigned Integer',
-    'PixelCropLeft': 'Unsigned Integer',
-    'PixelCropRight': 'Unsigned Integer',
-    'DisplayWidth': 'Unsigned Integer',
-    'DisplayHeight': 'Unsigned Integer',
-    'DisplayUnit': 'Unsigned Integer',
-    'AspectRatioType': 'Unsigned Integer',
-    'ColourSpace': 'Binary',
-    'SamplingFrequency': 'Float',
-    'OutputSamplingFrequency': 'Float',
-    'Channels': 'Unsigned Integer',
-    'BitDepth': 'Unsigned Integer',
-    'TrackCombinePlanes': 'Master Elements',
-    'TrackJoinBlocks': 'Master Elements',
-    'ContentEncoding': 'Master Elements',
-    'CueTrack': 'Unsigned Integer',
-    'CueClusterPosition': 'Unsigned Integer',
-    'CueRelativePosition': 'Unsigned Integer',
-    'CueDuration': 'Unsigned Integer',
-    'CueBlockNumber': 'Unsigned Integer',
-    'CueCodecState': 'Unsigned Integer',
-    'CueReference': 'Master Elements',
-    'ChapterUID': 'Unsigned Integer',
-    'ChapterStringUID': 'UTF-8',
-    'ChapterTimeStart': 'Unsigned Integer',
-    'ChapterTimeEnd': 'Unsigned Integer',
-    'ChapterFlagHidden': 'Unsigned Integer',
-    'ChapterFlagEnabled': 'Unsigned Integer',
-    'ChapterSegmentUID': 'Binary',
-    'ChapterSegmentEditionUID': 'Unsigned Integer',
-    'ChapterPhysicalEquiv': 'Unsigned Integer',
-    'ChapterTrack': 'Master Elements',
-    'ChapterDisplay': 'Master Elements',
-    'ChapProcess': 'Master Elements',
-    'TargetTypeValue': 'Unsigned Integer',
-    'TargetType': 'String',
-    'TagTrackUID': 'Unsigned Integer',
-    'TagEditionUID': 'Unsigned Integer',
-    'TagChapterUID': 'Unsigned Integer',
-    'TagAttachmentUID': 'Unsigned Integer',
-    'TagName': 'UTF-8',
-    'TagLanguage': 'String',
-    'TagDefault': 'Unsigned Integer',
-    'TagString': 'UTF-8',
-    'TagBinary': 'Binary',
-    'BlockAddID': 'Unsigned Integer',
-    'BlockAdditional': 'Binary',
-    'LaceNumber': 'Unsigned Integer',
-    'TrackPlane': 'Master Elements',
-    'TrackJoinUID': 'Unsigned Integer',
-    'ContentEncodingOrder': 'Unsigned Integer',
-    'ContentEncodingScope': 'Unsigned Integer',
-    'ContentEncodingType': 'Unsigned Integer',
-    'ContentCompression': 'Master Elements',
-    'ContentEncryption': 'Master Elements',
-    'CueRefTime': 'Unsigned Integer',
-    'ChapterTrackNumber': 'Unsigned Integer',
-    'ChapString': 'UTF-8',
-    'ChapLanguage': 'String',
-    'ChapCountry': 'String',
-    'ChapProcessCodecID': 'Unsigned Integer',
-    'ChapProcessPrivate': 'Binary',
-    'ChapProcessCommand': 'Master Elements',
-    'TrackPlaneUID': 'Unsigned Integer',
-    'TrackPlaneType': 'Unsigned Integer',
-    'ContentCompAlgo': 'Unsigned Integer',
-    'ContentCompSettings': 'Binary',
-    'ContentEncAlgo': 'Unsigned Integer',
-    'ContentEncKeyID': 'Binary',
-    'ContentSignature': 'Binary',
-    'ContentSigKeyID': 'Binary',
-    'ContentSigAlgo': 'Unsigned Integer',
-    'ContentSigHashAlgo': 'Unsigned Integer',
-    'ChapProcessTime': 'Unsigned Integer',
-    'ChapProcessData': 'Binary',
+  const MASTER_ELEMENTS_TYPE = 'Master Elements';
+  const UNSIGNED_INTEGER_TYPE = 'Unsigned Integer';
+  const SIGNED_INTEGER_TYPE = 'Signed Integer';
+  const STRING_TYPE = 'String';
+  const BINARY_TYPE = 'Binary';
+  const UTF8_TYPE = 'UTF-8';
+  const FLOAT_TYPE = 'Float';
+  const DATE_TYPE = 'Date';
+
+  const ID_TYPES = {
+    'EBML': MASTER_ELEMENTS_TYPE,
+    'Segment': MASTER_ELEMENTS_TYPE,
+    'EBMLVersion': UNSIGNED_INTEGER_TYPE,
+    'EBMLReadVersion': UNSIGNED_INTEGER_TYPE,
+    'EBMLMaxIDLength': UNSIGNED_INTEGER_TYPE,
+    'EBMLMaxSizeLength': UNSIGNED_INTEGER_TYPE,
+    'DocType': STRING_TYPE,
+    'DocTypeVersion': UNSIGNED_INTEGER_TYPE,
+    'DocTypeReadVersion': UNSIGNED_INTEGER_TYPE,
+    'Void': BINARY_TYPE,
+    'CRC-32': BINARY_TYPE,
+    'SeekHead': MASTER_ELEMENTS_TYPE,
+    'Info': MASTER_ELEMENTS_TYPE,
+    'Cluster': MASTER_ELEMENTS_TYPE,
+    'Tracks': MASTER_ELEMENTS_TYPE,
+    'Cues': MASTER_ELEMENTS_TYPE,
+    'Attachments': MASTER_ELEMENTS_TYPE,
+    'Chapters': MASTER_ELEMENTS_TYPE,
+    'Tags': MASTER_ELEMENTS_TYPE,
+    'Seek': MASTER_ELEMENTS_TYPE,
+    'SegmentUID': BINARY_TYPE,
+    'SegmentFilename': UTF8_TYPE,
+    'PrevUID': BINARY_TYPE,
+    'PrevFilename': UTF8_TYPE,
+    'NextUID': BINARY_TYPE,
+    'NextFilename': UTF8_TYPE,
+    'SegmentFamily': BINARY_TYPE,
+    'ChapterTranslate': MASTER_ELEMENTS_TYPE,
+    'TimecodeScale': UNSIGNED_INTEGER_TYPE,
+    'Duration': FLOAT_TYPE,
+    'DateUTC': DATE_TYPE,
+    'Title': UTF8_TYPE,
+    'MuxingApp': UTF8_TYPE,
+    'WritingApp': UTF8_TYPE,
+    'Timecode': UNSIGNED_INTEGER_TYPE,
+    'SilentTracks': MASTER_ELEMENTS_TYPE,
+    'Position': UNSIGNED_INTEGER_TYPE,
+    'PrevSize': UNSIGNED_INTEGER_TYPE,
+    'SimpleBlock': BINARY_TYPE,
+    'BlockGroup': MASTER_ELEMENTS_TYPE,
+    'TrackEntry': MASTER_ELEMENTS_TYPE,
+    'CuePoint': MASTER_ELEMENTS_TYPE,
+    'AttachedFile': MASTER_ELEMENTS_TYPE,
+    'EditionEntry': MASTER_ELEMENTS_TYPE,
+    'Tag': MASTER_ELEMENTS_TYPE,
+    'SeekID': BINARY_TYPE,
+    'SeekPosition': UNSIGNED_INTEGER_TYPE,
+    'ChapterTranslateEditionUID': UNSIGNED_INTEGER_TYPE,
+    'ChapterTranslateCodec': UNSIGNED_INTEGER_TYPE,
+    'ChapterTranslateID': BINARY_TYPE,
+    'SilentTrackNumber': UNSIGNED_INTEGER_TYPE,
+    'Block': BINARY_TYPE,
+    'BlockAdditions': MASTER_ELEMENTS_TYPE,
+    'BlockDuration': UNSIGNED_INTEGER_TYPE,
+    'ReferencePriority': UNSIGNED_INTEGER_TYPE,
+    'ReferenceBlock': SIGNED_INTEGER_TYPE,
+    'CodecState': BINARY_TYPE,
+    'DiscardPadding': SIGNED_INTEGER_TYPE,
+    'Slices': MASTER_ELEMENTS_TYPE,
+    'TrackNumber': UNSIGNED_INTEGER_TYPE,
+    'TrackUID': UNSIGNED_INTEGER_TYPE,
+    'TrackType': UNSIGNED_INTEGER_TYPE,
+    'FlagEnabled': UNSIGNED_INTEGER_TYPE,
+    'FlagDefault': UNSIGNED_INTEGER_TYPE,
+    'FlagForced': UNSIGNED_INTEGER_TYPE,
+    'FlagLacing': UNSIGNED_INTEGER_TYPE,
+    'MinCache': UNSIGNED_INTEGER_TYPE,
+    'MaxCache': UNSIGNED_INTEGER_TYPE,
+    'DefaultDuration': UNSIGNED_INTEGER_TYPE,
+    'DefaultDecodedFieldDuration': UNSIGNED_INTEGER_TYPE,
+    'MaxBlockAdditionID': UNSIGNED_INTEGER_TYPE,
+    'Name': UTF8_TYPE,
+    'Language': STRING_TYPE,
+    'CodecID': STRING_TYPE,
+    'CodecPrivate': BINARY_TYPE,
+    'CodecName': UTF8_TYPE,
+    'AttachmentLink': UNSIGNED_INTEGER_TYPE,
+    'CodecDecodeAll': UNSIGNED_INTEGER_TYPE,
+    'TrackOverlay': UNSIGNED_INTEGER_TYPE,
+    'CodecDelay': UNSIGNED_INTEGER_TYPE,
+    'SeekPreRoll': UNSIGNED_INTEGER_TYPE,
+    'TrackTranslate': MASTER_ELEMENTS_TYPE,
+    'Video': MASTER_ELEMENTS_TYPE,
+    'Audio': MASTER_ELEMENTS_TYPE,
+    'TrackOperation': MASTER_ELEMENTS_TYPE,
+    'ContentEncodings': MASTER_ELEMENTS_TYPE,
+    'CueTime': UNSIGNED_INTEGER_TYPE,
+    'CueTrackPositions': MASTER_ELEMENTS_TYPE,
+    'FileDescription': UTF8_TYPE,
+    'FileName': UTF8_TYPE,
+    'FileMimeType': STRING_TYPE,
+    'FileData': BINARY_TYPE,
+    'FileUID': UNSIGNED_INTEGER_TYPE,
+    'EditionUID': UNSIGNED_INTEGER_TYPE,
+    'EditionFlagHidden': UNSIGNED_INTEGER_TYPE,
+    'EditionFlagDefault': UNSIGNED_INTEGER_TYPE,
+    'EditionFlagOrdered': UNSIGNED_INTEGER_TYPE,
+    'ChapterAtom': MASTER_ELEMENTS_TYPE,
+    'Targets': MASTER_ELEMENTS_TYPE,
+    'SimpleTag': MASTER_ELEMENTS_TYPE,
+    'BlockMore': MASTER_ELEMENTS_TYPE,
+    'TimeSlice': MASTER_ELEMENTS_TYPE,
+    'TrackTranslateEditionUID': UNSIGNED_INTEGER_TYPE,
+    'TrackTranslateCodec': UNSIGNED_INTEGER_TYPE,
+    'TrackTranslateTrackID': BINARY_TYPE,
+    'FlagInterlaced': UNSIGNED_INTEGER_TYPE,
+    'StereoMode': UNSIGNED_INTEGER_TYPE,
+    'AlphaMode': UNSIGNED_INTEGER_TYPE,
+    'PixelWidth': UNSIGNED_INTEGER_TYPE,
+    'PixelHeight': UNSIGNED_INTEGER_TYPE,
+    'PixelCropBottom': UNSIGNED_INTEGER_TYPE,
+    'PixelCropTop': UNSIGNED_INTEGER_TYPE,
+    'PixelCropLeft': UNSIGNED_INTEGER_TYPE,
+    'PixelCropRight': UNSIGNED_INTEGER_TYPE,
+    'DisplayWidth': UNSIGNED_INTEGER_TYPE,
+    'DisplayHeight': UNSIGNED_INTEGER_TYPE,
+    'DisplayUnit': UNSIGNED_INTEGER_TYPE,
+    'AspectRatioType': UNSIGNED_INTEGER_TYPE,
+    'ColourSpace': BINARY_TYPE,
+    'SamplingFrequency': FLOAT_TYPE,
+    'OutputSamplingFrequency': FLOAT_TYPE,
+    'Channels': UNSIGNED_INTEGER_TYPE,
+    'BitDepth': UNSIGNED_INTEGER_TYPE,
+    'TrackCombinePlanes': MASTER_ELEMENTS_TYPE,
+    'TrackJoinBlocks': MASTER_ELEMENTS_TYPE,
+    'ContentEncoding': MASTER_ELEMENTS_TYPE,
+    'CueTrack': UNSIGNED_INTEGER_TYPE,
+    'CueClusterPosition': UNSIGNED_INTEGER_TYPE,
+    'CueRelativePosition': UNSIGNED_INTEGER_TYPE,
+    'CueDuration': UNSIGNED_INTEGER_TYPE,
+    'CueBlockNumber': UNSIGNED_INTEGER_TYPE,
+    'CueCodecState': UNSIGNED_INTEGER_TYPE,
+    'CueReference': MASTER_ELEMENTS_TYPE,
+    'ChapterUID': UNSIGNED_INTEGER_TYPE,
+    'ChapterStringUID': UTF8_TYPE,
+    'ChapterTimeStart': UNSIGNED_INTEGER_TYPE,
+    'ChapterTimeEnd': UNSIGNED_INTEGER_TYPE,
+    'ChapterFlagHidden': UNSIGNED_INTEGER_TYPE,
+    'ChapterFlagEnabled': UNSIGNED_INTEGER_TYPE,
+    'ChapterSegmentUID': BINARY_TYPE,
+    'ChapterSegmentEditionUID': UNSIGNED_INTEGER_TYPE,
+    'ChapterPhysicalEquiv': UNSIGNED_INTEGER_TYPE,
+    'ChapterTrack': MASTER_ELEMENTS_TYPE,
+    'ChapterDisplay': MASTER_ELEMENTS_TYPE,
+    'ChapProcess': MASTER_ELEMENTS_TYPE,
+    'TargetTypeValue': UNSIGNED_INTEGER_TYPE,
+    'TargetType': STRING_TYPE,
+    'TagTrackUID': UNSIGNED_INTEGER_TYPE,
+    'TagEditionUID': UNSIGNED_INTEGER_TYPE,
+    'TagChapterUID': UNSIGNED_INTEGER_TYPE,
+    'TagAttachmentUID': UNSIGNED_INTEGER_TYPE,
+    'TagName': UTF8_TYPE,
+    'TagLanguage': STRING_TYPE,
+    'TagDefault': UNSIGNED_INTEGER_TYPE,
+    'TagString': UTF8_TYPE,
+    'TagBinary': BINARY_TYPE,
+    'BlockAddID': UNSIGNED_INTEGER_TYPE,
+    'BlockAdditional': BINARY_TYPE,
+    'LaceNumber': UNSIGNED_INTEGER_TYPE,
+    'TrackPlane': MASTER_ELEMENTS_TYPE,
+    'TrackJoinUID': UNSIGNED_INTEGER_TYPE,
+    'ContentEncodingOrder': UNSIGNED_INTEGER_TYPE,
+    'ContentEncodingScope': UNSIGNED_INTEGER_TYPE,
+    'ContentEncodingType': UNSIGNED_INTEGER_TYPE,
+    'ContentCompression': MASTER_ELEMENTS_TYPE,
+    'ContentEncryption': MASTER_ELEMENTS_TYPE,
+    'CueRefTime': UNSIGNED_INTEGER_TYPE,
+    'ChapterTrackNumber': UNSIGNED_INTEGER_TYPE,
+    'ChapString': UTF8_TYPE,
+    'ChapLanguage': STRING_TYPE,
+    'ChapCountry': STRING_TYPE,
+    'ChapProcessCodecID': UNSIGNED_INTEGER_TYPE,
+    'ChapProcessPrivate': BINARY_TYPE,
+    'ChapProcessCommand': MASTER_ELEMENTS_TYPE,
+    'TrackPlaneUID': UNSIGNED_INTEGER_TYPE,
+    'TrackPlaneType': UNSIGNED_INTEGER_TYPE,
+    'ContentCompAlgo': UNSIGNED_INTEGER_TYPE,
+    'ContentCompSettings': BINARY_TYPE,
+    'ContentEncAlgo': UNSIGNED_INTEGER_TYPE,
+    'ContentEncKeyID': BINARY_TYPE,
+    'ContentSignature': BINARY_TYPE,
+    'ContentSigKeyID': BINARY_TYPE,
+    'ContentSigAlgo': UNSIGNED_INTEGER_TYPE,
+    'ContentSigHashAlgo': UNSIGNED_INTEGER_TYPE,
+    'ChapProcessTime': UNSIGNED_INTEGER_TYPE,
+    'ChapProcessData': BINARY_TYPE,
   };
 
-  function lengthSum(arr) {
-    return Array.prototype.reduce.bind(arr)(function(tot, x) { return tot + x.length }, 0);
-  }
+  let lengthSum = (arr => {
+    return Array.prototype.reduce.bind(arr)((tot, x) => { return tot + x.length }, 0);
+  });
 
-  function encodeUint(n, numBytes) {
+  let encodeUint = ((n, numBytes) => {
     let arr;
 
     if (typeof n == "string") {
@@ -638,9 +647,9 @@ var webm = webm || {};
     }
 
     return new Uint8Array(arr);
-  }
+  });
 
-  function encodeInt(n, numBytes) {
+  let encodeInt = ((n, numBytes) => {
     if (numBytes) {
       let arr = [];
       for (; numBytes > 0; numBytes--) {
@@ -746,35 +755,35 @@ var webm = webm || {};
     if ((arr[arr.length - 1] >> 7) ^ signBit)
       arr.push(signBit ? 0xff : 0);
     return new Uint8Array(arr.reverse());
-  }
+  });
 
-  function encodeFloat32(f) {
+  let encodeFloat32 = (f => {
     let arr = new Uint8Array(new Float32Array([f]).buffer);
     Array.prototype.reverse.bind(arr)();
     return arr;
-  }
+  });
 
-  function encodeFloat64(f) {
+  let encodeFloat64 = (f => {
     let arr = new Uint8Array(new Float64Array([f]).buffer);
     Array.prototype.reverse.bind(arr)();
     return arr;
-  }
+  });
 
-  function encodeString(s) {
+  let encodeString = (s => {
     let arr = [];
     for (let i = 0; i < s.length; i++)
       arr.push(s.charCodeAt(i));
     return new Uint8Array(arr);
-  }
+  });
 
-  function encodeID(id) {
-    let code = webm.ID_CODES[id];
+  let encodeID = (id => {
+    let code = ID_CODES[id];
     if (!code)
       throw ('Unknown webm chunk id: ' + id);
     return new Uint8Array(code);
-  }
+  });
 
-  function encodeLength(l) {
+  let encodeLength = (l => {
     let arr = [];
     if (l < 0x7f) {
       arr.push(0x80 | l);
@@ -824,63 +833,63 @@ var webm = webm || {};
       throw ('Cannot encode length ' + l);
     }
     return new Uint8Array(arr);
-  }
+  });
 
-  function encodeChunkHeader(id, length, chunks) {
+  let encodeChunkHeader = ((id, length, chunks) => {
     let encodedID = encodeID(id);
     let encodedLength = encodeLength(length);
     chunks.push(encodedID);
     chunks.push(encodedLength);
     return encodedID.byteLength + encodedLength.byteLength + length;
-  }
+  });
 
-  function encodeChunk(id, value, valueEncoder, chunks) {
+  let encodeChunk = ((id, value, valueEncoder, chunks) => {
     let encodedValue = valueEncoder(value);
     let result = encodeChunkHeader(id, encodedValue.byteLength, chunks);
     chunks.push(encodedValue);
     return result;
-  }
+  });
 
-  function encodeDataChunk(id, data, dataLen, chunks) {
+  let encodeDataChunk = ((id, data, dataLen, chunks) => {
     let result = encodeChunkHeader(id, dataLen, chunks);
     chunks.push(...data);
     return result;
-  }
+  });
 
-  function encodeIntChunk(id, value, chunks) {
+  let encodeIntChunk = ((id, value, chunks) => {
     return encodeChunk(id, value, encodeInt, chunks);
-  }
+  });
 
-  function encodeUintChunk(id, value, chunks) {
+  let encodeUintChunk = ((id, value, chunks) => {
     return encodeChunk(id, value, encodeUint, chunks);
-  }
+  });
 
-  function encodeFloat32Chunk(id, value, chunks) {
+  let encodeFloat32Chunk = ((id, value, chunks) => {
     return encodeChunk(id, value, encodeFloat32, chunks);
-  }
+  });
 
-  function encodeFloat64Chunk(id, value, chunks) {
+  let encodeFloat64Chunk = ((id, value, chunks) => {
     return encodeChunk(id, value, encodeFloat64, chunks);
-  }
+  });
 
-  function encodeStringChunk(id, value, chunks) {
+  let encodeStringChunk = ((id, value, chunks) => {
     return encodeChunk(id, value, encodeString, chunks);
-  }
+  });
 
-  function encodePosition(id, positions, chunks) {
+  let encodePosition = ((id, positions, chunks) => {
     let encodedValue = new Uint8Array([0, 0, 0, 0]);
     let result = encodeChunkHeader(id, 4, chunks);
     chunks.push(encodedValue);
     positions.push(encodedValue);
     return result;
-  }
+  });
 
-  function mungePositions(positions, n) {
+  let mungePositions = ((positions, n) => {
     for (let i = 0; i < positions.length; i++)
       positions[i].set(encodeUint(n, positions[i].byteLength));
-  }
+  });
 
-  function encodeEBML(chunks) {
+  let encodeEBML = (chunks => {
     let blockChunks = [];
     let len = encodeUintChunk('EBMLVersion', 1, blockChunks);
     len += encodeUintChunk('EBMLReadVersion', 1, blockChunks);
@@ -890,17 +899,17 @@ var webm = webm || {};
     len += encodeUintChunk('DocTypeVersion', 2, blockChunks);
     len += encodeUintChunk('DocTypeReadVersion', 2, blockChunks);
     return encodeDataChunk('EBML', blockChunks, len, chunks);
-  }
+  });
 
-  function encodeSeek(id, positions, chunks) {
+  let encodeSeek = ((id, positions, chunks) => {
     let seekChunks = [];
     let encodedID = encodeID(id);
     let seekLen = encodeDataChunk('SeekID', [encodedID], encodedID.byteLength, seekChunks);
     seekLen += encodePosition('SeekPosition', positions, seekChunks);
     return encodeDataChunk('Seek', seekChunks, seekLen, chunks);
-  }
+  });
 
-  function encodeFirstSeekHeader(positions, subsequentSeekHeader, chunks) {
+  let encodeFirstSeekHeader = ((positions, subsequentSeekHeader, chunks) => {
     let seekHeadChunks = [];
     let seekHeadLen = 0;
     let ids = ['Info', 'Tracks', 'Cues', 'Cluster'];
@@ -912,17 +921,17 @@ var webm = webm || {};
       seekHeadLen += encodeSeek(id, idPositions, seekHeadChunks);
     }
     return encodeDataChunk('SeekHead', seekHeadChunks, seekHeadLen, chunks);
-  }
+  });
 
-  function encodeTrailingSeekHeader(clusterPositions, chunks) {
+  let encodeTrailingSeekHeader = ((clusterPositions, chunks) => {
     let seekHeadChunks = [];
     let seekHeadLen = 0;
     for (let i = 0; i < clusterPositions.length; i++) {
       encodeSeek('Cluster', clusterPositions[i], chunks);
     }
-  }
+  });
 
-  function encodeSegmentInfo(duration, title, chunks) {
+  let encodeSegmentInfo = ((duration, title, chunks) => {
     let blockChunks = [];
     let len = encodeFloat64Chunk('Duration', duration, blockChunks);
     len += encodeUintChunk('TimecodeScale', 1000000, blockChunks);
@@ -931,9 +940,9 @@ var webm = webm || {};
     len += encodeStringChunk('MuxingApp', 'https://stop-action.appspot.com', blockChunks);
     len += encodeStringChunk('WritingApp', 'https://stop-action.appspot.com', blockChunks);
     return encodeDataChunk('Info', blockChunks, len, chunks);
-  }
+  });
 
-  function encodeVideoTrackEntry(num, uid, w, h, chunks) {
+  let encodeVideoTrackEntry = ((num, uid, w, h, chunks) => {
     let blockChunks = [];
     let blockLen = encodeUintChunk('TrackNumber', num, blockChunks);
     blockLen += encodeUintChunk('TrackUID', uid, blockChunks);
@@ -950,9 +959,9 @@ var webm = webm || {};
     videoLen += encodeUintChunk('PixelWidth', w, videoChunks);
     blockLen += encodeDataChunk('Video', videoChunks, videoLen, blockChunks);
     return encodeDataChunk('TrackEntry', blockChunks, blockLen, chunks);
-  }
+  });
 
-  function encodeTracks(videoTrackNum, videoTrackUid, w, h, chunks, audioTrackEntryChunk) {
+  let encodeTracks = ((videoTrackNum, videoTrackUid, w, h, chunks, audioTrackEntryChunk) => {
     let tracksChunks = [];
     let tracksLength = 0;
     if (videoTrackUid)
@@ -962,9 +971,9 @@ var webm = webm || {};
           'TrackEntry', [audioTrackEntryChunk], audioTrackEntryChunk.byteLength, tracksChunks);
     }
     return encodeDataChunk('Tracks', tracksChunks, tracksLength, chunks);
-  }
+  });
 
-  function encodeCuePoint(timeCode, track, blockNum, position, chunks) {
+  let encodeCuePoint = ((timeCode, track, blockNum, position, chunks) => {
     let positionChunks = [];
     let positionLen = encodeUintChunk('CueTrack', track, positionChunks);
     positionLen += encodePosition('CueClusterPosition', position, positionChunks);
@@ -976,15 +985,15 @@ var webm = webm || {};
     cuePointLen += encodeDataChunk('CueTrackPositions', positionChunks, positionLen, cuePointChunks);
 
     return encodeDataChunk('CuePoint', cuePointChunks, cuePointLen, chunks);
-  }
+  });
 
-  function setBlockTimecode(block, timecode) {
+  let setBlockTimecode = ((block, timecode) => {
     let cursor = new Cursor(block);
     decodeLength(cursor);  // track number
     block.set(encodeInt(timecode, 2), cursor.idx);
-  }
+  });
 
-  function addAudioBlocks(clusterStart, until, audioBlocks, chunks) {
+  let addAudioBlocks = ((clusterStart, until, audioBlocks, chunks) => {
     let result = 0;
     while (audioBlocks.length) {
       let audioBlock = audioBlocks.pop();
@@ -998,9 +1007,9 @@ var webm = webm || {};
       chunks.push(audioBlock[1]);
     }
     return result;
-  }
+  });
 
-  function encodeVideoFrame(clusterStart, timeCode, track, vp8, audioBlocks, chunks) {
+  let encodeVideoFrame = ((clusterStart, timeCode, track, vp8, audioBlocks, chunks) => {
     let result = addAudioBlocks(clusterStart, timeCode, audioBlocks, chunks);
     let videoBlockChunks = [];
     let encodedTrackNum = encodeLength(track);
@@ -1013,30 +1022,30 @@ var webm = webm || {};
     let videoBlockLength = vp8.byteLength + encodedFlags.byteLength + encodedTimeCode.byteLength + encodedTrackNum.byteLength;
     result += encodeDataChunk('SimpleBlock', videoBlockChunks, videoBlockLength, chunks);
     return result;
-  }
+  });
 
-  function Chunk(data, idx, type, length) {
+  let Chunk = ((data, idx, type, length) => {
     this.data = data;
     this.idx = idx;
     this.type = type;
     this.length = length;
-  }
+  });
 
-  function Cursor(data, idx, max) {
+  let Cursor = ((data, idx, max) => {
     this.data = data;
     this.idx = idx || 0;
     this.max = max || data.byteLength;
-  }
+  });
 
-  Chunk.prototype.cursor = function() {
+  Chunk.prototype.cursor = (() => {
     return new Cursor(this.data, this.idx, this.idx + this.length);
-  };
+  });
 
-  Cursor.prototype.clone = function(cursor) {
+  Cursor.prototype.clone = (cursor => {
     return new Cursor(this.data, this.idx, this.max);
-  };
+  });
 
-  Cursor.prototype.findChunk = function(type) {
+  Cursor.prototype.findChunk = (type => {
     while (this.idx < this.max) {
       let id = decodeID(this);
       let lengthField = decodeLength(this);
@@ -1047,9 +1056,9 @@ var webm = webm || {};
         return new Chunk(this.data, idx, id, length);
     }
     return null;
-  };
+  });
 
-  function decodeUint(cursor) {
+  let decodeUint = (cursor => {
     let idx = cursor.idx;
     let length = cursor.max - idx;
     let data = cursor.data;
@@ -1066,10 +1075,10 @@ var webm = webm || {};
     if (length > 8)
       throw ('Cannot decode uint of length ' + length);
     return "0x" + Array.prototype.map.bind(cursor.data.slice(cursor.idx, cursor.max))(
-      function(i) { return i.toString(16) }).join("");
-  }
+      i => { return i.toString(16) }).join("");
+  });
 
-  function decodeInt(cursor) {
+  let decodeInt = (cursor => {
     let idx = cursor.idx;
     let length = cursor.max - idx;
     let data = cursor.data;
@@ -1092,55 +1101,55 @@ var webm = webm || {};
     }
 
     return decodeUint(cursor);
-  }
+  });
 
-  function decodeFloat32(cursor) {
+  let decodeFloat32 = (cursor => {
     return new DataView(cursor.data.buffer, cursor.idx).getFloat32(0);
-  }
+  });
 
-  function decodeFloat64(cursor) {
+  let decodeFloat64 = (cursor => {
     return new DataView(cursor.data.buffer, cursor.idx).getFloat64(0);
-  }
+  });
 
-  function decodeFloat(cursor) {
+  let decodeFloat = (cursor => {
     let length = cursor.max - cursor.idx;
     if (length == 4)
       return decodeFloat32(cursor);
     if (length == 8)
       return decodeFloat64(cursor);
     throw "Unrecognized float length: " + length;
-  }
+  });
 
-  function decodeString(cursor) {
+  let decodeString = (cursor => {
     let data = cursor.data;
     let max = cursor.max;
     let str = '';
     for (let i = cursor.idx; i < max; i++)
       str += String.fromCharCode(data[i]);
     return str;
-  }
+  });
 
-  function decodeID(cursor) {
+  let decodeID = (cursor => {
     let data = cursor.data;
     let idx = cursor.idx;
     let firstByte = data[idx];
     if (firstByte & 0x80) {
       cursor.idx = idx + 1;
-      return webm.ID_NAMES[firstByte];
+      return ID_NAMES[firstByte];
     } else if (firstByte & 0x40) {
       cursor.idx = idx + 2;
-      return webm.ID_NAMES[(firstByte << 8) | data[idx+1]];
+      return ID_NAMES[(firstByte << 8) | data[idx+1]];
     } else if (firstByte & 0x20) {
       cursor.idx = idx + 3;
-      return webm.ID_NAMES[(firstByte << 16) | (data[idx+1] << 8) | data[idx+2]];
+      return ID_NAMES[(firstByte << 16) | (data[idx+1] << 8) | data[idx+2]];
     } else if (firstByte & 0x10) {
       cursor.idx = idx + 4;
-      return webm.ID_NAMES[(firstByte << 24) | (data[idx+1] << 16) | (data[idx+2] << 8) | data[idx+3]];
+      return ID_NAMES[(firstByte << 24) | (data[idx+1] << 16) | (data[idx+2] << 8) | data[idx+3]];
     }
     throw ('Mal-formed ID field at position ' + idx);
-  }
+  });
 
-  function decodeLength(cursor) {
+  let decodeLength = (cursor => {
     let data = cursor.data;
     let idx = cursor.idx;
     let firstByte = data[idx];
@@ -1182,9 +1191,9 @@ var webm = webm || {};
       // throw
     }
     return result;
-  }
+  });
 
-  function verifyID(cursor) {
+  let verifyID = (cursor => {
     let cursorIdx = cursor.idx;
     let id = decodeID(cursor);
     if (id) {
@@ -1197,9 +1206,9 @@ var webm = webm || {};
       }
     }
     return id;
-  }
+  });
 
-  function verifyLength(cursor) {
+  let verifyLength = (cursor => {
     let lengthIdx = cursor.idx;
     let length = decodeLength(cursor);
     if (cursor.idx - lengthIdx < 8) {
@@ -1208,9 +1217,9 @@ var webm = webm || {};
         throw "Length round trip does not match.";
     }
     return length;
-  }
+  });
 
-  function verifyString(cursor, length) {
+  let verifyString = ((cursor, length) => {
     let str = decodeString(cursor);
     let encodedStr = encodeString(str);
     if (encodedStr.byteLength != length)
@@ -1220,41 +1229,41 @@ var webm = webm || {};
         throw "Encoded string mismatch at character " + i;
     }
     return str;
-  }
+  });
 
-  function verifyUint(cursor) {
+  let verifyUint = (cursor => {
     let val = decodeUint(cursor);
     let encodedVal = encodeUint(val);
     if (val != decodeUint(new Cursor(encodedVal)))
       throw "Encoded uint mismatch";
     return val;
-  }
+  });
 
-  function verifyInt(cursor) {
+  let verifyInt = (cursor => {
     let val = decodeInt(cursor);
     let encodedVal = encodeInt(val);
     if (val != decodeInt(new Cursor(encodedVal)))
       throw "Encoded int mismatch";
     return val;
-  }
+  });
 
-  function verifyFloat32(cursor) {
+  let verifyFloat32 = (cursor => {
     let val = decodeFloat32(cursor);
     let encodedVal = encodeFloat32(val);
     if (val != decodeFloat32(new Cursor(encodedVal)))
       throw "Encoded float32 mismatch";
     return val;
-  }
+  });
 
-  function verifyFloat64(cursor) {
+  let verifyFloat64 = (cursor => {
     let val = decodeFloat64(cursor);
     let encodedVal = encodeFloat64(val);
     if (val != decodeFloat64(new Cursor(encodedVal)))
       throw "Encoded float64 mismatch";
     return val;
-  }
+  });
 
-  function verifyChunk(cursor, verbose, indent) {
+  let verifyChunk = ((cursor, verbose, indent) => {
     indent = indent || '';
     if (cursor.idx >= cursor.data.byteLength)
       return;
@@ -1266,30 +1275,30 @@ var webm = webm || {};
     let lengthCursor = cursor.clone();
     let length = verifyLength(cursor);
 
-    let chunkType = webm.ID_TYPES[id];
+    let chunkType = ID_TYPES[id];
     let chunkCursor = new Cursor(cursor.data, cursor.idx, cursor.idx + length);
-    if (chunkType == 'Master Elements') {
+    if (chunkType == MASTER_ELEMENTS_TYPE) {
       if (verbose)
         console.log(indent + idStr + ' len=' + length);
       let max = Math.min(cursor.idx + length, cursor.data.byteLength);
       while (cursor.idx < max)
         verifyChunk(cursor, verbose, indent + '..');
-    } else if (chunkType == 'String' || chunkType == 'UTF-8') {
+    } else if (chunkType == STRING_TYPE || chunkType == UTF8_TYPE) {
       let str = verifyString(chunkCursor, length);
       if (verbose)
         console.log(indent + idStr + ' len=' + length + ' "' + str + '"');
       cursor.idx += length;
-    } else if (chunkType == 'Unsigned Integer') {
+    } else if (chunkType == UNSIGNED_INTEGER_TYPE) {
       let val = verifyUint(chunkCursor);
       if (verbose)
         console.log(indent + idStr + ' len=' + length + ' val=' + val);
       cursor.idx += length;
-    } else if (chunkType == 'Signed Integer') {
+    } else if (chunkType == SIGNED_INTEGER_TYPE) {
       let val = verifyInt(chunkCursor);
       if (verbose)
         console.log(indent + idStr + ' len=' + length + ' val=' + val);
       cursor.idx += length;
-    } else if (chunkType == 'Float') {
+    } else if (chunkType == FLOAT_TYPE) {
       if (verbose) {
         if (length == 4) {
           let val = verifyFloat32(chunkCursor);
@@ -1322,9 +1331,9 @@ var webm = webm || {};
       }
       cursor.idx += length;
     }
-  }
+  });
 
-  function getAudioBlocks(webmBuffer, trackNum, audioBlocks) {
+  let getAudioBlocks = ((webmBuffer, trackNum, audioBlocks) => {
     if (!webmBuffer)
       return null;
 
@@ -1394,20 +1403,23 @@ var webm = webm || {};
     // return blocks in forward order.
     audioBlocks.reverse();
     return audioTrackEntryChunk;
-  }
+  });
 
-  function webpToVP8(blob) {
-    let promise = new Promise(function(resolve, reject) {
+  let webpToVP8 = (blob => {
+    let promise = new Promise((resolve, reject) => {
       let fr = new FileReader();
-      fr.addEventListener("loadend", function() {
-        resolve(new Uint8Array(this.result.slice(20)));
+      fr.addEventListener("load", evt => {
+        resolve(new Uint8Array(fr.result.slice(20)));
+      });
+      fr.addEventListener("error", evt => {
+	reject(fr.error);
       });
       fr.readAsArrayBuffer(blob);
     });
     return promise;
-  }
+  });
 
-  function Encoder(title, w, h, frameDuration, webpPromises, audioBuffer) {
+  let Encoder = ((title, w, h, frameDuration, webpPromises, audioBuffer) => {
     this.title = title;
     this.w = w;
     this.h = h;
@@ -1438,10 +1450,10 @@ var webm = webm || {};
     this.blockChunks = [];
     this.clusterLength = 0;
     this.blockNum = 0;
-  }
+  });
 
-  Encoder.prototype.encode = function() {
-    let promise = new Promise(function(resolve, reject) {
+  Encoder.prototype.encode = (() => {
+    let promise = new Promise(((resolve, reject) => {
       let videoTrackUid = this.webpPromises.length ? 1 : 0;
       let audioTrackEntryChunk = getAudioBlocks(this.audioBuffer, this.audioTrackNum, this.audioBlocks);
       let segmentDuration = this.frameDuration * this.webpPromises.length;
@@ -1463,11 +1475,11 @@ var webm = webm || {};
       } else {
         this.finishSegment(resolve, reject);
       }
-    }.bind(this));
+    }).bind(this));
     return promise;
-  };
+  });
 
-  Encoder.prototype.encodeNextCluster = function(resolve, reject) {
+  Encoder.prototype.encodeNextCluster = ((resolve, reject) => {
     this.clusterChunks = [];
     this.clusterStart = this.frameNum * this.frameDuration;
     if (this.audioBlocks.length)
@@ -1478,9 +1490,9 @@ var webm = webm || {};
     this.clusterLength = encodeUintChunk('Timecode', this.clusterStart, this.blockChunks);
     this.clusterLength += encodePosition('Position', this.clusterPosition, this.blockChunks);
     this.encodeNextBlock(resolve, reject);
-  };
+  });
 
-  Encoder.prototype.finishCluster = function(resolve, reject) {
+  Encoder.prototype.finishCluster = ((resolve, reject) => {
     if (this.frameNum >= this.webpPromises.length)
       this.clusterLength += addAudioBlocks(this.clusterStart, this.clusterStart + 0x7fff, this.audioBlocks, this.blockChunks);
     this.clusterLength = encodeDataChunk('Cluster', this.blockChunks, this.clusterLength, this.clusterChunks);
@@ -1494,17 +1506,17 @@ var webm = webm || {};
     }
 
     this.finishSegment(resolve, reject);
-  };
+  });
 
-  Encoder.prototype.encodeNextBlock = function(resolve, reject) {
+  Encoder.prototype.encodeNextBlock = ((resolve, reject) => {
     if (this.frameNum >= this.webpPromises.length || (this.frameNum * this.frameDuration) - this.clusterStart > 0x7fff) {
       this.finishCluster(resolve, reject);
       return;
     }
     let audioBlocksLength = this.audioBlocks.length;
     let frameTime = this.frameNum * this.frameDuration;
-    this.webpPromises[this.frameNum++].then(function(blob) {
-      webpToVP8(blob).then(function(vp8) {
+    this.webpPromises[this.frameNum++].then((blob => {
+      webpToVP8(blob).then((vp8 => {
         this.clusterLength += encodeVideoFrame(this.clusterStart, frameTime, this.videoTrackNum, vp8, this.audioBlocks, this.blockChunks);
         this.blockNum += audioBlocksLength - this.audioBlocks.length;
         if (frameTime - this.lastCuePoint > 1000) {
@@ -1513,11 +1525,13 @@ var webm = webm || {};
         }
         this.blockNum++;
         this.encodeNextBlock(resolve, reject);
-      }.bind(this));
-    }.bind(this));
-  };
+      }).bind(this)).catch(err => {
+	console.log(err);
+      });
+    }).bind(this));
+  });
 
-  Encoder.prototype.encodeTrailingAudio = function() {
+  Encoder.prototype.encodeTrailingAudio = (() => {
     while (this.audioBlocks.length) {
       let block = this.audioBlocks[this.audioBlocks.length-1];
       this.clusterStart = block[0];
@@ -1533,9 +1547,9 @@ var webm = webm || {};
       this.clusterPositions.push(this.clusterPosition);
       this.clusterPosition = [];
     }
-  };
+  });
 
-  Encoder.prototype.mungePositions = function() {
+  Encoder.prototype.mungePositions = (() => {
     mungePositions(this.seekHeaderPositions.Cues, this.position);
     this.position += encodeDataChunk('Cues', this.cueChunks, this.cueLength, this.segmentChunks);
 
@@ -1555,9 +1569,9 @@ var webm = webm || {};
       this.clusterChunks = this.clusters[i][1];
       this.segmentChunks.push(...this.clusterChunks);
     }
-  };
+  });
 
-  Encoder.prototype.finishSegment = function(resolve, reject) {
+  Encoder.prototype.finishSegment = ((resolve, reject) => {
     this.encodeTrailingAudio();
     this.mungePositions();
     let chunks = [];
@@ -1577,22 +1591,22 @@ var webm = webm || {};
     }
     let mimeType = this.webpPromises.length ? "video/webm" : "audio/webm";
     resolve(new Blob(chunks, {type: mimeType}));
-  };
+  });
 
   /* Public API begins here */
 
-  webm.vp8tovp8l = function(blob) {
+  webm.vp8tovp8l = (blob => {
     let vp8lHeader = new Uint8Array([86, 80, 56, 76]);  // ['V', 'P', '8', 'L']
     blob = new Blob([blob.slice(0, 12), vp8lHeader, blob.slice(16)], {type: 'image/webp'});
     return blob;
-  };
+  });
 
-  webm.encode = function(title, w, h, frameDuration, webpPromises, audioBuffer) {
+  webm.encode = ((title, w, h, frameDuration, webpPromises, audioBuffer) => {
     let encoder = new Encoder(title, w, h, frameDuration, webpPromises, audioBuffer);
     return encoder.encode();
-  };
+  });
 
-  webm.decode = function(buffer, sizeCB, frameRateCB, frameCB, audioCB) {
+  webm.decode = ((buffer, sizeCB, frameRateCB, frameCB, audioCB) => {
     let riffHeader = new Uint8Array([82, 73, 70, 70]);  // 'RIFF'
     let webpHeader = new Uint8Array([87, 69, 66, 80]);  // 'WEBP'
     let vp8Header = new Uint8Array([86, 80, 56, 32]);  // 'VP8 '
@@ -1670,17 +1684,17 @@ var webm = webm || {};
       return;
 
     let encoder = new Encoder("", 0, 0, 0, [], buffer);
-    encoder.encode().then(function(blob) {
+    encoder.encode().then(blob => {
       audioCB(blob);
     });
-  };
+  });
 
-  webm.verify = function(buffer, verbose) {
+  webm.verify = ((buffer, verbose) => {
     let cursor = new Cursor(new Uint8Array(buffer));
     let max = buffer.byteLength;
     while (cursor.idx < max)
       verifyChunk(cursor, verbose, '');
-  };
+  });
 
   webm.debug = false;
   webm.encodeUint = encodeUint;
