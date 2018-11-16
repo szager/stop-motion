@@ -1,4 +1,9 @@
 /* -*- mode: javascript; js-indent-level: 2 -*- */
+
+// Codec for a subset of the webm container format, which itself is a subset of
+// the Matroska format:
+//
+//   https://www.matroska.org/technical/specs/index.html
 'use strict';
 
 var webm = webm || {};
@@ -682,7 +687,7 @@ var webm = webm || {};
     fb[6] = 0x10 | (fb[6] & 0xf);
     fb[7] = 0;
     let align = 7 - (exponent % 8);
-    let numBytes = Math.ceil(exponent / 8);
+    numBytes = Math.ceil(exponent / 8);
     let arr = [];
 
     // Unrolled loops, likely a premature optimization.

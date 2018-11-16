@@ -4,7 +4,6 @@ var CACHE_PATHS = [
   '/animator.css',
   '/images/capture72.png',
   '/images/clear72.png',
-  '/images/export72.png',
   '/images/load72.png',
   '/images/off72.png',
   '/images/on72.png',
