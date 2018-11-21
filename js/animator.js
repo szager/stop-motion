@@ -35,6 +35,7 @@ var animator = animator || {};
     videoCannotPlayHandler(e) {
       console.log('navigator.mediaDevices.getUserMedia error: ', e);
       this.messageDiv.innerText = "Cannot connect to camera.";
+      return false;
     }
 
     setDimensions(w, h) {
@@ -68,6 +69,7 @@ var animator = animator || {};
         this.video.srcObject = stream;
         this.videoStream = stream;
         this.streamOn = true;
+	return stream;
       }).catch(this.videoCannotPlayHandler.bind(this));
     }
 
