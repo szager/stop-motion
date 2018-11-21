@@ -113,6 +113,18 @@ window.addEventListener('load', evt => {
   }
   an.setPlaybackSpeed(playbackSpeed());
 
+  let captureClicks = (e => { e.stopPropagation() });
+  let showSpinner = (() => {
+    let topContainer = document.getElementById('top-container');
+    topContainer.style.opacity = 0.5;
+    topContainer.addEventListener('click', captureClicks, true);
+  });
+  let hideSpinner = (() => {
+    let topContainer = document.getElementById('top-container');
+    topContainer.style.opacity = null;
+    topContainer.removeEventListener('click', captureClicks, true);
+  });
+
   let saveDialog = document.getElementById('saveDialog');
   let fileNameInput = saveDialog.querySelector('input');
   let saveCB = () => {
