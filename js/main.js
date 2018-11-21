@@ -160,12 +160,12 @@ window.addEventListener('load', evt => {
   toggleButton.addEventListener("click", evt => {
     an.toggleVideo().then(isPlaying => {
       if (isPlaying) {
-        evt.target.firstChild.src = "images/off72.png";
+        evt.currentTarget.firstChild.src = "images/off72.png";
       } else {
-        evt.target.firstChild.src = "images/on72.png";
+        evt.currentTarget.firstChild.src = "images/on72.png";
       }
     }).catch(err => {
-      evt.target.firstChild.src = "images/off72.png";
+      evt.currentTarget.firstChild.src = "images/off72.png";
     });
   });
 
@@ -176,12 +176,12 @@ window.addEventListener('load', evt => {
 
   captureButton.addEventListener("click", evt => {
     an.capture();
-    pressButton(evt.target);
+    pressButton(evt.currentTarget);
   });
 
   undoButton.addEventListener("click", evt => {
     an.undoCapture();
-    pressButton(evt.target);
+    pressButton(evt.currentTarget);
   });
 
   let progressMarker = document.getElementById("progress-marker");
@@ -358,7 +358,7 @@ window.addEventListener('load', evt => {
     let installButton = document.getElementById("installButton");
     installButton.style.display = "";
     installButton.addEventListener("click", evt => {
-      evt.target.parentNode.removeChild(evt.target);
+      evt.currentTarget.parentNode.removeChild(evt.target);
       prompt.prompt();
     });
   });
