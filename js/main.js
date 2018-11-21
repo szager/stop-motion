@@ -238,10 +238,10 @@ window.addEventListener('load', evt => {
   loadButton.addEventListener("click", evt => {
     let fileInput = document.createElement('input');
     fileInput.type = "file";
-    fileInput.addEventListener("change", () => {
-      if (this.files[0]) {
+    fileInput.addEventListener("change", evt => {
+      if (evt.target.files[0]) {
         showSpinner();
-        an.load(this.files[0], hideSpinner, frameRate => {
+        an.load(evt.target.files[0], hideSpinner, frameRate => {
           playbackSpeedSelector.value = frameRate;
         });
       }
