@@ -1,21 +1,21 @@
 var CACHE_NAME = 'stop-motion-code';
 var CACHE_PATHS = [
-  '/',
-  '/animator.css',
-  '/images/capture72.png',
-  '/images/clear72.png',
-  '/images/load72.png',
-  '/images/off72.png',
-  '/images/on72.png',
-  '/images/playpause72.png',
-  '/images/save72.png',
-  '/images/stop-motion-192.png',
-  '/images/stop-motion-512.png',
-  '/images/stop-motion.svg',
-  '/images/undo72.png',
-  '/js/animator.js',
-  '/js/main.js',
-  '/js/webm.js'
+  '/stop-motion/',
+  '/stop-motion/animator.css',
+  '/stop-motion/images/capture72.png',
+  '/stop-motion/images/clear72.png',
+  '/stop-motion/images/load72.png',
+  '/stop-motion/images/off72.png',
+  '/stop-motion/images/on72.png',
+  '/stop-motion/images/playpause72.png',
+  '/stop-motion/images/save72.png',
+  '/stop-motion/images/stop-motion-192.png',
+  '/stop-motion/images/stop-motion-512.png',
+  '/stop-motion/images/stop-motion.svg',
+  '/stop-motion/images/undo72.png',
+  '/stop-motion/js/animator.js',
+  '/stop-motion/js/main.js',
+  '/stop-motion/js/webm.js'
 ];
 var CACHE_TTL = 60 * 60 * 24;
 var LAST_UPDATE = null;
