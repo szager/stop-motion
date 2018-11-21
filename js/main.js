@@ -3,30 +3,108 @@
 
 var main = main || {};
 
-(() => {
-  // Set up service worker
-  if (self.navigator && 'serviceWorker' in navigator)
-    navigator.serviceWorker.register('/sw.js');
-
-  // Set up Add to Home Screen prompt
-  window.addEventListener('beforeinstallprompt', prompt => {
-    prompt.preventDefault();
-    let installButton = document.getElementById("installButton");
-    installButton.style.display = "";
-    installButton.addEventListener("click", evt => {
-      evt.target.parentNode.removeChild(evt.target);
-      prompt.prompt();
-    });
-  });
-})();
-
 window.addEventListener('load', evt => {
+  document.body.innerHTML = (`
+  <div class="hflex">
+    <div id="video-column">
+      <div id="video-container">
+        <video id="video" width=640 height=480 autoplay></video>
+        <canvas id="snapshot-canvas" width=640 height=480></canvas>
+        <canvas id="play-canvas" width=640 height=480></canvas>
+        <div id="message-container" class="vflex">
+          <div id="video-message"></div>
+        </div>
+      </div>
+      <div id="progress-container">
+        <svg id="progress-marker">
+          <line id="progress-line" x1=0 y1=5 x2=645 y2=5></line>
+          <circle id="progress-circle" cx=640 cy=5 r=5></circle>
+        </svg>
+      </div>
+      <div id="audio-container">
+        <audio id="audio"></audio>
+      </div>
+      <div id="speed-container">
+        <pre class="speed-label">Slow  </pre>
+        <input id="playbackSpeed" type="range" name="playbackSpeed" min="2" step="0.5" max="12" />
+        <pre class="speed-label">  Fast</pre>
+      </div>
+    </div>
+
+    <div id="control-column">
+      <div id="button-container">
+        <button class="button72" id="toggleButton"><img src="images/off72.png" /><div class="buttonLabel">On/Off</div></button>
+        <button class="button72" id="captureButton"><img src="images/capture72.png" /><div class="buttonLabel">Capture</div></button>
+        <button class="button72" id="undoButton"><img src="images/undo72.png" /><div class="buttonLabel">Undo</div></button>
+        <button class="button72" id="playButton"><img src="images/playpause72.png" /><div class="buttonLabel">Play/Stop</div></button>
+        <button class="button72" id="clearButton"><img src="images/clear72.png" /><div class="buttonLabel">Clear</div></button>
+        <button class="button72" id="recordAudioButton">
+          <div class="iconContainer audioIcon">
+            <svg>
+              <g class="not-recording">
+                <path style="fill:currentColor" d="M 28 34 Q 28 42 36 42 Q 44 42 44 34 L 44 14 Q 44 6 36 6 Q 28 6 28 14 Z" />
+                <path style="stroke:currentColor; stroke-width:4; fill:none" d="M 22 24 L 22 34 Q 22 48 36 48 Q 50 48 50 34 L 50 24" />
+                <path style="stroke:currentColor; stroke-width:4; fill:none" d="M 36 50 L 36 66 L 22 66 L 50 66" />
+              </g>
+              <g class="recording" style="display: none">
+                <circle class="center-circle" style="r:9; color:red; stroke:none; fill:currentColor"></circle>
+              </g>
+            </svg>
+            <svg id="countdown" class="recede-decay" style="display: none">
+              <text style="red; font-size: 54pt; text-anchor: middle;" x=36 y=60></text>
+            </svg>
+            <svg class="ripple-decay recording" style="display: none">
+              <circle class="center-circle" style="r:34; color:red; stroke:currentColor; stroke-width:2; fill:none"></circle>
+            </svg>
+          </div>
+          <div class="buttonLabel">Record Audio</div>
+        </button>
+        <button class="button72" id="clearAudioButton">
+          <div class="iconContainer audioIcon">
+            <svg>
+              <g style="color:black">
+                <path style="fill:currentColor" d="M 28 34 Q 28 42 36 42 Q 44 42 44 34 L 44 14 Q 44 6 36 6 Q 28 6 28 14 Z" />
+                <path style="stroke:currentColor; stroke-width:4; fill:none" d="M 22 24 L 22 34 Q 22 48 36 48 Q 50 48 50 34 L 50 24" />
+                <path style="stroke:currentColor; stroke-width:4; fill:none" d="M 36 50 L 36 66 L 22 66 L 50 66" />
+              </g>
+              <g style="color:red">
+                <circle class="center-circle" style="r:32; stroke:currentColor; stroke-width:8; fill:none"></circle>
+                <path style="fill:none; stroke:currentColor; stroke-width:8" d="M 12 60 L 60 12"></path>
+              </g>
+            </svg>
+          </div>
+          <div class="buttonLabel">Clear Audio</div>
+        </button>
+        <button class="button72" id="saveButton"><img src="images/save72.png" /><div class="buttonLabel">Save</div></button>
+        <button class="button72" id="loadButton"><img src="images/load72.png" /><div class="buttonLabel">Load</div></button>
+      </div>
+    </div>
+  </div>
+
+  <div id="installButton" style="display: none">
+    <span style="font-size: 36px">Install</span>
+    <span style="font-size: 24px">for offline use</span>
+  </div>
+
+  <div id="dialog-container">
+    <dialog id="clearConfirmDialog">
+      <p>Are you sure you want to clear the current animation?</p>
+      <button id="clearConfirmButton">OK</button>
+      <button id="clearCancelButton">Cancel</button>
+    </dialog>
+    <dialog id="saveDialog">
+      <p>Give your movie a name: <input type="text" /></p>
+      <button id="saveConfirmButton">OK</button>
+      <button id="saveCancelButton">Cancel</button>
+    </dialog>
+  </div>`);
   // Create Animator object and set up callbacks.
   let video = document.getElementById('video');
   let snapshotCanvas = document.getElementById('snapshot-canvas');
   let playCanvas = document.getElementById('play-canvas');
   let videoMessage = document.getElementById('video-message');
   let an = new animator.Animator(video, snapshotCanvas, playCanvas, videoMessage);
+
   main.animator = an;
 
   let playbackSpeedSelector = document.getElementById('playbackSpeed');
@@ -82,9 +160,9 @@ window.addEventListener('load', evt => {
   toggleButton.addEventListener("click", evt => {
     an.toggleVideo().then(isPlaying => {
       if (isPlaying) {
-	evt.target.firstChild.src = "images/off72.png";
+        evt.target.firstChild.src = "images/off72.png";
       } else {
-	evt.target.firstChild.src = "images/on72.png";
+        evt.target.firstChild.src = "images/on72.png";
       }
     }).catch(err => {
       evt.target.firstChild.src = "images/off72.png";
@@ -273,4 +351,15 @@ window.addEventListener('load', evt => {
   } else {
     setUpCameraSelectAndAttach();
   }
+
+  // Set up Add to Home Screen prompt.
+  window.addEventListener('beforeinstallprompt', prompt => {
+    prompt.preventDefault();
+    let installButton = document.getElementById("installButton");
+    installButton.style.display = "";
+    installButton.addEventListener("click", evt => {
+      evt.target.parentNode.removeChild(evt.target);
+      prompt.prompt();
+    });
+  });
 });

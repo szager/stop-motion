@@ -10,7 +10,6 @@
   margin: 10px;
   flex: 0 0;
   will-change: transform;
-
 }
 #video-container > * {
   width: 640px;

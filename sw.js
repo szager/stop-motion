@@ -17,12 +17,23 @@ var CACHE_PATHS = [
   '/js/main.js',
   '/js/webm.js'
 ];
+var CACHE_TTL = 60 * 60 * 24;
+var LAST_UPDATE = null;
+
+self.addEventListener('message', evt => {
+  if (evt.data.hasOwnProperty('last_update')) {
+    if (Date.now() - evt.data['last_update'] > CACHE_TTL) {
+      // update cache
+    }
+  }
+});
 
 self.addEventListener('install', evt => {
   evt.waitUntil(caches.open(CACHE_NAME).then(cache => {
     cache.addAll(CACHE_PATHS).then(() => {
       self.skipWaiting();
-      clients.claim();
+      self.clients.forEach(client => {
+      });
     });
   }));
 });
