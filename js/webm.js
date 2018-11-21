@@ -1428,179 +1428,181 @@ var webm = webm || {};
     return promise;
   });
 
-  let Encoder = ((title, w, h, frameDuration, webpPromises, audioBuffer) => {
-    this.title = title;
-    this.w = w;
-    this.h = h;
-    this.frameDuration = Math.round(frameDuration);
-    this.webpPromises = webpPromises;
-    this.audioBuffer = audioBuffer;
+  class Encoder {
+    constructor(title, w, h, frameDuration, webpPromises, audioBuffer) {
+      this.title = title;
+      this.w = w;
+      this.h = h;
+      this.frameDuration = Math.round(frameDuration);
+      this.webpPromises = webpPromises;
+      this.audioBuffer = audioBuffer;
 
-    if (webpPromises.length) {
-      this.videoTrackNum = 1;
-      this.audioTrackNum = 2;
-    } else {
-      this.videoTrackNum = 0;
-      this.audioTrackNum = 1;
-    }
-    this.audioBlocks = [];
-    this.position = 0;
-    this.clusterPosition = 0;
-    this.frameNum = 0;
-    this.lastCuePoint = -1001;
-    this.cueChunks = [];
-    this.cueLength = 0;
-    this.clusters = [];
-    this.clusterPositions = [];
-    this.segmentChunks = [];
-    this.seekHeaderPositions = {};
-    this.clusterChunks = [];
-    this.clusterStart = 0;
-    this.blockChunks = [];
-    this.clusterLength = 0;
-    this.blockNum = 0;
-  });
-
-  Encoder.prototype.encode = (() => {
-    let promise = new Promise(((resolve, reject) => {
-      let videoTrackUid = this.webpPromises.length ? 1 : 0;
-      let audioTrackEntryChunk = getAudioBlocks(this.audioBuffer, this.audioTrackNum, this.audioBlocks);
-      let segmentDuration = this.frameDuration * this.webpPromises.length;
-      if (this.audioBlocks.length)
-        segmentDuration = Math.max(segmentDuration, this.audioBlocks[0][0]);
-
-      let numClusters = Math.ceil(segmentDuration / 0x10000);
-      this.position += encodeFirstSeekHeader(this.seekHeaderPositions, numClusters > 1, this.segmentChunks);
-      this.clusterPosition = this.seekHeaderPositions.Cluster;
-
-      mungePositions(this.seekHeaderPositions.Info, this.position);
-      this.position += encodeSegmentInfo(segmentDuration, this.title, this.segmentChunks);
-
-      mungePositions(this.seekHeaderPositions.Tracks, this.position);
-      this.position += encodeTracks(this.videoTrackNum, videoTrackUid, this.w, this.h, this.segmentChunks, audioTrackEntryChunk);
-
-      if (this.webpPromises.length) {
-        this.encodeNextCluster(resolve, reject);
+      if (webpPromises.length) {
+        this.videoTrackNum = 1;
+        this.audioTrackNum = 2;
       } else {
-        this.finishSegment(resolve, reject);
+        this.videoTrackNum = 0;
+        this.audioTrackNum = 1;
       }
-    }).bind(this));
-    return promise;
-  });
-
-  Encoder.prototype.encodeNextCluster = ((resolve, reject) => {
-    this.clusterChunks = [];
-    this.clusterStart = this.frameNum * this.frameDuration;
-    if (this.audioBlocks.length)
-        this.clusterStart = Math.min(this.clusterStart, this.audioBlocks[this.audioBlocks.length-1][0]);
-    this.blockNum = 0;
-
-    this.blockChunks = [];
-    this.clusterLength = encodeUintChunk('Timecode', this.clusterStart, this.blockChunks);
-    this.clusterLength += encodePosition('Position', this.clusterPosition, this.blockChunks);
-    this.encodeNextBlock(resolve, reject);
-  });
-
-  Encoder.prototype.finishCluster = ((resolve, reject) => {
-    if (this.frameNum >= this.webpPromises.length)
-      this.clusterLength += addAudioBlocks(this.clusterStart, this.clusterStart + 0x7fff, this.audioBlocks, this.blockChunks);
-    this.clusterLength = encodeDataChunk('Cluster', this.blockChunks, this.clusterLength, this.clusterChunks);
-    this.clusters.push([this.clusterLength, this.clusterChunks]);
-    this.clusterPositions.push(this.clusterPosition);
-    this.clusterPosition = [];
-
-    if (this.frameNum < this.webpPromises.length) {
-      this.encodeNextCluster(resolve, reject);
-      return;
+      this.audioBlocks = [];
+      this.position = 0;
+      this.clusterPosition = 0;
+      this.frameNum = 0;
+      this.lastCuePoint = -1001;
+      this.cueChunks = [];
+      this.cueLength = 0;
+      this.clusters = [];
+      this.clusterPositions = [];
+      this.segmentChunks = [];
+      this.seekHeaderPositions = {};
+      this.clusterChunks = [];
+      this.clusterStart = 0;
+      this.blockChunks = [];
+      this.clusterLength = 0;
+      this.blockNum = 0;
     }
 
-    this.finishSegment(resolve, reject);
-  });
+    encode() {
+      let promise = new Promise(((resolve, reject) => {
+        let videoTrackUid = this.webpPromises.length ? 1 : 0;
+        let audioTrackEntryChunk = getAudioBlocks(this.audioBuffer, this.audioTrackNum, this.audioBlocks);
+        let segmentDuration = this.frameDuration * this.webpPromises.length;
+        if (this.audioBlocks.length)
+          segmentDuration = Math.max(segmentDuration, this.audioBlocks[0][0]);
 
-  Encoder.prototype.encodeNextBlock = ((resolve, reject) => {
-    if (this.frameNum >= this.webpPromises.length || (this.frameNum * this.frameDuration) - this.clusterStart > 0x7fff) {
-      this.finishCluster(resolve, reject);
-      return;
-    }
-    let audioBlocksLength = this.audioBlocks.length;
-    let frameTime = this.frameNum * this.frameDuration;
-    this.webpPromises[this.frameNum++].then((blob => {
-      webpToVP8(blob).then((vp8 => {
-        this.clusterLength += encodeVideoFrame(this.clusterStart, frameTime, this.videoTrackNum, vp8, this.audioBlocks, this.blockChunks);
-        this.blockNum += audioBlocksLength - this.audioBlocks.length;
-        if (frameTime - this.lastCuePoint > 1000) {
-          this.lastCuePoint = frameTime;
-          this.cueLength += encodeCuePoint(frameTime, this.videoTrackNum, this.blockNum, this.clusterPosition, this.cueChunks);
+        let numClusters = Math.ceil(segmentDuration / 0x10000);
+        this.position += encodeFirstSeekHeader(this.seekHeaderPositions, numClusters > 1, this.segmentChunks);
+        this.clusterPosition = this.seekHeaderPositions.Cluster;
+
+        mungePositions(this.seekHeaderPositions.Info, this.position);
+        this.position += encodeSegmentInfo(segmentDuration, this.title, this.segmentChunks);
+
+        mungePositions(this.seekHeaderPositions.Tracks, this.position);
+        this.position += encodeTracks(this.videoTrackNum, videoTrackUid, this.w, this.h, this.segmentChunks, audioTrackEntryChunk);
+
+        if (this.webpPromises.length) {
+          this.encodeNextCluster(resolve, reject);
+        } else {
+          this.finishSegment(resolve, reject);
         }
-        this.blockNum++;
-        this.encodeNextBlock(resolve, reject);
-      }).bind(this)).catch(err => {
-	console.log(err);
-      });
-    }).bind(this));
-  });
+      }).bind(this));
+      return promise;
+    }
 
-  Encoder.prototype.encodeTrailingAudio = (() => {
-    while (this.audioBlocks.length) {
-      let block = this.audioBlocks[this.audioBlocks.length-1];
-      this.clusterStart = block[0];
+    encodeNextCluster(resolve, reject) {
+      this.clusterChunks = [];
+      this.clusterStart = this.frameNum * this.frameDuration;
+      if (this.audioBlocks.length)
+          this.clusterStart = Math.min(this.clusterStart, this.audioBlocks[this.audioBlocks.length-1][0]);
+      this.blockNum = 0;
 
       this.blockChunks = [];
       this.clusterLength = encodeUintChunk('Timecode', this.clusterStart, this.blockChunks);
       this.clusterLength += encodePosition('Position', this.clusterPosition, this.blockChunks);
-      this.clusterLength += addAudioBlocks(this.clusterStart, this.clusterStart + 0x7fff, this.audioBlocks, this.blockChunks);
+      this.encodeNextBlock(resolve, reject);
+    }
 
-      this.clusterChunks = [];
+    finishCluster(resolve, reject) {
+      if (this.frameNum >= this.webpPromises.length)
+        this.clusterLength += addAudioBlocks(this.clusterStart, this.clusterStart + 0x7fff, this.audioBlocks, this.blockChunks);
       this.clusterLength = encodeDataChunk('Cluster', this.blockChunks, this.clusterLength, this.clusterChunks);
       this.clusters.push([this.clusterLength, this.clusterChunks]);
       this.clusterPositions.push(this.clusterPosition);
       this.clusterPosition = [];
-    }
-  });
 
-  Encoder.prototype.mungePositions = (() => {
-    mungePositions(this.seekHeaderPositions.Cues, this.position);
-    this.position += encodeDataChunk('Cues', this.cueChunks, this.cueLength, this.segmentChunks);
-
-    mungePositions(this.clusterPositions[0], this.position);
-    this.position += this.clusters[0][0];
-    this.clusterChunks = this.clusters[0][1];
-    this.segmentChunks.push(...this.clusterChunks);
-
-    if (this.seekHeaderPositions.SeekHeader) {
-      mungePositions(this.seekHeaderPositions.SeekHeader, this.position);
-      this.position += encodeTrailingSeekHeader(this.clusterPositions.slice(1), this.segmentChunks);
-    }
-
-    for (let i = 1; i < this.clusters.length; i++) {
-      mungePositions(this.clusterPositions[i], this.position);
-      this.position += this.clusters[i][0];
-      this.clusterChunks = this.clusters[i][1];
-      this.segmentChunks.push(...this.clusterChunks);
-    }
-  });
-
-  Encoder.prototype.finishSegment = ((resolve, reject) => {
-    this.encodeTrailingAudio();
-    this.mungePositions();
-    let chunks = [];
-    let len = encodeEBML(chunks);
-    len += encodeChunkHeader('Segment', this.position, chunks);
-    len += this.position;
-    chunks.push(...this.segmentChunks);
-    if (webm.debug) {
-      let testBuffer = new Uint8Array(len);
-      let i = 0;
-      for (let j = 0; j < chunks.length; j++) {
-        let chunk = chunks[j];
-        for (let k = 0; k < chunk.length; k++)
-          testBuffer[i++] = chunk[k];
+      if (this.frameNum < this.webpPromises.length) {
+        this.encodeNextCluster(resolve, reject);
+        return;
       }
-      webm.verify(testBuffer, true);
+
+      this.finishSegment(resolve, reject);
     }
-    let mimeType = this.webpPromises.length ? "video/webm" : "audio/webm";
-    resolve(new Blob(chunks, {type: mimeType}));
-  });
+
+    encodeNextBlock(resolve, reject) {
+      if (this.frameNum >= this.webpPromises.length || (this.frameNum * this.frameDuration) - this.clusterStart > 0x7fff) {
+        this.finishCluster(resolve, reject);
+        return;
+      }
+      let audioBlocksLength = this.audioBlocks.length;
+      let frameTime = this.frameNum * this.frameDuration;
+      this.webpPromises[this.frameNum++].then((blob => {
+        webpToVP8(blob).then((vp8 => {
+          this.clusterLength += encodeVideoFrame(this.clusterStart, frameTime, this.videoTrackNum, vp8, this.audioBlocks, this.blockChunks);
+          this.blockNum += audioBlocksLength - this.audioBlocks.length;
+          if (frameTime - this.lastCuePoint > 1000) {
+            this.lastCuePoint = frameTime;
+            this.cueLength += encodeCuePoint(frameTime, this.videoTrackNum, this.blockNum, this.clusterPosition, this.cueChunks);
+          }
+          this.blockNum++;
+          this.encodeNextBlock(resolve, reject);
+        }).bind(this)).catch(err => {
+  	console.log(err);
+        });
+      }).bind(this));
+    }
+
+    encodeTrailingAudio() {
+      while (this.audioBlocks.length) {
+        let block = this.audioBlocks[this.audioBlocks.length-1];
+        this.clusterStart = block[0];
+
+        this.blockChunks = [];
+        this.clusterLength = encodeUintChunk('Timecode', this.clusterStart, this.blockChunks);
+        this.clusterLength += encodePosition('Position', this.clusterPosition, this.blockChunks);
+        this.clusterLength += addAudioBlocks(this.clusterStart, this.clusterStart + 0x7fff, this.audioBlocks, this.blockChunks);
+
+        this.clusterChunks = [];
+        this.clusterLength = encodeDataChunk('Cluster', this.blockChunks, this.clusterLength, this.clusterChunks);
+        this.clusters.push([this.clusterLength, this.clusterChunks]);
+        this.clusterPositions.push(this.clusterPosition);
+        this.clusterPosition = [];
+      }
+    }
+
+    mungePositions() {
+      mungePositions(this.seekHeaderPositions.Cues, this.position);
+      this.position += encodeDataChunk('Cues', this.cueChunks, this.cueLength, this.segmentChunks);
+
+      mungePositions(this.clusterPositions[0], this.position);
+      this.position += this.clusters[0][0];
+      this.clusterChunks = this.clusters[0][1];
+      this.segmentChunks.push(...this.clusterChunks);
+
+      if (this.seekHeaderPositions.SeekHeader) {
+        mungePositions(this.seekHeaderPositions.SeekHeader, this.position);
+        this.position += encodeTrailingSeekHeader(this.clusterPositions.slice(1), this.segmentChunks);
+      }
+
+      for (let i = 1; i < this.clusters.length; i++) {
+        mungePositions(this.clusterPositions[i], this.position);
+        this.position += this.clusters[i][0];
+        this.clusterChunks = this.clusters[i][1];
+        this.segmentChunks.push(...this.clusterChunks);
+      }
+    }
+
+    finishSegment(resolve, reject) {
+      this.encodeTrailingAudio();
+      this.mungePositions();
+      let chunks = [];
+      let len = encodeEBML(chunks);
+      len += encodeChunkHeader('Segment', this.position, chunks);
+      len += this.position;
+      chunks.push(...this.segmentChunks);
+      if (webm.debug) {
+        let testBuffer = new Uint8Array(len);
+        let i = 0;
+        for (let j = 0; j < chunks.length; j++) {
+          let chunk = chunks[j];
+          for (let k = 0; k < chunk.length; k++)
+            testBuffer[i++] = chunk[k];
+        }
+        webm.verify(testBuffer, true);
+      }
+      let mimeType = this.webpPromises.length ? "video/webm" : "audio/webm";
+      resolve(new Blob(chunks, {type: mimeType}));
+    }
+  }
 
   /* Public API begins here */
 
