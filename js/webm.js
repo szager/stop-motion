@@ -1029,39 +1029,43 @@ var webm = webm || {};
     return result;
   });
 
-  let Chunk = ((data, idx, type, length) => {
-    this.data = data;
-    this.idx = idx;
-    this.type = type;
-    this.length = length;
-  });
-
-  let Cursor = ((data, idx, max) => {
-    this.data = data;
-    this.idx = idx || 0;
-    this.max = max || data.byteLength;
-  });
-
-  Chunk.prototype.cursor = (() => {
-    return new Cursor(this.data, this.idx, this.idx + this.length);
-  });
-
-  Cursor.prototype.clone = (cursor => {
-    return new Cursor(this.data, this.idx, this.max);
-  });
-
-  Cursor.prototype.findChunk = (type => {
-    while (this.idx < this.max) {
-      let id = decodeID(this);
-      let lengthField = decodeLength(this);
-      let length = Math.min(lengthField, this.max - this.idx);
-      let idx = this.idx;
-      this.idx += length;
-      if (!type || id == type)
-        return new Chunk(this.data, idx, id, length);
+  class Cursor {
+    constructor(data, idx, max) {
+      this.data = data;
+      this.idx = idx || 0;
+      this.max = max || data.byteLength;
     }
-    return null;
-  });
+
+    clone() {
+      return new Cursor(this.data, this.idx, this.max);
+    }
+
+    findChunk(type) {
+      while (this.idx < this.max) {
+        let id = decodeID(this);
+        let lengthField = decodeLength(this);
+        let length = Math.min(lengthField, this.max - this.idx);
+        let idx = this.idx;
+        this.idx += length;
+        if (!type || id == type)
+          return new Chunk(this.data, idx, id, length);
+      }
+      return null;
+    }
+  }
+
+  class Chunk {
+    constructor(data, idx, type, length) {
+      this.data = data;
+      this.idx = idx;
+      this.type = type;
+      this.length = length;
+    }
+
+    get cursor() {
+      return new Cursor(this.data, this.idx, this.idx + this.length);
+    }
+  }
 
   let decodeUint = (cursor => {
     let idx = cursor.idx;
@@ -1344,13 +1348,13 @@ var webm = webm || {};
 
     webmBuffer = new Uint8Array(webmBuffer);
     let segment = new Cursor(webmBuffer).findChunk('Segment');
-    let info = segment.cursor().findChunk('Info');
-    let timecodeScale = info.cursor().findChunk('TimecodeScale');
-    let audioTimecodeScale = decodeUint(timecodeScale.cursor());
+    let info = segment.cursor.findChunk('Info');
+    let timecodeScale = info.cursor.findChunk('TimecodeScale');
+    let audioTimecodeScale = decodeUint(timecodeScale.cursor);
     if (audioTimecodeScale != 1000000)
       throw "Cannot encode audio with TimecodeScale " + audioTimecodeScale;
 
-    let tracksCursor = segment.cursor().findChunk('Tracks').cursor();
+    let tracksCursor = segment.cursor.findChunk('Tracks').cursor;
     let audioTrackEntryChunk;
     let origTrackNum = -1;
     let uintEncodedTrackNum;
@@ -1358,14 +1362,14 @@ var webm = webm || {};
     for (let trackEntry = tracksCursor.findChunk('TrackEntry');
          trackEntry;
          trackEntry = tracksCursor.findChunk('TrackEntry')) {
-      let trackType = trackEntry.cursor().findChunk('TrackType');
-      if (!trackType || Number(decodeUint(trackType.cursor())) != 2)
+      let trackType = trackEntry.cursor.findChunk('TrackType');
+      if (!trackType || Number(decodeUint(trackType.cursor)) != 2)
         continue;
 
-      let trackNumEntry = trackEntry.cursor().findChunk('TrackNumber');
+      let trackNumEntry = trackEntry.cursor.findChunk('TrackNumber');
       if (!trackNumEntry)
         continue;
-      origTrackNum = Number(decodeUint(trackNumEntry.cursor()));
+      origTrackNum = Number(decodeUint(trackNumEntry.cursor));
       if (trackNum != origTrackNum) {
         uintEncodedTrackNum = encodeUint(trackNum);
         lengthEncodedTrackNum = encodeLength(trackNum);
@@ -1379,17 +1383,17 @@ var webm = webm || {};
     if (!audioTrackEntryChunk)
       return null;
 
-    let segmentCursor = segment.cursor();
+    let segmentCursor = segment.cursor;
     for (let cluster = segmentCursor.findChunk('Cluster');
          cluster;
          cluster = segmentCursor.findChunk('Cluster')) {
-      let clusterTimecode = cluster.cursor().findChunk('Timecode');
-      let clusterStartTime = decodeUint(clusterTimecode.cursor());
-      let clusterCursor = cluster.cursor();
+      let clusterTimecode = cluster.cursor.findChunk('Timecode');
+      let clusterStartTime = decodeUint(clusterTimecode.cursor);
+      let clusterCursor = cluster.cursor;
       for (let block = clusterCursor.findChunk('SimpleBlock');
            block;
            block = clusterCursor.findChunk('SimpleBlock')) {
-        let blockCursor = block.cursor();
+        let blockCursor = block.cursor;
         let trackNumIdx = blockCursor.idx;
         let decodedTrackNum = decodeLength(blockCursor);
         if (decodedTrackNum != origTrackNum)
@@ -1618,35 +1622,35 @@ var webm = webm || {};
     let segment = new Cursor(new Uint8Array(buffer)).findChunk('Segment');
     if (!segment)
       return;
-    let tracks = segment.cursor().findChunk('Tracks');
+    let tracks = segment.cursor.findChunk('Tracks');
     if (!tracks)
       return;
     let hasAudio = false;
 
     let w = -1, h = -1;
     let videoTrackNum = -1;
-    let tracksCursor = tracks.cursor();
+    let tracksCursor = tracks.cursor;
     for (let entry = tracksCursor.findChunk('TrackEntry');
          entry;
          entry = tracksCursor.findChunk('TrackEntry')) {
-      let trackType = entry.cursor().findChunk('TrackType');
+      let trackType = entry.cursor.findChunk('TrackType');
       if (!trackType)
         continue;
-      trackType = Number(decodeUint(trackType.cursor()));
+      trackType = Number(decodeUint(trackType.cursor));
       if (trackType == 1) {  // video track
-        let trackNumber = entry.cursor().findChunk('TrackNumber');
+        let trackNumber = entry.cursor.findChunk('TrackNumber');
         if (!trackNumber)
           continue;
-        videoTrackNum = Number(decodeUint(trackNumber.cursor()));
-        let video = entry.cursor().findChunk('Video');
+        videoTrackNum = Number(decodeUint(trackNumber.cursor));
+        let video = entry.cursor.findChunk('Video');
         if (!video)
           continue;
-        let pixelWidth = video.cursor().findChunk('PixelWidth');
-        let pixelHeight = video.cursor().findChunk('PixelHeight');
+        let pixelWidth = video.cursor.findChunk('PixelWidth');
+        let pixelHeight = video.cursor.findChunk('PixelHeight');
         if (!pixelWidth || !pixelHeight)
           continue;
-        w = Number(decodeUint(pixelWidth.cursor()));
-        h = Number(decodeUint(pixelHeight.cursor()));
+        w = Number(decodeUint(pixelWidth.cursor));
+        h = Number(decodeUint(pixelHeight.cursor));
       } else if (trackType == 2) {  // audio track
         hasAudio = true;
       }
@@ -1656,16 +1660,16 @@ var webm = webm || {};
     if (sizeCB)
       sizeCB(w, h);
 
-    let segmentCursor = segment.cursor();
+    let segmentCursor = segment.cursor;
     let cluster;
     let frameIdx = 0;
     let frameTimes = [];
     while (cluster = segmentCursor.findChunk('Cluster')) {
-      let clusterTimecode = decodeUint(cluster.cursor().findChunk('Timecode'));
-      let clusterCursor = cluster.cursor();
+      let clusterTimecode = decodeUint(cluster.cursor.findChunk('Timecode'));
+      let clusterCursor = cluster.cursor;
       let block;
       while (block = clusterCursor.findChunk('SimpleBlock')) {
-        let blockCursor = block.cursor();
+        let blockCursor = block.cursor;
         let trackNum = decodeLength(blockCursor);  // Track Number
         if (trackNum == videoTrackNum) {
           frameTimes.push(decodeInt(new Cursor(blockCursor.data, blockCursor.idx, blockCursor.idx + 2)));
