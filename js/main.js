@@ -5,7 +5,7 @@ var main = main || {};
 
 window.addEventListener('load', evt => {
   document.body.innerHTML = (`
-  <div class="hflex">
+  <div id="top-container" class="hflex">
     <div id="video-column">
       <div id="video-container">
         <video id="video" width=640 height=480 autoplay></video>

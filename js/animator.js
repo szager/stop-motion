@@ -69,7 +69,7 @@ var animator = animator || {};
         this.video.srcObject = stream;
         this.videoStream = stream;
         this.streamOn = true;
-	return stream;
+        return stream;
       }).catch(this.videoCannotPlayHandler.bind(this));
     }
 
@@ -177,7 +177,7 @@ var animator = animator || {};
       } else {
         this.drawFrame(frameNumber++, this.playContext);
         this.playTimer = setTimeout(this.playFrame.bind(this, frameNumber),
-    				  this.frameTimeout());
+                                      this.frameTimeout());
       }
     }
 
@@ -230,14 +230,14 @@ var animator = animator || {};
       image.addEventListener("error", (error => {
         if (image.getAttribute('triedvp8l')) {
           console.log(error);
-    	this.framesInFlight--;
-    	URL.revokeObjectURL(blobURL);
-    	image.src = null;
-    	if (this.framesInFlight === 0)
+            this.framesInFlight--;
+            URL.revokeObjectURL(blobURL);
+            image.src = null;
+            if (this.framesInFlight === 0)
             this.loadFinished();
         } else {
           image.setAttribute('triedvp8l', true);
-    	URL.revokeObjectURL(blobURL);
+            URL.revokeObjectURL(blobURL);
           blob = webm.vp8tovp8l(blob);
           blobURL = URL.createObjectURL(blob);
           image.src = blobURL;
@@ -250,7 +250,7 @@ var animator = animator || {};
         newCanvas.getContext('2d').drawImage(evt.target, 0, 0, this.w, this.h);
         this.frames[frameOffset + idx] = newCanvas;
         this.frameWebps[frameOffset + idx] = new Promise((resolve, reject) => {
-    	resolve(blob);
+            resolve(blob);
         });
         this.framesInFlight--;
         URL.revokeObjectURL(blobURL);

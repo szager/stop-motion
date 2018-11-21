@@ -47,14 +47,14 @@ self.addEventListener('fetch', evt => {
     if (url.origin == location.origin && url.pathname.startsWith('/cache/')) {
       let cacheRequest = evt.request.clone();
       return fetch(cacheRequest).then(response => {
-	if (!response || response.status != 200 || response.type !== 'basic') {
-	  return response;
-	}
-	let cacheResponse = response.clone();
-	caches.open(CACHE_NAME).then(cache => {
-	  cache.put(evt.request, cacheResponse);
-	});
-	return response;
+        if (!response || response.status != 200 || response.type !== 'basic') {
+          return response;
+        }
+        let cacheResponse = response.clone();
+        caches.open(CACHE_NAME).then(cache => {
+          cache.put(evt.request, cacheResponse);
+        });
+        return response;
       });
     }
     return fetch(evt.request);
