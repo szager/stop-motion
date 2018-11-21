@@ -17,7 +17,7 @@
     if (self.navigator && "serviceWorker" in navigator) {
       self.addEventListener("mesage", evt => {
       });
-      navigator.serviceWorker.register("sw.js").then(reg => {
+      navigator.serviceWorker.register("/stop-motion/sw.js").then(reg => {
         banner.innerHTML = "Registered " + sw_link + "...";
       }).catch(err => {
         banner.innerHTML = "Sorry, failed to register a " + sw_link + ".";
