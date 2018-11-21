@@ -37,9 +37,8 @@ self.addEventListener('install', evt => {
   }));
 });
 
+/*
 self.addEventListener('fetch', evt => {
-  return fetch(evt.request);
-
   evt.respondWith(caches.match(evt.request).then(response => {
     if (response) {
       return response;
@@ -61,3 +60,4 @@ self.addEventListener('fetch', evt => {
     return fetch(evt.request);
   }));
 });
+*/
