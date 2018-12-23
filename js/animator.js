@@ -12,6 +12,7 @@ var animator = animator || {};
       this.snapshotContext = snapshotCanvas.getContext('2d');
       this.playCanvas = playCanvas;
       this.playContext = playCanvas.getContext('2d');
+      this._flip = false;
       this.messageDiv = messageDiv;
       this.playbackSpeed = 24.0;
       this.frames = [];
@@ -25,6 +26,7 @@ var animator = animator || {};
       this.audioChunks = [];
       this.audioBlob = null;
       this.setDimensions(snapshotCanvas.width, snapshotCanvas.height);
+      this.zeroPlayTime = 0;
     }
 
     setPlaybackSpeed(speed) {
@@ -45,6 +47,10 @@ var animator = animator || {};
       this.video.height = h;
       this.snapshotCanvas.width = this.w;
       this.snapshotCanvas.height = this.h;
+    }
+
+    flip() {
+      this._flip = !this._flip;
     }
 
     attachStream(sourceId) {
@@ -83,7 +89,7 @@ var animator = animator || {};
     }
 
     isPlaying() {
-      return Boolean(this.playTimer);
+      return !!this.playTimer;
     }
 
     toggleVideo() {
@@ -104,13 +110,23 @@ var animator = animator || {};
       }
     }
 
+    drawFrame(frameNumber, context) {
+      context.clearRect(0, 0, this.w, this.h);
+      context.drawImage(this.frames[frameNumber], 0, 0, this.w, this.h);
+    }
+
     capture() {
       if (!this.streamOn)
         return;
       let imageCanvas = document.createElement('canvas');
       imageCanvas.width = this.w;
       imageCanvas.height = this.h;
-      imageCanvas.getContext('2d').drawImage(this.video, 0, 0, this.w, this.h);
+      let context = imageCanvas.getContext('2d', { alpha: false });
+      if (this._flip) {
+        context.rotate(Math.PI);
+        context.translate(-this.w, -this.h);
+      }
+      context.drawImage(this.video, 0, 0, this.w, this.h);
       this.frames.push(imageCanvas);
       let promise = new Promise(((resolve, reject) => {
         if (self.requestIdleCallback) {
@@ -129,9 +145,10 @@ var animator = animator || {};
     undoCapture() {
       this.frames.pop();
       this.frameWebps.pop();
-      this.snapshotContext.clearRect(0, 0, this.w, this.h);
       if (this.frames.length)
-        this.snapshotContext.drawImage(this.frames[this.frames.length-1], 0, 0);
+        this.drawFrame(this.frames.length-1, this.snapshotContext);
+      else
+        this.snapshotContext.clearRect(0, 0, this.w, this.h);
     }
 
     frameTimeout() {
@@ -139,19 +156,22 @@ var animator = animator || {};
     }
 
     startPlay(noAudio) {
-      if (!this.frames.length)
-        return;
-      this.snapshotCanvas.style.visibility = 'hidden';
-      this.video.pause();
-      this.drawFrame(0, this.playContext);
-      this.playTimer = setTimeout(this.playFrame.bind(this, 1), this.frameTimeout());
-      if (this.audio && !noAudio) {
-        this.audio.currentTime = 0;
-        this.audio.play();
-      }
+      return new Promise((resolve, reject) => {
+        if (!this.frames.length)
+          resolve(false);
+        this.snapshotCanvas.style.visibility = 'hidden';
+        this.video.pause();
+        this.drawFrame(0, this.playContext);
+        this.zeroPlayTime = performance.now();
+        this.playTimer = setTimeout(this.playFrame.bind(this), this.frameTimeout(), 1, resolve);
+        if (this.audio && !noAudio) {
+          this.audio.currentTime = 0;
+          this.audio.play();
+        }
+      });
     }
 
-    endPlay() {
+    endPlay(cb) {
       if (this.isPlaying())
         clearTimeout(this.playTimer);
       this.playTimer = null;
@@ -164,28 +184,28 @@ var animator = animator || {};
       this.snapshotCanvas.style.visibility = '';
       if (this.streamOn)
         this.video.play();
+      if (cb)
+        cb();
     }
 
-    drawFrame(frameNumber, context) {
-      context.clearRect(0, 0, this.w, this.h);
-      context.drawImage(this.frames[frameNumber], 0, 0);
-    }
-
-    playFrame(frameNumber) {
+    playFrame(frameNumber, cb) {
       if (frameNumber >= this.frames.length) {
-        this.playTimer = setTimeout(this.endPlay.bind(this), 1000);
+        this.playTimer = setTimeout(this.endPlay.bind(this), 1000, cb);
       } else {
-        this.drawFrame(frameNumber++, this.playContext);
-        this.playTimer = setTimeout(this.playFrame.bind(this, frameNumber),
-                                      this.frameTimeout());
+        this.drawFrame(frameNumber, this.playContext);
+        let timeout = this.zeroPlayTime + ((frameNumber + 1) * this.frameTimeout()) - performance.now();
+        setTimeout(this.playFrame.bind(this), timeout, frameNumber + 1, cb);
       }
     }
 
     togglePlay() {
       if (this.isPlaying())
-        this.endPlay();
+        return new Promise((resolve, reject) => {
+          this.endPlay();
+          resolve(true);
+        });
       else
-        this.startPlay();
+        return this.startPlay();
     }
 
     clear() {
@@ -201,17 +221,6 @@ var animator = animator || {};
       this.snapshotContext.clearRect(0, 0, this.w, this.h);
       this.playContext.clearRect(0, 0, this.w, this.h);
       this.name = null;
-    }
-
-    getFramePNG(idx) {
-      this.snapshotContext.clearRect(0, 0, this.w, this.h);
-      this.snapshotContext.drawImage(this.frames[idx], 0, 0);
-      let dataUrl = this.snapshotCanvas.toDataURL();
-      let binStr = atob(dataUrl.split(',')[1]);
-      let arr = new Uint8Array(binStr.length - 8);
-      for (let i = 8; i < binStr.length; i++)
-        arr[i-8] = binStr.charCodeAt(i);
-      return arr;
     }
 
     loadFinished() {
@@ -230,14 +239,14 @@ var animator = animator || {};
       image.addEventListener("error", (error => {
         if (image.getAttribute('triedvp8l')) {
           console.log(error);
-            this.framesInFlight--;
-            URL.revokeObjectURL(blobURL);
-            image.src = null;
-            if (this.framesInFlight === 0)
-            this.loadFinished();
+          this.framesInFlight--;
+          URL.revokeObjectURL(blobURL);
+          image.src = null;
+          if (this.framesInFlight === 0)
+          this.loadFinished();
         } else {
           image.setAttribute('triedvp8l', true);
-            URL.revokeObjectURL(blobURL);
+          URL.revokeObjectURL(blobURL);
           blob = webm.vp8tovp8l(blob);
           blobURL = URL.createObjectURL(blob);
           image.src = blobURL;
@@ -247,10 +256,10 @@ var animator = animator || {};
         let newCanvas = document.createElement('canvas');
         newCanvas.width = this.w;
         newCanvas.height = this.h;
-        newCanvas.getContext('2d').drawImage(evt.target, 0, 0, this.w, this.h);
+        newCanvas.getContext('2d', { alpha: false }).drawImage(evt.target, 0, 0, this.w, this.h);
         this.frames[frameOffset + idx] = newCanvas;
         this.frameWebps[frameOffset + idx] = new Promise((resolve, reject) => {
-            resolve(blob);
+          resolve(blob);
         });
         this.framesInFlight--;
         URL.revokeObjectURL(blobURL);

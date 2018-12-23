@@ -5,6 +5,35 @@ var main = main || {};
 
 window.addEventListener('load', evt => {
   document.body.innerHTML = (`
+  <svg id="svg-defs" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <line id="clock-short-line-def" x1="50" y1="2" x2="50" y2="10" />
+    <line id="clock-long-line-def" x1="50" y1="2" x2="50" y2="18" />
+    <g id="clock-def">
+      <g stroke="black" stroke-width="2" fill="none">
+        <circle cx="50" cy="50" r="49" />
+        <use xlink:href="#clock-long-line-def" />
+        <use xlink:href="#clock-short-line-def" transform="rotate(30, 50, 50)" />
+        <use xlink:href="#clock-short-line-def" transform="rotate(60, 50, 50)" />
+        <use xlink:href="#clock-long-line-def" transform="rotate(90, 50, 50)" />
+        <use xlink:href="#clock-short-line-def" transform="rotate(120, 50, 50)" />
+        <use xlink:href="#clock-short-line-def" transform="rotate(150, 50, 50)" />
+        <use xlink:href="#clock-long-line-def" transform="rotate(180, 50, 50)" />
+        <use xlink:href="#clock-short-line-def" transform="rotate(210, 50, 50)" />
+        <use xlink:href="#clock-short-line-def" transform="rotate(240, 50, 50)" />
+        <use xlink:href="#clock-long-line-def" transform="rotate(270, 50, 50)" />
+        <use xlink:href="#clock-short-line-def" transform="rotate(300, 50, 50)" />
+        <use xlink:href="#clock-short-line-def" transform="rotate(330, 50, 50)" />
+      </g>
+      <circle cx="50" cy="50" r="4" stroke="none" fill="red" />
+    </g>
+    <line id="clock-hand-def" x1="50" y1="50" x2="50" y2="2" stroke="red" stroke-width="3" />
+    <g id="progress-marker-def">
+      <line id="progress-line" x1=0 y1=5 x2=645 y2=5></line>
+      <circle id="progress-circle" cx=640 cy=5 r=5></circle>
+    </g>
+  </defs>
+  </svg>
   <div id="top-container" class="hflex">
     <div id="video-column">
       <div id="video-container">
@@ -14,20 +43,20 @@ window.addEventListener('load', evt => {
         <div id="message-container" class="vflex">
           <div id="video-message"></div>
         </div>
+        <div id="clockContainer" style="display:none">
+          <svg id="clock" viewBox="0 0 100 100"><use xlink:href="#clock-def" /></svg>
+          <svg id="clock-hand" viewBox="0 0 100 100"><use xlink:href="#clock-hand-def" /></svg>
+        </div>
       </div>
       <div id="progress-container">
-        <svg id="progress-marker">
-          <line id="progress-line" x1=0 y1=5 x2=645 y2=5></line>
-          <circle id="progress-circle" cx=640 cy=5 r=5></circle>
-        </svg>
-      </div>
-      <div id="audio-container">
-        <audio id="audio"></audio>
+        <svg id="progress-marker"><use xlink:href="#progress-marker-def" /></svg>
       </div>
       <div id="speed-container">
         <pre class="speed-label">Slow  </pre>
         <input id="playbackSpeed" type="range" name="playbackSpeed" min="2" step="0.5" max="12" />
         <pre class="speed-label">  Fast</pre>
+      </div>
+      <div id="thumbnail-container">
       </div>
     </div>
 
@@ -38,6 +67,8 @@ window.addEventListener('load', evt => {
         <button class="button72" id="undoButton"><img src="images/undo72.png" /><div class="buttonLabel">Undo</div></button>
         <button class="button72" id="playButton"><img src="images/playpause72.png" /><div class="buttonLabel">Play/Stop</div></button>
         <button class="button72" id="clearButton"><img src="images/clear72.png" /><div class="buttonLabel">Clear</div></button>
+        <button class="button72" id="clockButton"><img /><div class="buttonLabel">Clock</div></button>
+        <button class="button72" id="flipButton"><img /><div class="buttonLabel">Flip</div></button>
         <button class="button72" id="recordAudioButton">
           <div class="iconContainer audioIcon">
             <svg>
@@ -97,7 +128,8 @@ window.addEventListener('load', evt => {
       <button id="saveConfirmButton">OK</button>
       <button id="saveCancelButton">Cancel</button>
     </dialog>
-  </div>`);
+  </div>
+  `);
   // Create Animator object and set up callbacks.
   let video = document.getElementById('video');
   let snapshotCanvas = document.getElementById('snapshot-canvas');
@@ -108,9 +140,12 @@ window.addEventListener('load', evt => {
   main.animator = an;
 
   let playbackSpeedSelector = document.getElementById('playbackSpeed');
-  let playbackSpeed = () => {
+  let playbackSpeed = (() => {
     return playbackSpeedSelector.value;
-  }
+  });
+  playbackSpeedSelector.addEventListener("change", evt => {
+    an.setPlaybackSpeed(playbackSpeed());
+  });
   an.setPlaybackSpeed(playbackSpeed());
 
   let captureClicks = (e => { e.stopPropagation() });
@@ -139,7 +174,6 @@ window.addEventListener('load', evt => {
       value += '.webm';
     saveDialog.close();
     let topContainer = document.getElementById('top-container');
-    let captureClicks = (e => { e.stopPropagation() });
     topContainer.style.opacity = 0.5;
     topContainer.addEventListener('click', captureClicks, true);
     an.save(value).then(() => {
@@ -186,13 +220,26 @@ window.addEventListener('load', evt => {
     setTimeout(() => { button.classList.remove('pressed') }, 250);
   });
 
+  let thumbnailContainer = document.getElementById('thumbnail-container');
+  let thumbnailWidth = 96;
+  let thumbnailHeight = 72;
   captureButton.addEventListener("click", evt => {
     an.capture();
+    let thumbnail = document.createElement('canvas');
+    let w = thumbnailWidth;
+    let h = thumbnailHeight;
+    thumbnail.width = thumbnailWidth;
+    thumbnail.height = thumbnailHeight;
+    thumbnail.getContext('2d', { alpha: false }).drawImage(
+      an.frames[an.frames.length-1], 0, 0, thumbnailWidth, thumbnailHeight);
+    thumbnailContainer.appendChild(thumbnail);
     pressButton(captureButton);
   });
 
   undoButton.addEventListener("click", evt => {
     an.undoCapture();
+    if (thumbnailContainer.lastElementChild)
+      thumbnailContainer.removeChild(thumbnailContainer.lastElementChild);
     pressButton(undoButton);
   });
 
@@ -201,15 +248,77 @@ window.addEventListener('load', evt => {
     progressMarker.classList.toggle("slide-right");
     progressMarker.style.transform = "translateX(0px)";
     setTimeout(() => {
-      progressMarker.style.transform = "translateX(-650px)";
+      progressMarker.style.transform = "";
     }, 1000);
+  });
+
+  let flipButton = document.getElementById('flipButton');
+  flipButton.addEventListener("click", evt => {
+    let style = video.attributeStyleMap;
+    let transform = style.get("transform");
+    if (!transform) {
+      transform = new CSSTransformValue([new CSSRotate(CSS.deg(0))]);
+    }
+    let angle = transform[0].angle.value;
+    angle = (angle + 180) % 360;
+    transform[0] = new CSSRotate(CSS.deg(angle));
+    style.set("transform", transform);
+    an.flip();
+  });
+
+  let clockContainer = document.getElementById('clockContainer');
+  let clockHand = document.getElementById("clock-hand");
+  let clockNumRotations = 1000;
+  let clockZeroTime = 0;
+
+  let startClock = ((t, skew) => {
+    skew = (skew ? Number(skew) : 0);
+    clockZeroTime = t - skew;
+    let angle = 360 * clockNumRotations;
+    let duration = clockNumRotations - (skew/1000);
+    clockHand.style.transition = "transform " + String(duration) + "s linear";
+    clockHand.style.transform = "rotate(" + String(angle) + "deg)";
+  });
+
+  let stopClock = (() => {
+    clockHand.style.transform = getComputedStyle(clockHand).transform;
+  });
+  
+  let resetClock = (() => {
+    clockHand.style.transition = "";
+    clockHand.style.transform = "";
+  });
+  
+  clockHand.addEventListener("transitionend", evt => {
+    resetClock();
+    requestAnimationFrame(() => { requestAnimationFrame(() => {
+      let t = performance.now();
+      let skew = (t - clockZeroTime) % 1000;
+      startClock(t, skew);
+    }) });
+  });
+
+  let clockButton = document.getElementById('clockButton');
+  clockButton.addEventListener("click", evt => {
+    if (clockContainer.style.display == "none") {
+      clockContainer.style.display = "";
+    } else {
+      clockContainer.style.display = "none";
+    }
   });
 
   let playButton = document.getElementById('playButton');
   playButton.addEventListener("click", evt => {
-    progressMarker.style.animationDuration = (an.frames.length / playbackSpeed()) + "s";
-    progressMarker.classList.add("slide-right");
-    an.togglePlay();
+    let p = an.togglePlay();
+    if (an.isPlaying) {
+      progressMarker.style.animationDuration = (an.frames.length / playbackSpeed()) + "s";
+      progressMarker.classList.add("slide-right");
+      startClock(performance.now(), 0);
+      p.then(resetClock);
+    } else {
+      progressMarker.classList.remove("slide-right");
+      resetClock();
+    }
   });
 
   let clearButton = document.getElementById('clearButton');
@@ -222,6 +331,7 @@ window.addEventListener('load', evt => {
   let clearConfirmButton = document.getElementById('clearConfirmButton');
   clearConfirmButton.addEventListener("click", evt => {
     an.clear();
+    thumbnailContainer.innerHTML = "";
     clearConfirmDialog.close();
   });
 
@@ -273,22 +383,25 @@ window.addEventListener('load', evt => {
   };
   updateRecordingIcons(true, false, false);
 
-  countdown.addEventListener("animationstart", () => {
-    this.firstElementChild.innerHTML = "3";
+  countdown.addEventListener("animationstart", evt => {
+    evt.currentTarget.firstElementChild.innerHTML = "3";
   });
-  countdown.addEventListener("animationiteration", () => {
-    this.firstElementChild.innerHTML = (parseInt(this.firstElementChild.innerHTML) - 1).toString();
+  countdown.addEventListener("animationiteration", evt => {
+    let t = evt.currentTarget.firstElementChild;
+    t.innerHTML = (parseInt(t.innerHTML) - 1).toString();
   });
-  countdown.addEventListener("animationend", () => {
-    this.firstElementChild.innerHTML = "";
+  countdown.addEventListener("animationend", evt => {
+    evt.currentTarget.firstElementChild.innerHTML = "";
     if (isRecording) {
       progressMarker.style.animationDuration = (an.frames.length / playbackSpeed()) + "s";
       progressMarker.classList.add("slide-right");
+      startClock();
       an.recordAudio(audioStream).then(() => {
         isRecording = false;
         updateRecordingIcons(true, false, false);
         audioStream.getAudioTracks()[0].stop();
         main.audio = audioStream = null;
+        resetClock();
       });
       updateRecordingIcons(false, false, true);
     } else {
@@ -303,7 +416,7 @@ window.addEventListener('load', evt => {
     if (isRecording) {
       an.endPlay();
       updateRecordingIcons(true, false, false);
-      isRecord = false;
+      isRecording = false;
     } else if (self.navigator &&
                navigator.mediaDevices &&
                navigator.mediaDevices.getUserMedia) {

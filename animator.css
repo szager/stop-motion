@@ -11,11 +11,14 @@
   flex: 0 0;
   will-change: transform;
 }
+#video-container {
+  position: relative;
+}
 #video-container > * {
   width: 640px;
   height: 480px;
 }
-canvas, video {
+video {
   position: absolute;
   top: 0;
   left: 0;
@@ -29,7 +32,8 @@ canvas, video {
   z-index: 1;
 }
 #progress-container {
-  transform: translateY(-5px);
+  position: absolute;
+  top: 475px;
   overflow: hidden;
   width: 650px;
   height: 10px;
@@ -39,7 +43,7 @@ canvas, video {
  width:645px;
  height:10px;
  color:red;
- transform:translateX(-645px);
+ transform:translateX(-650px);
 }
 #progress-line {
   stroke: currentColor;
@@ -60,6 +64,19 @@ canvas, video {
 #playbackSpeed {
   flex: 99 0 auto;
 }
+#thumbnail-container {
+  display: flex;
+  overflow-x: auto;
+  max-width: 640px;
+}
+#thumbnail-container > canvas {
+  margin: 0 5px;
+}
+#thumbnail-cursor-container {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
 #control-column {
   flex: 1 1;
 }
@@ -74,8 +91,16 @@ canvas, video {
   border: 1px solid black;
 }
 #snapshot-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
   z-index: 2;
   opacity: 0.5;
+}
+#play-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 .button72 {
   display: flex;
@@ -89,13 +114,21 @@ canvas, video {
   min-height: 92px;
   justify-content: space-between;
 }
-.button72 .pressed {
+.button72.pressed {
   background-color: #4682b4;
 }
 .button72 > .iconContainer {
   will-change: transform;
   width: 72px;
   height: 72px;
+}
+.button72 > img {
+  width:72px;
+  height:72px;
+}
+#svg-defs {
+  width:0;
+  height:0;
 }
 .iconContainer > svg {
   position:absolute;
@@ -136,7 +169,18 @@ pre {
 .not-recording {
   color: black;
 }
-
+#clockContainer {
+  width:100px;
+  height:100px;
+  position: absolute;
+  right: 10px;
+  bottom: 0;
+}
+#clock, #clock-hand {
+  width: 100px;
+  height: 100px;
+  position: absolute;
+}
 .ripple-decay {
   will-change: transform;
   animation-duration: 1.5s;
