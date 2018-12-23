@@ -1421,7 +1421,7 @@ var webm = webm || {};
         resolve(new Uint8Array(fr.result.slice(20)));
       });
       fr.addEventListener("error", evt => {
-	reject(fr.error);
+	      reject(fr.error);
       });
       fr.readAsArrayBuffer(blob);
     });
@@ -1549,10 +1549,12 @@ var webm = webm || {};
         this.blockChunks = [];
         this.clusterLength = encodeUintChunk('Timecode', this.clusterStart, this.blockChunks);
         this.clusterLength += encodePosition('Position', this.clusterPosition, this.blockChunks);
-        this.clusterLength += addAudioBlocks(this.clusterStart, this.clusterStart + 0x7fff, this.audioBlocks, this.blockChunks);
+        this.clusterLength += addAudioBlocks(this.clusterStart, this.clusterStart + 0x7fff, this.audioBlocks,
+            this.blockChunks);
 
         this.clusterChunks = [];
-        this.clusterLength = encodeDataChunk('Cluster', this.blockChunks, this.clusterLength, this.clusterChunks);
+        this.clusterLength = encodeDataChunk('Cluster', this.blockChunks, this.clusterLength,
+            this.clusterChunks);
         this.clusters.push([this.clusterLength, this.clusterChunks]);
         this.clusterPositions.push(this.clusterPosition);
         this.clusterPosition = [];
