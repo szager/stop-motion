@@ -60,6 +60,9 @@ video {
 }
 .speed-label {
   flex: 0 1 auto;
+  flex-basis: 120px;
+  margin: 0;
+  text-align: right;
 }
 #playbackSpeed {
   flex: 99 0 auto;
@@ -163,7 +166,7 @@ video {
   cx: calc(var(--width)/2);
   cy: calc(var(--height)/2);
 }
-pre {
+pre, span {
   font: normal normal normal 24px/normal Arial;
 }
 .not-recording {
