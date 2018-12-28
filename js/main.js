@@ -52,9 +52,11 @@ window.addEventListener('load', evt => {
         <svg id="progress-marker"><use xlink:href="#progress-marker-def" /></svg>
       </div>
       <div id="speed-container">
-        <pre class="speed-label">Slow  </pre>
-        <input id="playbackSpeed" type="range" name="playbackSpeed" min="2" step="0.5" max="12" />
-        <pre class="speed-label">  Fast</pre>
+        <div style="flex: 99 0 auto; display:flex; flex-direction:column;">
+          <input id="playbackSpeed" type="range" name="playbackSpeed" min="2" step="0.5" max="12" />
+          <div style="display:flex; justify-content:space-between"><span>Slow</span><span>Fast</span></div>
+        </div>
+        <pre class="speed-label">  <span id="fps">7.0</span> FPS</pre>
       </div>
       <div id="thumbnail-container">
       </div>
@@ -141,10 +143,12 @@ window.addEventListener('load', evt => {
 
   let playbackSpeedSelector = document.getElementById('playbackSpeed');
   let playbackSpeed = (() => {
-    return playbackSpeedSelector.value;
+    return Number(playbackSpeedSelector.value);
   });
-  playbackSpeedSelector.addEventListener("change", evt => {
+  let fps = document.getElementById('fps');
+  playbackSpeedSelector.addEventListener("input", evt => {
     an.setPlaybackSpeed(playbackSpeed());
+    fps.innerText = '  ' + playbackSpeed().toFixed(1);
   });
   an.setPlaybackSpeed(playbackSpeed());
 
