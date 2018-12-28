@@ -4,6 +4,11 @@
 var animator = animator || {};
 
 (() => {
+  
+  const STATE_IDLE = 0;
+  const STATE_PLAY = 1;
+  const STATE_RECORD = 2;
+  
   class Animator {
     constructor(video, snapshotCanvas, playCanvas, messageDiv) {
       this.video = video;
@@ -305,7 +310,7 @@ var animator = animator || {};
       let an = this;
       let promise = new Promise((resolve, reject) => {
         fr.addEventListener("loadend", evt => {
-          webm.encode(title, an.w, an.h, an.frameTimeout(), an.frameWebps, this.result)
+          webm.encode(title, an.w, an.h, an.frameTimeout(), an.frameWebps, fr.result)
               .then(resolve);
         });
         fr.readAsArrayBuffer(an.audioBlob);
