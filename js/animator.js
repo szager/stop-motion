@@ -17,6 +17,7 @@ var animator = animator || {};
       this.snapshotContext = snapshotCanvas.getContext('2d');
       this.playCanvas = playCanvas;
       this.playContext = playCanvas.getContext('2d');
+      this.playTimer = null;
       this._flip = false;
       this.messageDiv = messageDiv;
       this.playbackSpeed = 24.0;
@@ -162,8 +163,10 @@ var animator = animator || {};
 
     startPlay(noAudio) {
       return new Promise((resolve, reject) => {
-        if (!this.frames.length)
+        if (!this.frames.length) {
           resolve(false);
+          return;
+        }
         this.snapshotCanvas.style.visibility = 'hidden';
         this.video.pause();
         this.drawFrame(0, this.playContext);
@@ -199,7 +202,7 @@ var animator = animator || {};
       } else {
         this.drawFrame(frameNumber, this.playContext);
         let timeout = this.zeroPlayTime + ((frameNumber + 1) * this.frameTimeout()) - performance.now();
-        setTimeout(this.playFrame.bind(this), timeout, frameNumber + 1, cb);
+        this.playTimer = setTimeout(this.playFrame.bind(this), timeout, frameNumber + 1, cb);
       }
     }
 
