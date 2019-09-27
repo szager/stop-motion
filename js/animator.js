@@ -148,6 +148,60 @@ var animator = animator || {};
       this.frameWebps.push(promise);
     }
 
+    loadFromFile(file) {
+      let imageCanvas = document.createElement('canvas');
+      imageCanvas.width = this.w;
+      imageCanvas.height = this.h;
+      var reader = new FileReader();
+      var img = new Image();
+      let thumbnailWidth = 96;
+      let thumbnailHeight = 72;
+      let thumbnailContainer = document.getElementById('thumbnail-container');
+      reader.readAsDataURL(file)
+      reader.onload = (evt) => {
+        if (evt.target.readyState == FileReader.DONE) {
+          img.src = evt.target.result;
+          let context = imageCanvas.getContext('2d', { alpha: false });
+          img.onload = () => {
+            context.drawImage(img, 0, 0);
+            this.frames.push(imageCanvas);
+
+            let thumbnail = document.createElement('canvas');
+            let w = thumbnailWidth;
+            let h = thumbnailHeight;
+            thumbnail.width = thumbnailWidth;
+            thumbnail.height = thumbnailHeight;
+            thumbnail.getContext('2d', {alpha: false}).drawImage(
+                img, 0, 0, thumbnailWidth, thumbnailHeight);
+            thumbnailContainer.appendChild(thumbnail);
+            //pressButton(captureButton);
+            let promise = new Promise(((resolve, reject) => {
+              if (self.requestIdleCallback) {
+                requestIdleCallback(() => {
+                  imageCanvas.toBlob(blob => {
+                    resolve(blob)
+                  }, 'image/webp');
+                });
+              } else {
+                imageCanvas.toBlob(blob => {
+                  resolve(blob)
+                }, 'image/webp');
+              }
+              this.snapshotContext.clearRect(0, 0, this.w, this.h);
+              this.snapshotContext.drawImage(imageCanvas, 0, 0, this.w, this.h);
+            }).bind(this));
+            this.frameWebps.push(promise);
+          }
+        }
+      }
+
+      // if (this._flip) {
+      //   context.rotate(Math.PI);
+      //   context.translate(-this.w, -this.h);
+      // }
+      //context.drawImage(this.video, 0, 0, this.w, this.h);
+    }
+
     undoCapture() {
       this.frames.pop();
       this.frameWebps.pop();
