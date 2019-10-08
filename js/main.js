@@ -110,6 +110,7 @@ window.addEventListener('load', evt => {
         </button>
         <button class="button72" id="saveButton"><img src="images/save72.png" /><div class="buttonLabel">Save</div></button>
         <button class="button72" id="loadButton"><img src="images/load72.png" /><div class="buttonLabel">Load</div></button>
+        <button class="button72" id="loadPicsButton"><img src="images/load72.png" /><div class="buttonLabel">Load Pictures</div></button>
       </div>
     </div>
   </div>
@@ -227,16 +228,19 @@ window.addEventListener('load', evt => {
   let thumbnailContainer = document.getElementById('thumbnail-container');
   let thumbnailWidth = 96;
   let thumbnailHeight = 72;
-  captureButton.addEventListener("click", evt => {
-    an.capture();
+
+  let drawThumbnail = (img) => {
     let thumbnail = document.createElement('canvas');
-    let w = thumbnailWidth;
-    let h = thumbnailHeight;
     thumbnail.width = thumbnailWidth;
     thumbnail.height = thumbnailHeight;
     thumbnail.getContext('2d', { alpha: false }).drawImage(
-      an.frames[an.frames.length-1], 0, 0, thumbnailWidth, thumbnailHeight);
+        img, 0, 0, thumbnailWidth, thumbnailHeight);
     thumbnailContainer.appendChild(thumbnail);
+  }
+
+  captureButton.addEventListener("click", evt => {
+    an.capture();
+    drawThumbnail(an.frames[an.frames.length-1])
     pressButton(captureButton);
   });
 
@@ -370,6 +374,24 @@ window.addEventListener('load', evt => {
         an.load(evt.target.files[0], hideSpinner, frameRate => {
           playbackSpeedSelector.value = frameRate;
         });
+      }
+    }, false);
+    fileInput.click();
+  });
+
+  let loadPicsButton = document.getElementById('loadPicsButton');
+  loadPicsButton.addEventListener("click", evt => {
+    let fileInput = document.createElement('input');
+    fileInput.type = "file";
+    fileInput.multiple = "multiple";
+    fileInput.accept = "image/*";
+    fileInput.addEventListener("change", evt => {
+      if (evt.target.files[0]) {
+        var files = evt.target.files;
+        //showSpinner();
+        for(var i=0; i<files.length; i++){
+          an.loadFromFile(files[i], drawThumbnail);
+        }
       }
     }, false);
     fileInput.click();

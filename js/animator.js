@@ -121,9 +121,7 @@ var animator = animator || {};
       context.drawImage(this.frames[frameNumber], 0, 0, this.w, this.h);
     }
 
-    capture() {
-      if (!this.streamOn)
-        return;
+    addImage(img) {
       let imageCanvas = document.createElement('canvas');
       imageCanvas.width = this.w;
       imageCanvas.height = this.h;
@@ -132,7 +130,7 @@ var animator = animator || {};
         context.rotate(Math.PI);
         context.translate(-this.w, -this.h);
       }
-      context.drawImage(this.video, 0, 0, this.w, this.h);
+      context.drawImage(img, 0, 0, this.w, this.h);
       this.frames.push(imageCanvas);
       let promise = new Promise(((resolve, reject) => {
         if (self.requestIdleCallback) {
@@ -146,6 +144,34 @@ var animator = animator || {};
         this.snapshotContext.drawImage(imageCanvas, 0, 0, this.w, this.h);
       }).bind(this));
       this.frameWebps.push(promise);
+    }
+
+    capture(){
+      if (!this.streamOn)
+        return;
+      this.addImage(this.video);
+    }
+
+    loadFromFile(file, drawThumbnailFunc) {
+      var reader = new FileReader();
+      var img = new Image();
+      reader.readAsDataURL(file);
+      reader.onload = (evt) => {
+        if (evt.target.readyState == FileReader.DONE) {
+          img.src = evt.target.result;
+          img.onload = () => {
+            this.addImage(img);
+            drawThumbnailFunc(img);
+          }
+          img.onerror = (err) => {
+            console.log("Error loading image", err);
+          }
+        }
+      }
+      reader.onerror = (evt) => {
+        reader.abort();
+        console.log("Error reading file", file.name,  evt);
+      }
     }
 
     undoCapture() {
