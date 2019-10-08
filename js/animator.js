@@ -143,13 +143,13 @@ var animator = animator || {};
         this.snapshotContext.clearRect(0, 0, this.w, this.h);
         this.snapshotContext.drawImage(imageCanvas, 0, 0, this.w, this.h);
       }).bind(this));
-      this.frameWebps.push(promise)
+      this.frameWebps.push(promise);
     }
 
     capture(){
       if (!this.streamOn)
         return;
-      this.addImage(this.video)
+      this.addImage(this.video);
     }
 
     loadFromFile(file, drawThumbnailFunc) {
@@ -160,8 +160,8 @@ var animator = animator || {};
         if (evt.target.readyState == FileReader.DONE) {
           img.src = evt.target.result;
           img.onload = () => {
-            this.addImage(img)
-            drawThumbnailFunc(img)
+            this.addImage(img);
+            drawThumbnailFunc(img);
           }
         }
       }
