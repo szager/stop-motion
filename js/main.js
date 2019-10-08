@@ -228,16 +228,19 @@ window.addEventListener('load', evt => {
   let thumbnailContainer = document.getElementById('thumbnail-container');
   let thumbnailWidth = 96;
   let thumbnailHeight = 72;
-  captureButton.addEventListener("click", evt => {
-    an.capture();
+
+  let drawThumbnail = (img) => {
     let thumbnail = document.createElement('canvas');
-    let w = thumbnailWidth;
-    let h = thumbnailHeight;
     thumbnail.width = thumbnailWidth;
     thumbnail.height = thumbnailHeight;
     thumbnail.getContext('2d', { alpha: false }).drawImage(
-      an.frames[an.frames.length-1], 0, 0, thumbnailWidth, thumbnailHeight);
+        img, 0, 0, thumbnailWidth, thumbnailHeight);
     thumbnailContainer.appendChild(thumbnail);
+  }
+
+  captureButton.addEventListener("click", evt => {
+    an.capture();
+    drawThumbnail(an.frames[an.frames.length-1])
     pressButton(captureButton);
   });
 
@@ -380,13 +383,14 @@ window.addEventListener('load', evt => {
   loadPicsButton.addEventListener("click", evt => {
     let fileInput = document.createElement('input');
     fileInput.type = "file";
-    fileInput.multiple = "multiple"
+    fileInput.multiple = "multiple";
+    fileInput.accept = "image/*";
     fileInput.addEventListener("change", evt => {
       if (evt.target.files[0]) {
         var files = evt.target.files;
         //showSpinner();
         for(var i=0; i<files.length; i++){
-          an.loadFromFile(files[i])
+          an.loadFromFile(files[i], drawThumbnail);
         }
       }
     }, false);

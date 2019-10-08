@@ -121,9 +121,7 @@ var animator = animator || {};
       context.drawImage(this.frames[frameNumber], 0, 0, this.w, this.h);
     }
 
-    capture() {
-      if (!this.streamOn)
-        return;
+    addImage(img) {
       let imageCanvas = document.createElement('canvas');
       imageCanvas.width = this.w;
       imageCanvas.height = this.h;
@@ -132,7 +130,7 @@ var animator = animator || {};
         context.rotate(Math.PI);
         context.translate(-this.w, -this.h);
       }
-      context.drawImage(this.video, 0, 0, this.w, this.h);
+      context.drawImage(img, 0, 0, this.w, this.h);
       this.frames.push(imageCanvas);
       let promise = new Promise(((resolve, reject) => {
         if (self.requestIdleCallback) {
@@ -145,61 +143,28 @@ var animator = animator || {};
         this.snapshotContext.clearRect(0, 0, this.w, this.h);
         this.snapshotContext.drawImage(imageCanvas, 0, 0, this.w, this.h);
       }).bind(this));
-      this.frameWebps.push(promise);
+      this.frameWebps.push(promise)
     }
 
-    loadFromFile(file) {
-      let imageCanvas = document.createElement('canvas');
-      imageCanvas.width = this.w;
-      imageCanvas.height = this.h;
+    capture(){
+      if (!this.streamOn)
+        return;
+      this.addImage(this.video)
+    }
+
+    loadFromFile(file, drawThumbnailFunc) {
       var reader = new FileReader();
       var img = new Image();
-      let thumbnailWidth = 96;
-      let thumbnailHeight = 72;
-      let thumbnailContainer = document.getElementById('thumbnail-container');
-      reader.readAsDataURL(file)
+      reader.readAsDataURL(file);
       reader.onload = (evt) => {
         if (evt.target.readyState == FileReader.DONE) {
           img.src = evt.target.result;
-          let context = imageCanvas.getContext('2d', { alpha: false });
           img.onload = () => {
-            context.drawImage(img, 0, 0);
-            this.frames.push(imageCanvas);
-
-            let thumbnail = document.createElement('canvas');
-            let w = thumbnailWidth;
-            let h = thumbnailHeight;
-            thumbnail.width = thumbnailWidth;
-            thumbnail.height = thumbnailHeight;
-            thumbnail.getContext('2d', {alpha: false}).drawImage(
-                img, 0, 0, thumbnailWidth, thumbnailHeight);
-            thumbnailContainer.appendChild(thumbnail);
-            //pressButton(captureButton);
-            let promise = new Promise(((resolve, reject) => {
-              if (self.requestIdleCallback) {
-                requestIdleCallback(() => {
-                  imageCanvas.toBlob(blob => {
-                    resolve(blob)
-                  }, 'image/webp');
-                });
-              } else {
-                imageCanvas.toBlob(blob => {
-                  resolve(blob)
-                }, 'image/webp');
-              }
-              this.snapshotContext.clearRect(0, 0, this.w, this.h);
-              this.snapshotContext.drawImage(imageCanvas, 0, 0, this.w, this.h);
-            }).bind(this));
-            this.frameWebps.push(promise);
+            this.addImage(img)
+            drawThumbnailFunc(img)
           }
         }
       }
-
-      // if (this._flip) {
-      //   context.rotate(Math.PI);
-      //   context.translate(-this.w, -this.h);
-      // }
-      //context.drawImage(this.video, 0, 0, this.w, this.h);
     }
 
     undoCapture() {
