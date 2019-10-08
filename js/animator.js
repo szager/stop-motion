@@ -163,7 +163,14 @@ var animator = animator || {};
             this.addImage(img);
             drawThumbnailFunc(img);
           }
+          img.onerror = (err) => {
+            console.log("Error loading image", err);
+          }
         }
+      }
+      reader.onerror = (evt) => {
+        reader.abort();
+        console.log("Error reading file", file.name,  evt);
       }
     }
 
