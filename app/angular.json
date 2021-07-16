@@ -33,7 +33,9 @@
               "src/manifest.webmanifest"
             ],
             "styles": ["src/theme/variables.scss", "src/global.scss"],
-            "scripts": [],
+            "scripts": [
+              "src/assets/js/webm.js"
+            ],
             "aot": false,
             "vendorChunk": true,
             "extractLicenses": false,

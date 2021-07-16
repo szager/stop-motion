@@ -1,0 +1,278 @@
+.hflex {
+    display       : flex;
+    flex-direction: row;
+}
+
+.vflex {
+    display       : flex;
+    flex-direction: column;
+}
+
+#video-column {
+    margin     : 10px;
+    flex       : 0 0;
+    will-change: transform;
+}
+
+#video-container {
+    position: relative;
+}
+
+#video-container>* {
+    width : 640px;
+    height: 480px;
+}
+
+video {
+    position: absolute;
+    top     : 0;
+    left    : 0;
+}
+
+#message-container {
+    justify-content: center;
+}
+
+#video-message {
+    font-size : 36px;
+    text-align: center;
+    z-index   : 1;
+}
+
+#progress-container {
+    position: absolute;
+    top     : 475px;
+    overflow: hidden;
+    width   : 650px;
+    height  : 10px;
+}
+
+#progress-marker {
+    display  : block;
+    width    : 645px;
+    height   : 10px;
+    color    : red;
+    transform: translateX(-650px);
+}
+
+#progress-line {
+    stroke      : currentColor;
+    stroke-width: 2px;
+}
+
+#progress-circle {
+    stroke: none;
+    fill  : currentColor;
+}
+
+#speed-container {
+    display        : flex;
+    flex-flow      : row nowrap;
+    justify-content: space-between;
+}
+
+.speed-label {
+    flex      : 0 1 auto;
+    flex-basis: 120px;
+    margin    : 0;
+    text-align: right;
+}
+
+#playbackSpeed {
+    flex: 99 0 auto;
+}
+
+#thumbnail-container {
+    display   : flex;
+    overflow-x: auto;
+    max-width : 640px;
+}
+
+#thumbnail-container>canvas {
+    margin: 0 5px;
+}
+
+#thumbnail-cursor-container {
+    position: absolute;
+    left    : 0;
+    top     : 0;
+}
+
+#control-column {
+    flex: 1 1;
+}
+
+#button-container {
+    display        : flex;
+    flex-flow      : row wrap;
+    justify-content: flex-start;
+}
+
+#stream {
+    position: absolute;
+    z-index : 1;
+    border  : 1px solid black;
+}
+
+#snapshot-canvas {
+    position: absolute;
+    top     : 0;
+    left    : 0;
+    z-index : 2;
+    opacity : 0.5;
+}
+
+#play-canvas {
+    position: absolute;
+    top     : 0;
+    left    : 0;
+}
+
+.button72 {
+    display         : flex;
+    flex-direction  : column;
+    background-color: #b0c4de;
+    border-radius   : 15px;
+    border          : 3px;
+    padding         : 10px;
+    margin          : 10px;
+    width           : 92px;
+    min-height      : 92px;
+    justify-content : space-between;
+}
+
+.button72.pressed {
+    background-color: #4682b4;
+}
+
+.button72>.iconContainer {
+    will-change: transform;
+    width      : 72px;
+    height     : 72px;
+}
+
+.button72>img {
+    width : 72px;
+    height: 72px;
+}
+
+#svg-defs {
+    width : 0;
+    height: 0;
+}
+
+.iconContainer>svg {
+    position: absolute;
+    top     : 0;
+    left    : 0;
+    width   : 72px;
+    height  : 72px;
+    --width : 72;
+    --height: 72;
+}
+
+.button72>.buttonLabel {
+    font      : normal normal normal 18px/normal Arial;
+    text-align: center;
+    width     : 100%;
+}
+
+#installButton {
+    position        : fixed;
+    bottom          : 20px;
+    right           : 20px;
+    width           : 212px;
+    min-height      : 92px;
+    border-radius   : 15px;
+    background-color: blue;
+    display         : flex;
+    flex-direction  : column;
+    justify-content : space-evenly;
+    text-align      : center;
+    color           : white;
+    font-family     : Arial;
+}
+
+.center-circle {
+    cx: calc(var(--width)/2);
+    cy: calc(var(--height)/2);
+}
+
+pre,
+span {
+    font: normal normal normal 24px/normal Arial;
+}
+
+.not-recording {
+    color: black;
+}
+
+#clockContainer {
+    width   : 100px;
+    height  : 100px;
+    position: absolute;
+    right   : 10px;
+    bottom  : 0;
+}
+
+#clock,
+#clock-hand {
+    width   : 100px;
+    height  : 100px;
+    position: absolute;
+}
+
+.ripple-decay {
+    will-change              : transform;
+    animation-duration       : 1.5s;
+    animation-name           : ripple-decay;
+    animation-iteration-count: infinite;
+}
+
+@keyframes ripple-decay {
+    from {
+        transform: scale(0.25);
+        opacity  : 1;
+    }
+
+    to {
+        transform: scale(1);
+        opacity  : 0;
+    }
+}
+
+.recede-decay {
+    will-change              : transform;
+    animation-duration       : 1s;
+    animation-name           : recede-decay;
+    animation-timing-function: ease-in;
+    animation-iteration-count: 3;
+}
+
+@keyframes recede-decay {
+    from {
+        transform: scale(1);
+        opacity  : 1;
+    }
+
+    to {
+        transform: scale(0.25);
+        opacity  : 0;
+    }
+}
+
+.slide-right {
+    animation-duration       : 5s;
+    animation-name           : slide-right;
+    animation-timing-function: linear;
+}
+
+@keyframes slide-right {
+    from {
+        transform: translateX(-640px);
+    }
+
+    to {
+        transform: translateX(0px);
+    }
+}
