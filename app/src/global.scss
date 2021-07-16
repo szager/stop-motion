@@ -24,3 +24,31 @@
 @import "~@ionic/angular/css/text-alignment.css";
 @import "~@ionic/angular/css/text-transformation.css";
 @import "~@ionic/angular/css/flex-utils.css";
+
+@font-face {
+    font-family: "Source Sans Pro";
+    src: url("assets/font/source-sans-pro/SourceSansPro-Regular.ttf") format("truetype");
+}
+
+@font-face {
+    font-family: "Fira Sans";
+    src: url("assets/font/firasans/FiraSans-Regular.ttf") format("truetype");
+    font-weight: 500;
+}
+
+@font-face {
+    font-family: "Fira Sans";
+    src: url("assets/font/firasans/FiraSans-Bold.ttf") format("truetype");
+    font-weight: 700;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+body {
+    font-family: "Fira Sans", sans;
+    font-size: 17px;
+}

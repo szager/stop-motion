@@ -1,0 +1,12 @@
+ion-toolbar {
+    --min-height: 60px;
+}
+
+ion-buttons.buttons-last-slot {
+    padding-right: 10px;
+}
+
+ion-back-button {
+    font-size: 12px;
+    padding-left: 10px;
+}
