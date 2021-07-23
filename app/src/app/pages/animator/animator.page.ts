@@ -14,15 +14,17 @@ export class AnimatorPage extends BasePage implements OnInit {
     public baseService: BaseService
   ) {
     super(baseService);
+    this.options.title = 'pages_title_animator';
+    this.options.backButton = true;
   }
 
   ngOnInit(): void {
-    const video = document.getElementById('video');
+   /*  const video = document.getElementById('video');
     const snapshotCanvas = document.getElementById('snapshot-canvas');
     const playCanvas = document.getElementById('play-canvas');
     const videoMessage = document.getElementById('video-message');
     const an = new Animator(video, snapshotCanvas, playCanvas, videoMessage);
-    console.log('🚀 ~ file: animator.page.ts ~ line 25 ~ AnimatorPage ~ ngOnInit ~ an', an);
+    console.log('🚀 ~ file: animator.page.ts ~ line 25 ~ AnimatorPage ~ ngOnInit ~ an', an); */
   }
 
 }

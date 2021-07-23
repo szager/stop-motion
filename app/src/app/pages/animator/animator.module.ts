@@ -2,6 +2,11 @@ import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { ComponentsModule } from '@components/components.module';
 import { AnimatorPage } from './animator.page';
+import { ToolbarComponent } from './components/toolbar/toolbar.component';
+
+const COMPONENTS = [
+  ToolbarComponent 
+];
 
 @NgModule({
   imports: [
@@ -13,6 +18,8 @@ import { AnimatorPage } from './animator.page';
       }
     ]),
   ],
-  declarations: [AnimatorPage]
+  providers: [],
+  declarations: [...COMPONENTS, AnimatorPage],
+  exports: [...COMPONENTS]
 })
 export class AnimatorPageModule {}
