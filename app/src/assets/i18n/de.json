@@ -1,4 +1,8 @@
 {
     "buttons_home_start": "Try it!",
-    "pages_title_animator": "Edit your video"
+    "pages_title_animator": "Edit your video",
+    "tabbar_capture": "Capture Video",
+    "tabbar_undo": "Undo",
+    "tabbar_record_audio": "Record audio",
+    "tabbar_play_stop": "Play/Stop"
 }

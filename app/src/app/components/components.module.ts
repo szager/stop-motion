@@ -13,7 +13,7 @@ import { SpinnerComponent } from './spinner/spinner.component';
 
 const COMPONENTS = [
     HeaderComponent,
-    SpinnerComponent,
+    SpinnerComponent
 ];
 
 @NgModule({
