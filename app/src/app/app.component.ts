@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { BaseService } from '@services/base/base.service';
 
 @Component({
   selector: 'app-root',
@@ -6,5 +7,9 @@ import { Component } from '@angular/core';
   styleUrls: ['app.component.scss'],
 })
 export class AppComponent {
-  constructor() {}
+  constructor(
+    private baseService: BaseService
+  ) {
+    this.baseService.translate.setDefaultLang('de');
+  }
 }
