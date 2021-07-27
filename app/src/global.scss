@@ -26,34 +26,54 @@
 @import "~@ionic/angular/css/flex-utils.css";
 
 @font-face {
-    font-family: "Nunito";
-    src: url("assets/font/nunito/Nunito-Regular.ttf") format("truetype");
-    font-weight: 500;
+  font-family: "Nunito";
+  src: url("assets/font/nunito/Nunito-Regular.ttf") format("truetype");
+  font-weight: 500;
 }
 
 @font-face {
-    font-family: "Nunito";
-    src: url("assets/font/nunito/Nunito-Light.ttf") format("truetype");
-    font-weight: 300;
+  font-family: "Nunito";
+  src: url("assets/font/nunito/Nunito-Light.ttf") format("truetype");
+  font-weight: 300;
 }
 
 @font-face {
-    font-family: "Nunito";
-    src: url("assets/font/nunito/Nunito-Bold.ttf") format("truetype");
-    font-weight: 700;
+  font-family: "Nunito";
+  src: url("assets/font/nunito/Nunito-Bold.ttf") format("truetype");
+  font-weight: 700;
 }
 
-html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
 }
 
 body {
-    font-family: "Nunito", sans;
-    font-size: 17px;
+  font-family: "Nunito", sans;
+  font-size: 17px;
 }
 
 p {
-    font-weight: 300;
+  font-weight: 300;
+}
+
+ion-toolbar {
+  ion-button.md {
+    width: auto !important;
+    height: auto !important;
+    padding: 0 !important;
+  }
+}
+
+ion-tab-bar {
+  ion-icon.md {
+    font-size: 28px !important;
+  }
+
+  ion-label {
+    font-size: 11px;
+    letter-spacing: 0;
+  }
 }
