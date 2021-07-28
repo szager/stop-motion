@@ -16,6 +16,8 @@ export class AnimatorPage extends BasePage implements OnInit {
     super(baseService);
     this.options.title = 'pages_title_animator';
     this.options.backButton = true;
+    this.options.rightButton = true;
+    this.options.rightHref = '/settings';
   }
 
   ngOnInit(): void {

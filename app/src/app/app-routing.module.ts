@@ -3,8 +3,10 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 
 const routes: Routes = [
   { path: 'animator', loadChildren: () => import('./pages/animator/animator.module').then(m => m.AnimatorPageModule)},
+  { path: 'settings', loadChildren: () => import('./pages/settings/settings.module').then( m => m.SettingsPageModule)},
   { path: '', loadChildren: () => import('./pages/home/home.module').then(m => m.HomePageModule)},
   { path: '**', redirectTo: ''}
+
 ];
 
 @NgModule({
