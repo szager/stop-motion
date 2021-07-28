@@ -17,8 +17,6 @@ export class SettingsPage extends BasePage implements OnInit {
     this.options.rightButton = false;
   }
 
-  ngOnInit() {
-    console.log('in on settings');
-  }
+  ngOnInit() { }
 
 }
