@@ -11,6 +11,7 @@
     "tabbar_undo": "Undo",
     "tabbar_record_audio": "Record audio",
     "tabbar_play_stop": "Play/Stop",
+    "toast_animator_camera_no_access": "Zugriff auf Kamera nicht möglich!",
     "labels_important_links": "Wichtige Links",
     "labels_privacy": "Datenschutz",
     "labels_imprint": "Impressum",

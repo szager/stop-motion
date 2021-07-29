@@ -28,7 +28,7 @@ export class ClearButtonComponent implements OnInit {
         })]
       });
     } else {
-      this.baseService.toastService.showToast({
+      this.baseService.toastService.presentToast({
         message: this.baseService.translate.instant('toast_animator_clear_hint')
       });
     }

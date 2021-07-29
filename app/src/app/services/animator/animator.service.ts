@@ -9,12 +9,15 @@ import { Animator } from '@models/animator';
  */
 export class AnimatorService {
 
-  public animator: Animator;
+  // public animator: Animator;
 
-  constructor() { }
+  constructor(
+    public animator: Animator
+  ) { }
 
   public async init(video: ElementRef, snapshotCanvas: ElementRef, playerCanvas: ElementRef, videoMessage: ElementRef) {
-    this.animator = new Animator(video, snapshotCanvas, playerCanvas, videoMessage);
+    // this.animator = new Animator(video, snapshotCanvas, playerCanvas, videoMessage);
+    this.animator.init(video, snapshotCanvas, playerCanvas, videoMessage);
     await this.startCamera();
   }
 
@@ -29,9 +32,9 @@ export class AnimatorService {
           console.log('🚀 ~ file: animator.page.ts ~ line 45 ~ AnimatorPage ~ ngAfterViewInit ~ devices', devices);
           const cameras = devices.filter(d =>  d.kind === 'videoinput').map(d => d.deviceId);
           console.log('🚀 ~ file: animator.service.ts ~ line 23 ~ AnimatorService ~ startCamera ~ cameras', cameras);
-          this.animator.attachStream(cameras[0]);
+          await this.animator.attachStream(cameras[0]);
         } else {
-          this.animator.attachStream(null);
+          await this.animator.attachStream(null);
         }
 
             // const videoColumnDiv = document.getElementById('video-column');

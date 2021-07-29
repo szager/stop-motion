@@ -14,7 +14,7 @@ export class ToastService {
     private toastController: ToastController
   ) { }
 
-  async showToast(options: ToastOptions) {
+  async presentToast(options: ToastOptions) {
       const toast = await this.toastController.create({
         color: options.color || 'warning',
         message: options.message,

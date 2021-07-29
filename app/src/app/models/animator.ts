@@ -1,5 +1,10 @@
-declare const webm: any;
+import { Injectable } from '@angular/core';
+import { BaseService } from '@services/base/base.service';
 
+declare const webm: any;
+@Injectable({
+    providedIn: 'root'
+})
 export class Animator {
     audio: any;
     audioBlob: any;
@@ -10,7 +15,7 @@ export class Animator {
     frames: any[];
     framesInFlight: number;
     frameWebps: any[];
-    h: any;
+    height: number;
     loadFinishPending: boolean;
     messageDiv: any;
     name: any;
@@ -24,12 +29,14 @@ export class Animator {
     video: any;
     videoSourceId: any;
     videoStream: any;
-    w: any;
+    width: any;
     zeroPlayTime: number;
 
+    constructor(
+        public baseService: BaseService
+    ) { }
 
-
-    constructor(video, snapshotCanvas, playCanvas, messageDiv) {
+    init(video, snapshotCanvas, playCanvas, messageDiv) {
         this.video = video;
         this.videoStream = null;
         this.snapshotCanvas = snapshotCanvas;
@@ -60,27 +67,20 @@ export class Animator {
         }
     }
 
-    videoCannotPlayHandler(e) {
-        console.log('navigator.mediaDevices.getUserMedia error: ', e);
-        this.messageDiv.innerText = 'Cannot connect to camera.';
-        return false;
-    }
-
-    setDimensions(w, h) {
-        this.w = w;
-        this.h = h;
-        this.video.width = w;
-        this.video.height = h;
-        this.snapshotCanvas.width = this.w;
-        this.snapshotCanvas.height = this.h;
+    setDimensions(width: number, heigth: number) {
+        this.width = width;
+        this.height = heigth;
+        this.video.width = width;
+        this.video.height = heigth;
+        this.snapshotCanvas.width = this.width;
+        this.snapshotCanvas.height = this.height;
     }
 
     flipVideo() {
         this.flip = !this.flip;
     }
 
-    attachStream(sourceId) {
-        this.messageDiv.innerText = '';
+    async attachStream(sourceId): Promise<void> {
         const constraints = {
             audio: false,
             frameRate: 15,
@@ -98,12 +98,18 @@ export class Animator {
         } else {
             constraints.video = true;
         }
-        return navigator.mediaDevices.getUserMedia(constraints).then(stream => {
+
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia(constraints);
             this.video.srcObject = stream;
             this.videoStream = stream;
             this.streamOn = true;
-            return stream;
-        }).catch(this.videoCannotPlayHandler.bind(this));
+        } catch (err) {
+            console.error(err);
+            this.baseService.toastService.presentToast({
+                message: this.baseService.translate.instant('toast_animator_camera_no_access')
+            });
+        }
     }
 
     detachStream() {
@@ -139,21 +145,21 @@ export class Animator {
     }
 
     drawFrame(frameNumber, context) {
-        context.clearRect(0, 0, this.w, this.h);
-        context.drawImage(this.frames[frameNumber], 0, 0, this.w, this.h);
+        context.clearRect(0, 0, this.width, this.height);
+        context.drawImage(this.frames[frameNumber], 0, 0, this.width, this.height);
     }
 
     capture() {
         if (!this.streamOn) { return; }
         const imageCanvas = document.createElement('canvas');
-        imageCanvas.width = this.w;
-        imageCanvas.height = this.h;
+        imageCanvas.width = this.width;
+        imageCanvas.height = this.height;
         const context = imageCanvas.getContext('2d', { alpha: false });
         // if (this.flip) {
         //     context.rotate(Math.PI);
-        //     context.translate(-this.w, -this.h);
+        //     context.translate(-this.width, -this.height);
         // }
-        context.drawImage(this.video, 0, 0, this.w, this.h);
+        context.drawImage(this.video, 0, 0, this.width, this.height);
         this.frames.push(imageCanvas);
         const promise = new Promise(((resolve, reject) => {
             // if (self.requestIdleCallback) {
@@ -163,8 +169,8 @@ export class Animator {
             // } else {
             //     imageCanvas.toBlob(blob => { resolve(blob); }, 'image/webp');
             // }
-            this.snapshotContext.clearRect(0, 0, this.w, this.h);
-            this.snapshotContext.drawImage(imageCanvas, 0, 0, this.w, this.h);
+            this.snapshotContext.clearRect(0, 0, this.width, this.height);
+            this.snapshotContext.drawImage(imageCanvas, 0, 0, this.width, this.height);
         }).bind(this));
         this.frameWebps.push(promise);
     }
@@ -176,7 +182,7 @@ export class Animator {
             this.drawFrame(this.frames.length - 1, this.snapshotContext);
 
         } else {
-            this.snapshotContext.clearRect(0, 0, this.w, this.h);
+            this.snapshotContext.clearRect(0, 0, this.width, this.height);
         }
     }
 
@@ -210,7 +216,7 @@ export class Animator {
         } else if (this.audio) {
             this.audio.pause();
         }
-        this.playContext.clearRect(0, 0, this.w, this.h);
+        this.playContext.clearRect(0, 0, this.width, this.height);
         this.snapshotCanvas.style.visibility = '';
         if (this.streamOn) { this.video.play(); }
         if (cb) { cb(); }
@@ -243,23 +249,23 @@ export class Animator {
         if (this.frames.length === 0) { return; }
         this.frames = [];
         this.frameWebps = [];
-        this.snapshotContext.clearRect(0, 0, this.w, this.h);
-        this.playContext.clearRect(0, 0, this.w, this.h);
+        this.snapshotContext.clearRect(0, 0, this.width, this.height);
+        this.playContext.clearRect(0, 0, this.width, this.height);
         this.name = null;
     }
 
     loadFinished() {
-        this.snapshotContext.clearRect(0, 0, this.w, this.h);
+        this.snapshotContext.clearRect(0, 0, this.width, this.height);
         if (this.frames.length) {
-            this.snapshotContext.clearRect(0, 0, this.w, this.h);
-            this.snapshotContext.drawImage(this.frames[this.frames.length - 1], 0, 0, this.w, this.h);
+            this.snapshotContext.clearRect(0, 0, this.width, this.height);
+            this.snapshotContext.drawImage(this.frames[this.frames.length - 1], 0, 0, this.width, this.height);
             this.startPlay(null);
         }
     }
 
     addFrameVP8(frameOffset, blob, idx) {
         let blobURL = URL.createObjectURL(blob);
-        const image = new Image(this.w, this.h);
+        const image = new Image(this.width, this.height);
         this.framesInFlight++;
         image.addEventListener('error', (error => {
             if (image.getAttribute('triedvp8l')) {
@@ -279,9 +285,9 @@ export class Animator {
         }).bind(this));
         image.addEventListener('load', (evt => {
             const newCanvas = document.createElement('canvas');
-            newCanvas.width = this.w;
-            newCanvas.height = this.h;
-            newCanvas.getContext('2d', { alpha: false }).drawImage(evt.target, 0, 0, this.w, this.h);
+            newCanvas.width = this.width;
+            newCanvas.height = this.height;
+            newCanvas.getContext('2d', { alpha: false }).drawImage(evt.target, 0, 0, this.width, this.height);
             this.frames[frameOffset + idx] = newCanvas;
             this.frameWebps[frameOffset + idx] = new Promise((resolve, reject) => {
                 resolve(blob);
@@ -322,12 +328,12 @@ export class Animator {
     }
 
     encode(title) {
-        if (!this.audioBlob) { return webm.encode(title, this.w, this.h, this.frameTimeout(), this.frameWebps, null); }
+        if (!this.audioBlob) { return webm.encode(title, this.width, this.height, this.frameTimeout(), this.frameWebps, null); }
         const fr = new FileReader();
         const an = this;
         const promise = new Promise((resolve, reject) => {
             fr.addEventListener('loadend', evt => {
-                webm.encode(title, an.w, an.h, an.frameTimeout(), an.frameWebps, fr.result)
+                webm.encode(title, an.width, an.height, an.frameTimeout(), an.frameWebps, fr.result)
                     .then(resolve);
             });
             fr.readAsArrayBuffer(an.audioBlob);
