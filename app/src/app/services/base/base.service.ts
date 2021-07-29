@@ -4,6 +4,8 @@ import { environment } from '@environment/environment';
 import { Enviroment } from '@interfaces/environment.interface';
 import { LoadingController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
+import { AlertService } from '@services/alert/alert.service';
+import { ToastService } from '@services/toast/toast.service';
 
 @Injectable({
     providedIn: 'root'
@@ -20,8 +22,10 @@ export class BaseService {
     private env: Enviroment;
 
     constructor(
+        public alertService: AlertService,
         public loadingController: LoadingController,
         public router: Router,
+        public toastService: ToastService,
         public translate: TranslateService,
     ) {
         // get current environement variables

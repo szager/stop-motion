@@ -1,6 +1,10 @@
 {
     "buttons_home_start": "Loslegen",
     "pages_home_welcome": "Mit der Stop Motion App kannst du einfach und schnell faszinierende Stop-Motion Filme erstellen. Zahlreiche Funktionen erleichtern deinen Workflow.",
+    "alert_clear_animator_header": "Aufzeichung löschen",
+    "alert_clear_animator_message": "Möchtest du die aktuelle Aufzeichnung tatsächlich löschen?",
+    "buttons_cancel": "Abbrechen",
+    "buttons_home_start": "Try it!",
     "pages_title_animator": "Edit your video",
     "pages_title_settings": "Einstellungen",
     "tabbar_capture": "Capture Video",
@@ -11,4 +15,6 @@
     "labels_privacy": "Datenschutz",
     "labels_imprint": "Impressum",
     "labels_version": "Version"
+    "tabbar_play_stop": "Play/Stop",
+    "toast_animator_clear_hint": "Du hast noch nichts aufgenommen!"
 }
