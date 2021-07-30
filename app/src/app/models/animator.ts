@@ -37,7 +37,10 @@ export class Animator {
         public baseService: BaseService
     ) { }
 
-    init(video, snapshotCanvas, playCanvas, messageDiv) {
+    /*
+    * Init method is used to initialize properties
+    */
+    public init(video, snapshotCanvas, playCanvas, messageDiv): void {
         this.video = video;
         this.videoStream = null;
         this.snapshotCanvas = snapshotCanvas;
@@ -62,26 +65,10 @@ export class Animator {
         this.zeroPlayTime = 0;
     }
 
-    setPlaybackSpeed(speed) {
-        if (speed > 0) {
-            this.playbackSpeed = speed;
-        }
-    }
-
-    setDimensions(width: number, heigth: number) {
-        this.width = width;
-        this.height = heigth;
-        this.video.width = width;
-        this.video.height = heigth;
-        this.snapshotCanvas.width = this.width;
-        this.snapshotCanvas.height = this.height;
-    }
-
-    flipVideo() {
-        this.flip = !this.flip;
-    }
-
-    async attachStream(sourceId): Promise<any> {
+    /*
+    * Method is used to attach a media stream to the video component
+    */
+    public async attachStream(sourceId): Promise<any> {
         const constraints = {
             audio: false,
             frameRate: 15,
@@ -112,6 +99,65 @@ export class Animator {
         }
     }
 
+    /*
+    * Method is used to capture new image and create canvas out of it and share it with other components
+    */
+    public async capture() {
+        console.log('🚀 ~ file: animator.ts ~ line 103 ~ Animator ~ capture ~ capture');
+        if (!this.isStreaming) { return; }
+        const imageCanvas: HTMLCanvasElement = document.createElement('canvas');
+        imageCanvas.width = this.width;
+        imageCanvas.height = this.height;
+        const context = imageCanvas.getContext('2d', { alpha: false });
+        if (this.flip) {
+            context.rotate(Math.PI);
+            context.translate(-this.width, -this.height);
+        }
+        context.drawImage(this.video, 0, 0, this.width, this.height);
+        this.frames.push(imageCanvas);
+
+        const promise = new Promise(((resolve, reject) => {
+            // if (this.requestIdleCallback) {
+            //     requestIdleCallback(() => {
+            //         imageCanvas.toBlob(blob => { resolve(blob); }, 'image/webp');
+            //     });
+            // } else {
+                imageCanvas.toBlob(blob => { resolve(blob); }, 'image/webp');
+            // }
+            this.snapshotContext.clearRect(0, 0, this.width, this.height);
+            this.snapshotContext.drawImage(imageCanvas, 0, 0, this.width, this.height);
+        }));
+        const frame = await promise;
+        console.log('🚀 ~ file: animator.ts ~ line 131 ~ Animator ~ capture ~ frame', frame);
+        this.frameWebps.push(frame);
+        return this.frames;
+    }
+
+    public undoCapture() {
+        console.log('🚀 ~ file: animator.ts ~ line 137 ~ Animator ~ undoCapture ~ undoCapture', this.frames.length);
+        this.frames.pop();
+        this.frameWebps.pop();
+        if (this.frames.length) {
+            this.drawFrame(this.frames.length - 1, this.snapshotContext);
+        } else {
+            this.snapshotContext.clearRect(0, 0, this.width, this.height);
+        }
+        return this.frames;
+    }
+
+    public clear() {
+        if (this.isPlaying()) { this.endPlay(null); }
+        if (this.audioBlob) { this.audioBlob = null; }
+        this.setAudioSrc(null);
+        if (this.frames.length === 0) { return; }
+        this.frames = [];
+        this.frameWebps = [];
+        this.snapshotContext.clearRect(0, 0, this.width, this.height);
+        this.playContext.clearRect(0, 0, this.width, this.height);
+        this.name = null;
+    }
+
+
     detachStream() {
         if (!this.video.srcObject) {
             return;
@@ -120,6 +166,16 @@ export class Animator {
         this.video.srcObject.getVideoTracks()[0].stop();
         this.isStreaming = false;
         this.video.srcObject = null;
+    }
+
+    setPlaybackSpeed(speed) {
+        if (speed > 0) {
+            this.playbackSpeed = speed;
+        }
+    }
+
+    flipVideo() {
+        this.flip = !this.flip;
     }
 
     isPlaying() {
@@ -147,43 +203,6 @@ export class Animator {
     drawFrame(frameNumber, context) {
         context.clearRect(0, 0, this.width, this.height);
         context.drawImage(this.frames[frameNumber], 0, 0, this.width, this.height);
-    }
-
-    capture() {
-        if (!this.isStreaming) { return; }
-        const imageCanvas = document.createElement('canvas');
-        imageCanvas.width = this.width;
-        imageCanvas.height = this.height;
-        const context = imageCanvas.getContext('2d', { alpha: false });
-        // if (this.flip) {
-        //     context.rotate(Math.PI);
-        //     context.translate(-this.width, -this.height);
-        // }
-        context.drawImage(this.video, 0, 0, this.width, this.height);
-        this.frames.push(imageCanvas);
-        const promise = new Promise(((resolve, reject) => {
-            // if (self.requestIdleCallback) {
-            //     requestIdleCallback(() => {
-            //         imageCanvas.toBlob(blob => { resolve(blob); }, 'image/webp');
-            //     });
-            // } else {
-            //     imageCanvas.toBlob(blob => { resolve(blob); }, 'image/webp');
-            // }
-            this.snapshotContext.clearRect(0, 0, this.width, this.height);
-            this.snapshotContext.drawImage(imageCanvas, 0, 0, this.width, this.height);
-        }).bind(this));
-        this.frameWebps.push(promise);
-    }
-
-    undoCapture() {
-        this.frames.pop();
-        this.frameWebps.pop();
-        if (this.frames.length) {
-            this.drawFrame(this.frames.length - 1, this.snapshotContext);
-
-        } else {
-            this.snapshotContext.clearRect(0, 0, this.width, this.height);
-        }
     }
 
     frameTimeout() {
@@ -240,18 +259,6 @@ export class Animator {
             });
         }
         else { return this.startPlay(null); }
-    }
-
-    clear() {
-        if (this.isPlaying()) { this.endPlay(null); }
-        if (this.audioBlob) { this.audioBlob = null; }
-        this.setAudioSrc(null);
-        if (this.frames.length === 0) { return; }
-        this.frames = [];
-        this.frameWebps = [];
-        this.snapshotContext.clearRect(0, 0, this.width, this.height);
-        this.playContext.clearRect(0, 0, this.width, this.height);
-        this.name = null;
     }
 
     loadFinished() {
@@ -387,5 +394,17 @@ export class Animator {
     clearAudio() {
         if (this.audioRecorder) { return; }
         this.setAudioSrc(null);
+    }
+
+    /*
+    * setDimensions method is used to set dimension width and height of components
+    */
+    private setDimensions(width: number, heigth: number): void {
+        this.width = width;
+        this.height = heigth;
+        this.video.width = width;
+        this.video.height = heigth;
+        this.snapshotCanvas.width = this.width;
+        this.snapshotCanvas.height = this.height;
     }
 }

@@ -12,6 +12,8 @@ import { RecordAudioButtonComponent } from './components/record-audio-button/rec
 import { SaveButtonComponent } from './components/save-button/save-button.component';
 import { SnapshotCanvasComponent } from './components/snapshot-canvas/snapshot-canvas.component';
 import { TabbarComponent } from './components/tabbar/tabbar.component';
+import { ThumbnailComponent } from './components/thumbnail/thumbnail.component';
+import { ThumbnailsComponent } from './components/thumbnails/thumbnails.component';
 import { ToggleButtonComponent } from './components/toggle-button/toggle-button.component';
 import { ToolbarComponent } from './components/toolbar/toolbar.component';
 import { UndoButtonComponent } from './components/undo-button/undo-button.component';
@@ -28,6 +30,8 @@ const COMPONENTS = [
   SaveButtonComponent,
   SnapshotCanvasComponent,
   TabbarComponent,
+  ThumbnailComponent,
+  ThumbnailsComponent,
   ToggleButtonComponent,
   ToolbarComponent,
   UndoButtonComponent,

@@ -13,16 +13,22 @@ import { CameraStatus } from 'src/app/enums/camera-status';
 export class AnimatorService {
 
   private cameraStatus: BehaviorSubject<CameraStatus>;
+  private frames: BehaviorSubject<HTMLCanvasElement[]>;
 
   constructor(
     public animator: Animator,
     public baseService: BaseService
   ) {
     this.cameraStatus = new BehaviorSubject(CameraStatus.notStarted);
+    this.frames = new BehaviorSubject([]);
   }
 
   getCameraStatus() {
     return this.cameraStatus.asObservable();
+  }
+
+  getFrames() {
+    return this.frames.asObservable();
   }
 
   public async init(video: ElementRef, snapshotCanvas: ElementRef, playerCanvas: ElementRef, videoMessage: ElementRef) {
@@ -30,8 +36,27 @@ export class AnimatorService {
     await this.startCamera();
   }
 
+  public async capture() {
+    console.log('🚀 ~ file: animator.service.ts ~ line 40 ~ AnimatorService ~ capture ~ capture');
+    const frames = await this.animator.capture();
+    console.log('🚀 ~ file: animator.service.ts ~ line 41 ~ AnimatorService ~ capture ~ frame', frames);
+    this.frames.next(frames);
+    return;
+  }
+
+  public undoCapture() {
+    const frames = this.animator.undoCapture();
+    this.frames.next(frames);
+    if (frames.length === 0) {
+      this.baseService.toastService.presentToast({
+        message: this.baseService.translate.instant('toast_animator_undo_hint')
+      });
+    }
+  }
+
   public clear() {
     this.animator.clear();
+    this.frames.next([]);
   }
 
   private async startCamera(): Promise<void> {

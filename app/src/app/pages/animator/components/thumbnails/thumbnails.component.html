@@ -1,0 +1,5 @@
+<div #thumbnailsContainer id="thumbnail-container">
+    <ng-container *ngIf="(list | async) as frames">
+        <app-thumbnail *ngFor="let frame of frames" [frame]="frame"></app-thumbnail> 
+    </ng-container>
+</div>

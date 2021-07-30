@@ -15,5 +15,6 @@
     "tabbar_record_audio": "Record audio",
     "tabbar_undo": "Undo",
     "toast_animator_camera_no_access": "Zugriff auf Kamera nicht möglich!",
-    "toast_animator_clear_hint": "Du hast noch nichts aufgenommen!"
+    "toast_animator_clear_hint": "Du hast noch nichts aufgenommen!",
+    "toast_animator_undo_hint": "Du kannst nicht weiter zurückspringen!"
 }
