@@ -22,6 +22,7 @@ export abstract class BaseComponent implements OnDestroy {
     public lang: string;
     public list: Observable<any>;
     public loader: any;
+    public state: Observable<any>;
     public submit: boolean;
     public readonly unsubscribe$: Subject<void> = new Subject();
 
@@ -33,6 +34,7 @@ export abstract class BaseComponent implements OnDestroy {
         this.isSearching = false;
         this.item = null;
         this.list = null;
+        this.state = null;
         // set curr lang initially
         this.lang = this.baseService.translate.currentLang;
         // if language changes on run time update var

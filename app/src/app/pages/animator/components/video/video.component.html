@@ -1,1 +1,4 @@
-<video #video id="video" width=640 height=480 autoplay></video>
+<video [hidden]="(state | async) !== 'isStreaming'" #video id="video" width=640 height=480 autoplay></video>
+
+<!-- place holder when no permission -->
+<ion-icon *ngIf="(state | async) === cameraStatus.noPermission" name="warning-outline">Placeholder No Permssion</ion-icon>

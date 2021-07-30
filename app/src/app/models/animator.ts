@@ -16,6 +16,7 @@ export class Animator {
     framesInFlight: number;
     frameWebps: any[];
     height: number;
+    isStreaming: boolean;
     loadFinishPending: boolean;
     messageDiv: any;
     name: any;
@@ -25,7 +26,6 @@ export class Animator {
     playTimer: any;
     snapshotCanvas: any;
     snapshotContext: any;
-    streamOn: boolean;
     video: any;
     videoSourceId: any;
     videoStream: any;
@@ -33,6 +33,7 @@ export class Animator {
     zeroPlayTime: number;
 
     constructor(
+        // TODO if possibole get rid of injectable again
         public baseService: BaseService
     ) { }
 
@@ -49,7 +50,7 @@ export class Animator {
         this.playbackSpeed = 24.0;
         this.frames = [];
         this.frameWebps = [];
-        this.streamOn = true;
+        this.isStreaming = true;
         this.name = null;
         this.framesInFlight = 0;
         this.loadFinishPending = false;
@@ -80,7 +81,7 @@ export class Animator {
         this.flip = !this.flip;
     }
 
-    async attachStream(sourceId): Promise<void> {
+    async attachStream(sourceId): Promise<any> {
         const constraints = {
             audio: false,
             frameRate: 15,
@@ -103,12 +104,11 @@ export class Animator {
             const stream = await navigator.mediaDevices.getUserMedia(constraints);
             this.video.srcObject = stream;
             this.videoStream = stream;
-            this.streamOn = true;
+            this.isStreaming = true;
+            return stream;
         } catch (err) {
             console.error(err);
-            this.baseService.toastService.presentToast({
-                message: this.baseService.translate.instant('toast_animator_camera_no_access')
-            });
+            throw err;
         }
     }
 
@@ -118,7 +118,7 @@ export class Animator {
         }
         this.video.pause();
         this.video.srcObject.getVideoTracks()[0].stop();
-        this.streamOn = false;
+        this.isStreaming = false;
         this.video.srcObject = null;
     }
 
@@ -129,7 +129,7 @@ export class Animator {
     toggleVideo() {
         if (this.video.paused) {
             if (this.video.srcObject && this.video.srcObject.active) {
-                this.streamOn = true;
+                this.isStreaming = true;
                 return this.video.play()
                     .then(() => true)
                     .catch(() => false);
@@ -139,7 +139,7 @@ export class Animator {
         } else {
             this.video.pause();
             this.detachStream();
-            this.streamOn = false;
+            this.isStreaming = false;
             return new Promise((resolve, reject) => { resolve(false); });
         }
     }
@@ -150,7 +150,7 @@ export class Animator {
     }
 
     capture() {
-        if (!this.streamOn) { return; }
+        if (!this.isStreaming) { return; }
         const imageCanvas = document.createElement('canvas');
         imageCanvas.width = this.width;
         imageCanvas.height = this.height;
@@ -218,7 +218,7 @@ export class Animator {
         }
         this.playContext.clearRect(0, 0, this.width, this.height);
         this.snapshotCanvas.style.visibility = '';
-        if (this.streamOn) { this.video.play(); }
+        if (this.isStreaming) { this.video.play(); }
         if (cb) { cb(); }
     }
 

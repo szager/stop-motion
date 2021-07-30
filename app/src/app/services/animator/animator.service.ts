@@ -1,5 +1,8 @@
 import { ElementRef, Injectable } from '@angular/core';
 import { Animator } from '@models/animator';
+import { BaseService } from '@services/base/base.service';
+import { BehaviorSubject } from 'rxjs';
+import { CameraStatus } from 'src/app/enums/camera-status';
 
 @Injectable({
   providedIn: 'root'
@@ -9,14 +12,20 @@ import { Animator } from '@models/animator';
  */
 export class AnimatorService {
 
-  // public animator: Animator;
+  private cameraStatus: BehaviorSubject<CameraStatus>;
 
   constructor(
-    public animator: Animator
-  ) { }
+    public animator: Animator,
+    public baseService: BaseService
+  ) {
+    this.cameraStatus = new BehaviorSubject(CameraStatus.notStarted);
+  }
+
+  getCameraStatus() {
+    return this.cameraStatus.asObservable();
+  }
 
   public async init(video: ElementRef, snapshotCanvas: ElementRef, playerCanvas: ElementRef, videoMessage: ElementRef) {
-    // this.animator = new Animator(video, snapshotCanvas, playerCanvas, videoMessage);
     this.animator.init(video, snapshotCanvas, playerCanvas, videoMessage);
     await this.startCamera();
   }
@@ -26,18 +35,22 @@ export class AnimatorService {
   }
 
   private async startCamera(): Promise<void> {
-        // Everything is set up, now connect to camera.
-        if (window.navigator && navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
-          const devices = await navigator.mediaDevices.enumerateDevices();
-          console.log('🚀 ~ file: animator.page.ts ~ line 45 ~ AnimatorPage ~ ngAfterViewInit ~ devices', devices);
-          const cameras = devices.filter(d =>  d.kind === 'videoinput').map(d => d.deviceId);
-          console.log('🚀 ~ file: animator.service.ts ~ line 23 ~ AnimatorService ~ startCamera ~ cameras', cameras);
-          await this.animator.attachStream(cameras[0]);
-        } else {
-          await this.animator.attachStream(null);
-        }
+    // Everything is set up, now connect to camera.
+    if (window.navigator && navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const cameras = devices.filter(d => d.kind === 'videoinput').map(d => d.deviceId);
+      try {
+        await this.animator.attachStream(cameras[0]);
+        this.cameraStatus.next(CameraStatus.isStreaming);
+      } catch (err) {
+        this.baseService.toastService.presentToast({
+          message: this.baseService.translate.instant('toast_animator_camera_no_access')
+        });
+        this.cameraStatus.next(CameraStatus.noPermission);
+      }
+    }
 
-            // const videoColumnDiv = document.getElementById('video-column');
+    // const videoColumnDiv = document.getElementById('video-column');
     // const selectDiv = document.createElement('div');
     // videoColumnDiv.appendChild(selectDiv);
     // const cameraSelect = document.createElement('select');
