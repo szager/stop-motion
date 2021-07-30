@@ -11,7 +11,7 @@ export class Animator {
     audioChunks: any[];
     audioRecorder: any;
     exported: any;
-    flip: boolean;
+    rotated: boolean;
     frames: any[];
     framesInFlight: number;
     frameWebps: any[];
@@ -41,28 +41,29 @@ export class Animator {
     * Init method is used to initialize properties
     */
     public init(video, snapshotCanvas, playCanvas, messageDiv): void {
-        this.video = video;
-        this.videoStream = null;
-        this.snapshotCanvas = snapshotCanvas;
-        this.snapshotContext = snapshotCanvas.getContext('2d');
+        this.audio = null;
+        this.audioBlob = null;
+        this.audioChunks = [];
+        this.audioRecorder = null;
+        this.frames = [];
+        this.framesInFlight = 0;
+        this.frameWebps = [];
+        this.isStreaming = true;
+        this.loadFinishPending = false;
+        this.messageDiv = messageDiv;
+        this.name = null;
+        this.playbackSpeed = 24.0;
         this.playCanvas = playCanvas;
         this.playContext = playCanvas.getContext('2d');
         this.playTimer = null;
-        this.flip = false;
-        this.messageDiv = messageDiv;
-        this.playbackSpeed = 24.0;
-        this.frames = [];
-        this.frameWebps = [];
-        this.isStreaming = true;
-        this.name = null;
-        this.framesInFlight = 0;
-        this.loadFinishPending = false;
-        this.audio = null;
-        this.audioRecorder = null;
-        this.audioChunks = [];
-        this.audioBlob = null;
-        this.setDimensions(snapshotCanvas.width, snapshotCanvas.height);
+        this.rotated = false;
+        this.snapshotCanvas = snapshotCanvas;
+        this.snapshotContext = snapshotCanvas.getContext('2d');
+        this.video = video;
+        this.videoStream = null;
         this.zeroPlayTime = 0;
+
+        this.setDimensions(snapshotCanvas.width, snapshotCanvas.height);
     }
 
     /*
@@ -109,7 +110,7 @@ export class Animator {
         imageCanvas.width = this.width;
         imageCanvas.height = this.height;
         const context = imageCanvas.getContext('2d', { alpha: false });
-        if (this.flip) {
+        if (this.rotated) {
             context.rotate(Math.PI);
             context.translate(-this.width, -this.height);
         }
@@ -157,6 +158,9 @@ export class Animator {
         this.name = null;
     }
 
+    public rotateCapture() {
+        this.rotated = !this.rotated;
+    }
 
     detachStream() {
         if (!this.video.srcObject) {
@@ -172,10 +176,6 @@ export class Animator {
         if (speed > 0) {
             this.playbackSpeed = speed;
         }
-    }
-
-    flipVideo() {
-        this.flip = !this.flip;
     }
 
     isPlaying() {

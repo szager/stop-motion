@@ -1,19 +1,19 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { FlipButtonComponent } from './flip-button.component';
+import { RotateButtonComponent } from './rotate-button.component';
 
-describe('FlipButtonComponent', () => {
-  let component: FlipButtonComponent;
-  let fixture: ComponentFixture<FlipButtonComponent>;
+describe('RotateButtonComponent', () => {
+  let component: RotateButtonComponent;
+  let fixture: ComponentFixture<RotateButtonComponent>;
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ FlipButtonComponent ],
+      declarations: [ RotateButtonComponent ],
       imports: [IonicModule.forRoot()]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(FlipButtonComponent);
+    fixture = TestBed.createComponent(RotateButtonComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   }));

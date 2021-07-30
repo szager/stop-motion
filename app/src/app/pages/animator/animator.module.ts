@@ -9,6 +9,7 @@ import { LoadButtonComponent } from './components/load-button/load-button.compon
 import { PlayButtonComponent } from './components/play-button/play-button.component';
 import { PlayerCanvasComponent } from './components/player-canvas/player-canvas.component';
 import { RecordAudioButtonComponent } from './components/record-audio-button/record-audio-button.component';
+import { RotateButtonComponent } from './components/rotate-button/rotate-button.component';
 import { SaveButtonComponent } from './components/save-button/save-button.component';
 import { SnapshotCanvasComponent } from './components/snapshot-canvas/snapshot-canvas.component';
 import { TabbarComponent } from './components/tabbar/tabbar.component';
@@ -17,8 +18,8 @@ import { ThumbnailsComponent } from './components/thumbnails/thumbnails.componen
 import { ToggleButtonComponent } from './components/toggle-button/toggle-button.component';
 import { ToolbarComponent } from './components/toolbar/toolbar.component';
 import { UndoButtonComponent } from './components/undo-button/undo-button.component';
-import { VideoMessageComponent } from './components/video-message/video-message.component';
 import { VideoComponent } from './components/video/video.component';
+import { VideoMessageComponent } from './components/video-message/video-message.component';
 
 const COMPONENTS = [
   CaptureButtonComponent,
@@ -27,6 +28,7 @@ const COMPONENTS = [
   PlayButtonComponent,
   PlayerCanvasComponent,
   RecordAudioButtonComponent,
+  RotateButtonComponent,
   SaveButtonComponent,
   SnapshotCanvasComponent,
   TabbarComponent,

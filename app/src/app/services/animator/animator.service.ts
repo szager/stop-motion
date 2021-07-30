@@ -12,6 +12,7 @@ import { CameraStatus } from 'src/app/enums/camera-status';
  */
 export class AnimatorService {
 
+  private cameraIsRotated: BehaviorSubject<boolean>;
   private cameraStatus: BehaviorSubject<CameraStatus>;
   private frames: BehaviorSubject<HTMLCanvasElement[]>;
 
@@ -19,6 +20,7 @@ export class AnimatorService {
     public animator: Animator,
     public baseService: BaseService
   ) {
+    this.cameraIsRotated = new BehaviorSubject(false);
     this.cameraStatus = new BehaviorSubject(CameraStatus.notStarted);
     this.frames = new BehaviorSubject([]);
   }
@@ -29,6 +31,10 @@ export class AnimatorService {
 
   getFrames() {
     return this.frames.asObservable();
+  }
+
+  getCameraIsRotated() {
+    return this.cameraIsRotated.asObservable();
   }
 
   public async init(video: ElementRef, snapshotCanvas: ElementRef, playerCanvas: ElementRef, videoMessage: ElementRef) {
@@ -52,6 +58,11 @@ export class AnimatorService {
         message: this.baseService.translate.instant('toast_animator_undo_hint')
       });
     }
+  }
+
+  public rotateCapture() {
+    this.animator.rotateCapture();
+    this.cameraIsRotated.next(!this.cameraIsRotated.getValue());
   }
 
   public clear() {
