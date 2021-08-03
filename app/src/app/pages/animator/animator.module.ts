@@ -6,6 +6,7 @@ import { AnimatorPage } from './animator.page';
 import { CaptureButtonComponent } from './components/capture-button/capture-button.component';
 import { ClearButtonComponent } from './components/clear-button/clear-button.component';
 import { LoadButtonComponent } from './components/load-button/load-button.component';
+import { PlaybackSliderComponent } from './components/playback-slider/playback-slider.component';
 import { PlayButtonComponent } from './components/play-button/play-button.component';
 import { PlayerCanvasComponent } from './components/player-canvas/player-canvas.component';
 import { RecordAudioButtonComponent } from './components/record-audio-button/record-audio-button.component';
@@ -25,6 +26,7 @@ const COMPONENTS = [
   CaptureButtonComponent,
   ClearButtonComponent,
   LoadButtonComponent,
+  PlaybackSliderComponent,
   PlayButtonComponent,
   PlayerCanvasComponent,
   RecordAudioButtonComponent,

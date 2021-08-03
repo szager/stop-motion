@@ -77,7 +77,7 @@ export class AnimatorService {
 
   public async togglePlay() {
     // TODO maybe add another state to isStreaming, like isPlaying
-    this.animator.togglePlay();
+    return this.animator.togglePlay();
   }
 
   public async save(filename: string) {

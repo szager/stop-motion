@@ -1,0 +1,5 @@
+<ion-range #slider min="2" max="24" step="0.5" [value]="initalValue" (ionChange)="onChange(slider.value)">
+  <ion-icon size="small" slot="start" name="speedometer-outline"></ion-icon>
+  <ion-icon slot="end" name="speedometer-outline"></ion-icon>
+</ion-range>
+FPS: {{ slider.value }}

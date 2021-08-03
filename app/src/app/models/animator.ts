@@ -52,7 +52,7 @@ export class Animator {
         this.loadFinishPending = false;
         this.messageDiv = messageDiv;
         this.name = null;
-        this.playbackSpeed = 24.0;
+        this.playbackSpeed = 12.0;
         this.playCanvas = playCanvas;
         this.playContext = playCanvas.getContext('2d');
         this.playTimer = null;
@@ -186,33 +186,22 @@ export class Animator {
         this.rotated = !this.rotated;
     }
 
-    detachStream() {
-        if (!this.video.srcObject) {
-            return;
-        }
-        this.video.pause();
-        this.video.srcObject.getVideoTracks()[0].stop();
-        this.isStreaming = false;
-        this.video.srcObject = null;
-    }
-
-    setPlaybackSpeed(speed) {
+    public setPlaybackSpeed(speed: number) {
+        console.log('🚀 ~ file: animator.ts ~ line 190 ~ Animator ~ setPlaybackSpeed ~ speed', speed);
         if (speed > 0) {
             this.playbackSpeed = speed;
         }
     }
 
-    isPlaying() {
-        return !!this.playTimer;
-    }
-
-    drawFrame(frameNumber, context) {
-        context.clearRect(0, 0, this.width, this.height);
-        context.drawImage(this.frames[frameNumber], 0, 0, this.width, this.height);
-    }
-
-    frameTimeout() {
-        return 1000.0 / this.playbackSpeed;
+    togglePlay() {
+        console.log('🚀 ~ file: animator.ts ~ line 263 ~ Animator ~ togglePlay ~ togglePlay', this.isPlaying());
+        if (this.isPlaying()) {
+            return new Promise((resolve, reject) => {
+                this.endPlay(null);
+                resolve(true);
+            });
+        }
+        else { return this.startPlay(null); }
     }
 
     startPlay(noAudio) {
@@ -257,15 +246,27 @@ export class Animator {
         }
     }
 
-    togglePlay() {
-        console.log('🚀 ~ file: animator.ts ~ line 263 ~ Animator ~ togglePlay ~ togglePlay', this.isPlaying());
-        if (this.isPlaying()) {
-            return new Promise((resolve, reject) => {
-                this.endPlay(null);
-                resolve(true);
-            });
+    drawFrame(frameNumber, context) {
+        context.clearRect(0, 0, this.width, this.height);
+        context.drawImage(this.frames[frameNumber], 0, 0, this.width, this.height);
+    }
+
+    frameTimeout() {
+        return 1000.0 / this.playbackSpeed;
+    }
+
+    detachStream() {
+        if (!this.video.srcObject) {
+            return;
         }
-        else { return this.startPlay(null); }
+        this.video.pause();
+        this.video.srcObject.getVideoTracks()[0].stop();
+        this.isStreaming = false;
+        this.video.srcObject = null;
+    }
+
+    isPlaying() {
+        return !!this.playTimer;
     }
 
     loadFinished() {
