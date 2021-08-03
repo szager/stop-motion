@@ -9,7 +9,7 @@ export class Animator {
     audio: any;
     audioBlob: any;
     audioChunks: any[];
-    audioRecorder: any;
+    audioRecorder: MediaRecorder;
     exported: any;
     rotated: boolean;
     frames: any[];
@@ -17,6 +17,7 @@ export class Animator {
     frameWebps: any[];
     height: number;
     isStreaming: boolean;
+    isRecording: boolean;
     loadFinishPending: boolean;
     messageDiv: any;
     name: any;
@@ -125,15 +126,17 @@ export class Animator {
             //         imageCanvas.toBlob(blob => { resolve(blob); }, 'image/webp');
             //     });
             // } else {
-                imageCanvas.toBlob(blob => { resolve(blob); }, 'image/webp');
+            imageCanvas.toBlob(blob => { resolve(blob); }, 'image/webp');
             // }
         }));
         this.frameWebps.push(promise);
         return this.frames;
     }
 
+    /*
+    * Method is used to undo last action and delete snapshot
+    */
     public undoCapture() {
-        console.log('🚀 ~ file: animator.ts ~ line 137 ~ Animator ~ undoCapture ~ undoCapture', this.frames.length);
         this.frames.pop();
         this.frameWebps.pop();
         if (this.frames.length) {
@@ -144,6 +147,9 @@ export class Animator {
         return this.frames;
     }
 
+    /*
+    * Method is used to clear all snapshots
+    */
     public clear() {
         if (this.isPlaying()) { this.endPlay(null); }
         if (this.audioBlob) { this.audioBlob = null; }
@@ -161,14 +167,11 @@ export class Animator {
             if (this.video.srcObject && this.video.srcObject.active) {
                 this.isStreaming = true;
                 try {
-                    this.video.play();
+                    await this.video.play();
                     return true;
                 } catch (err) {
                     return false;
                 }
-                // return this.video.play()
-                //     .then(() => true)
-                //     .catch(() => false);
             } else {
                 await this.attachStream(this.videoSourceId);
                 return true;
@@ -178,7 +181,6 @@ export class Animator {
             this.detachStream();
             this.isStreaming = false;
             return false;
-            // return new Promise((resolve, reject) => { resolve(false); });
         }
     }
 
@@ -187,21 +189,19 @@ export class Animator {
     }
 
     public setPlaybackSpeed(speed: number) {
-        console.log('🚀 ~ file: animator.ts ~ line 190 ~ Animator ~ setPlaybackSpeed ~ speed', speed);
         if (speed > 0) {
             this.playbackSpeed = speed;
         }
     }
 
-    togglePlay() {
-        console.log('🚀 ~ file: animator.ts ~ line 263 ~ Animator ~ togglePlay ~ togglePlay', this.isPlaying());
+    public async togglePlay() {
         if (this.isPlaying()) {
-            return new Promise((resolve, reject) => {
-                this.endPlay(null);
-                resolve(true);
-            });
+            this.endPlay(null);
+            return true;
+        } else {
+            await this.startPlay(null);
+            return true;
         }
-        else { return this.startPlay(null); }
     }
 
     startPlay(noAudio) {
@@ -244,6 +244,7 @@ export class Animator {
             const timeout = this.zeroPlayTime + ((frameNumber + 1) * this.frameTimeout()) - performance.now();
             this.playTimer = setTimeout(this.playFrame.bind(this), timeout, frameNumber + 1, cb);
         }
+        console.log('🚀 ~ file: animator.ts ~ line 245 ~ Animator ~ playFrame ~  this.playTimer', this.playTimer);
     }
 
     drawFrame(frameNumber, context) {
@@ -362,7 +363,7 @@ export class Animator {
         console.log('🚀 ~ file: animator.ts ~ line 361 ~ Animator ~ encode ~ an', an.width, an.height, an.frameTimeout(), an.frameWebps);
         const promise = new Promise((resolve, reject) => {
             fr.addEventListener('loadend', evt => {
-            console.log('🚀 ~ file: animator.ts ~ line 364 ~ Animator ~ promise ~ loadend', fr.result);
+                console.log('🚀 ~ file: animator.ts ~ line 364 ~ Animator ~ promise ~ loadend', fr.result);
                 webm.encode(title, an.width, an.height, an.frameTimeout(), an.frameWebps, fr.result)
                     .then(resolve);
             });
@@ -387,8 +388,8 @@ export class Animator {
         reader.readAsArrayBuffer(file);
     }
 
-    recordAudio(stream) {
-        const promise = new Promise(((resolve, reject) => {
+    public async recordAudio(stream) {
+        return new Promise(((resolve, reject) => {
             if (!this.frames.length) {
                 resolve(null);
                 return;
@@ -410,8 +411,7 @@ export class Animator {
             }).bind(this);
             this.startPlay(true);
             this.audioRecorder.start();
-        }).bind(this));
-        return promise;
+        }));
     }
 
     clearAudio() {

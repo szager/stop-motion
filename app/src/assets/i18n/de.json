@@ -20,6 +20,7 @@
     "tabbar_undo": "Undo",
     "toast_animator_camera_no_access": "Zugriff auf Kamera nicht möglich!",
     "toast_animator_clear_hint": "Du hast noch nichts aufgenommen!",
+    "toast_animator_record_audio_hint": "Du musst zuerst ein Bild aufnehmen, bevor du den Ton aufnehmen kannst!",
     "toast_animator_save_hint": "Du kannst nicht speichern, da noch nichts aufgenommen wurde!",
     "toast_animator_undo_hint": "Du kannst nicht weiter zurückspringen!"
 }

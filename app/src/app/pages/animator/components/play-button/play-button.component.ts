@@ -15,9 +15,7 @@ export class PlayButtonComponent implements OnInit {
   ngOnInit() {}
 
   async onClick() {
-    console.time('player');
     const result = await this.animatorService.togglePlay();
-    console.timeEnd('player');
   }
 
 

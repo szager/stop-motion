@@ -80,6 +80,21 @@ export class AnimatorService {
     return this.animator.togglePlay();
   }
 
+  public async recordAudio() {
+    if (this.animator.isRecording) {
+      this.animator.endPlay(null);
+      this.animator.isRecording = false;
+    } else if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      const stream = await navigator.mediaDevices.getUserMedia({audio: true, video: false});
+      console.log('🚀 ~ file: animator.service.ts ~ line 89 ~ AnimatorService ~ recordAudio ~ stream', stream);
+      const result = await this.animator.recordAudio(stream);
+      console.log('🚀 ~ file: animator.service.ts ~ line 90 ~ AnimatorService ~ recordAudio ~ result', result);
+      this.animator.isRecording = true;
+    } else {
+      this.animator.isRecording = false;
+    }
+  }
+
   public async save(filename: string) {
     if (!filename.length) {
       filename = 'StopMotion';
