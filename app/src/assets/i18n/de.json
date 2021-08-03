@@ -1,8 +1,12 @@
 {
     "alert_clear_animator_header": "Aufzeichung löschen",
     "alert_clear_animator_message": "Möchtest du die aktuelle Aufzeichnung tatsächlich löschen?",
+    "alert_save_animator_header": "Aufzeichnung speichern",
+    "alert_save_animator_message": "Möchtest du die aktuelle Aufzeichnung speichern?",
     "buttons_cancel": "Abbrechen",
     "buttons_home_start": "Loslegen",
+    "buttons_save": "Speichern",
+    "labels_filename": "Dateiname",
     "labels_important_links": "Wichtige Links",
     "labels_imprint": "Impressum",
     "labels_privacy": "Datenschutz",
@@ -16,5 +20,6 @@
     "tabbar_undo": "Undo",
     "toast_animator_camera_no_access": "Zugriff auf Kamera nicht möglich!",
     "toast_animator_clear_hint": "Du hast noch nichts aufgenommen!",
+    "toast_animator_save_hint": "Du kannst nicht speichern, da noch nichts aufgenommen wurde!",
     "toast_animator_undo_hint": "Du kannst nicht weiter zurückspringen!"
 }

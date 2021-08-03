@@ -80,6 +80,23 @@ export class AnimatorService {
     this.animator.togglePlay();
   }
 
+  public async save(filename: string) {
+    if (!filename.length) {
+      filename = 'StopMotion';
+    }
+    filename = filename.replace(/\s+/g, '_');
+    filename = filename.replace(/[^\w\-\.]+/g, '');
+    if (filename.endsWith('.mng')) {
+      filename = filename.substring(0, filename.length - 4);
+
+    }
+    if (!filename.endsWith('.webm')) {
+      filename += '.webm';
+    }
+
+    await this.animator.save(filename);
+  }
+
   private async startCamera(): Promise<void> {
     // Everything is set up, now connect to camera.
     if (window.navigator && navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {

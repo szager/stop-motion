@@ -118,6 +118,8 @@ export class Animator {
         this.frames.push(imageCanvas);
 
         const promise = new Promise(((resolve, reject) => {
+            this.snapshotContext.clearRect(0, 0, this.width, this.height);
+            this.snapshotContext.drawImage(imageCanvas, 0, 0, this.width, this.height);
             // if (this.requestIdleCallback) {
             //     requestIdleCallback(() => {
             //         imageCanvas.toBlob(blob => { resolve(blob); }, 'image/webp');
@@ -125,12 +127,8 @@ export class Animator {
             // } else {
                 imageCanvas.toBlob(blob => { resolve(blob); }, 'image/webp');
             // }
-            this.snapshotContext.clearRect(0, 0, this.width, this.height);
-            this.snapshotContext.drawImage(imageCanvas, 0, 0, this.width, this.height);
         }));
-        const frame = await promise;
-        console.log('🚀 ~ file: animator.ts ~ line 131 ~ Animator ~ capture ~ frame', frame);
-        this.frameWebps.push(frame);
+        this.frameWebps.push(promise);
         return this.frames;
     }
 
@@ -327,28 +325,43 @@ export class Animator {
         }
     }
 
-    save(filename) {
+    async save(filename) {
         filename = filename || 'StopMotion';
         if (!filename.endsWith('.webm')) { filename += '.webm'; }
         const title = filename.substr(0, filename.length - 5);
-        return this.encode(title).then((blob => {
-            this.exported = blob;
-            const url = URL.createObjectURL(blob);
-            const downloadLink = document.createElement('a');
-            downloadLink.download = filename;
-            downloadLink.href = url;
-            downloadLink.click();
-            URL.revokeObjectURL(url);
-            return blob;
-        }).bind(this));
+        const blob = await this.encode(title);
+        this.exported = blob;
+        const url = URL.createObjectURL(blob);
+        const downloadLink = document.createElement('a');
+        downloadLink.download = filename;
+        downloadLink.href = url;
+        downloadLink.click();
+        URL.revokeObjectURL(url);
+        return blob;
+
+        // return this.encode(title).then((blob => {
+        //     this.exported = blob;
+        //     const url = URL.createObjectURL(blob);
+        //     const downloadLink = document.createElement('a');
+        //     downloadLink.download = filename;
+        //     downloadLink.href = url;
+        //     downloadLink.click();
+        //     URL.revokeObjectURL(url);
+        //     return blob;
+        // }).bind(this));
     }
 
-    encode(title) {
-        if (!this.audioBlob) { return webm.encode(title, this.width, this.height, this.frameTimeout(), this.frameWebps, null); }
+    encode(title): Promise<any> {
+        if (!this.audioBlob) {
+            console.log('🚀 ~ file: line 358 ~ encode ~ title', title, this.width, this.height, this.frameTimeout(), this.frameWebps);
+            return webm.encode(title, this.width, this.height, this.frameTimeout(), this.frameWebps, null);
+        }
         const fr = new FileReader();
         const an = this;
+        console.log('🚀 ~ file: animator.ts ~ line 361 ~ Animator ~ encode ~ an', an.width, an.height, an.frameTimeout(), an.frameWebps);
         const promise = new Promise((resolve, reject) => {
             fr.addEventListener('loadend', evt => {
+            console.log('🚀 ~ file: animator.ts ~ line 364 ~ Animator ~ promise ~ loadend', fr.result);
                 webm.encode(title, an.width, an.height, an.frameTimeout(), an.frameWebps, fr.result)
                     .then(resolve);
             });
