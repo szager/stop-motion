@@ -70,6 +70,16 @@ export class AnimatorService {
     this.frames.next([]);
   }
 
+  public async toggleCamera() {
+    // TODO maybe add another state to isStreaming, like isPlaying
+    this.cameraStatus.next(await this.animator.toggleCamera() ? CameraStatus.isStreaming : CameraStatus.hasPaused);
+  }
+
+  public async togglePlay() {
+    // TODO maybe add another state to isStreaming, like isPlaying
+    this.animator.togglePlay();
+  }
+
   private async startCamera(): Promise<void> {
     // Everything is set up, now connect to camera.
     if (window.navigator && navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {

@@ -158,6 +158,32 @@ export class Animator {
         this.name = null;
     }
 
+    public async toggleCamera() {
+        if (this.video.paused) {
+            if (this.video.srcObject && this.video.srcObject.active) {
+                this.isStreaming = true;
+                try {
+                    this.video.play();
+                    return true;
+                } catch (err) {
+                    return false;
+                }
+                // return this.video.play()
+                //     .then(() => true)
+                //     .catch(() => false);
+            } else {
+                await this.attachStream(this.videoSourceId);
+                return true;
+            }
+        } else {
+            this.video.pause();
+            this.detachStream();
+            this.isStreaming = false;
+            return false;
+            // return new Promise((resolve, reject) => { resolve(false); });
+        }
+    }
+
     public rotateCapture() {
         this.rotated = !this.rotated;
     }
@@ -180,24 +206,6 @@ export class Animator {
 
     isPlaying() {
         return !!this.playTimer;
-    }
-
-    toggleVideo() {
-        if (this.video.paused) {
-            if (this.video.srcObject && this.video.srcObject.active) {
-                this.isStreaming = true;
-                return this.video.play()
-                    .then(() => true)
-                    .catch(() => false);
-            } else {
-                return this.attachStream(this.videoSourceId);
-            }
-        } else {
-            this.video.pause();
-            this.detachStream();
-            this.isStreaming = false;
-            return new Promise((resolve, reject) => { resolve(false); });
-        }
     }
 
     drawFrame(frameNumber, context) {
@@ -252,6 +260,7 @@ export class Animator {
     }
 
     togglePlay() {
+        console.log('🚀 ~ file: animator.ts ~ line 263 ~ Animator ~ togglePlay ~ togglePlay', this.isPlaying());
         if (this.isPlaying()) {
             return new Promise((resolve, reject) => {
                 this.endPlay(null);

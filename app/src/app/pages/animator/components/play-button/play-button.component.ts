@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { AnimatorService } from '@services/animator/animator.service';
 
 @Component({
   selector: 'app-play-button',
@@ -7,8 +8,15 @@ import { Component, OnInit } from '@angular/core';
 })
 export class PlayButtonComponent implements OnInit {
 
-  constructor() { }
+  constructor(
+    private animatorService: AnimatorService
+  ) { }
 
   ngOnInit() {}
+
+  async onClick() {
+    await this.animatorService.togglePlay();
+  }
+
 
 }
