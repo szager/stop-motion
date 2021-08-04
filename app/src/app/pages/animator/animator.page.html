@@ -2,17 +2,16 @@
 
 <ion-content [fullscreen]="true">
   <app-toolbar></app-toolbar>
-  
+
   <app-playback-slider></app-playback-slider>
 
   <div class="container ion-padding-horizontal">
     <app-video #appVideo></app-video>
     <app-snapshot-canvas #appSnapshotCanvas></app-snapshot-canvas>
     <app-player-canvas #appPlayerCanvas></app-player-canvas>
-    <app-video-message #appVideoMessage></app-video-message>
-    <app-thumbnails></app-thumbnails>
   </div>
-
+  <app-video-message #appVideoMessage></app-video-message>
+  <app-thumbnails></app-thumbnails>
   <app-tabbar></app-tabbar>
 
   <!-- <div>
