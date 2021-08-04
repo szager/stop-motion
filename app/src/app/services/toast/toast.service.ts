@@ -19,7 +19,7 @@ export class ToastService {
         color: options.color || 'warning',
         message: options.message,
         duration: options.duration || 5000,
-        position: 'bottom'
+        position: 'top'
       });
 
       await toast.present();
