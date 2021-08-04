@@ -1,16 +1,21 @@
 <app-header [options]="options"></app-header>
 
 <ion-content [fullscreen]="true">
-<app-toolbar></app-toolbar>
-<app-playback-slider></app-playback-slider>
-<app-video #appVideo></app-video>
-<app-snapshot-canvas #appSnapshotCanvas></app-snapshot-canvas>
-<app-player-canvas #appPlayerCanvas></app-player-canvas>
-<app-video-message #appVideoMessage></app-video-message>
-<app-thumbnails></app-thumbnails>
-<app-tabbar></app-tabbar>
+  <app-toolbar></app-toolbar>
+  
+  <app-playback-slider></app-playback-slider>
 
-<!-- <div>
+  <div class="container ion-padding-horizontal">
+    <app-video #appVideo></app-video>
+    <app-snapshot-canvas #appSnapshotCanvas></app-snapshot-canvas>
+    <app-player-canvas #appPlayerCanvas></app-player-canvas>
+    <app-video-message #appVideoMessage></app-video-message>
+    <app-thumbnails></app-thumbnails>
+  </div>
+
+  <app-tabbar></app-tabbar>
+
+  <!-- <div>
 
     <svg id="svg-defs" version="1.1" xmlns="http://www.w3.org/2000/svg">
         <defs>

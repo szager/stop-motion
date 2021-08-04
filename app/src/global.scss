@@ -88,3 +88,18 @@ ion-tab-bar {
     letter-spacing: 0;
   }
 }
+
+.swiper-container-horizontal>.swiper-scrollbar {
+  position: absolute;
+  left: 0;
+  bottom: 0px;
+  z-index: 50;
+  height: 5px;
+  opacity: 1 !important;
+  width: 100%;
+  margin-top: 10px;
+  background: rgba(0,163,211,0.1);
+  .swiper-scrollbar-drag {
+      background: rgba(0,163,211,0.8);
+  }
+}

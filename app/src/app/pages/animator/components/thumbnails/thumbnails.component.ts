@@ -11,6 +11,17 @@ import { BaseService } from '@services/base/base.service';
 export class ThumbnailsComponent extends BaseComponent implements OnInit {
 
   @ViewChild('thumbnailsContainer', { static: true }) public thumbnailsContainer: ElementRef;
+  
+  slideOpts = {
+    initialSlide: 1,
+    speed: 400,
+    slidesPerView: 6,
+    spaceBetween: 0,
+    pagination: {
+      type: 'progressbar'
+    },
+    navigation: true
+  };
 
   constructor(
     public baseService: BaseService,

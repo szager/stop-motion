@@ -1,5 +1,7 @@
-<ion-range #slider min="2" max="24" step="0.5" [value]="initalValue" (ionChange)="onChange(slider.value)">
-  <ion-icon size="small" slot="start" name="speedometer-outline"></ion-icon>
-  <ion-icon slot="end" name="speedometer-outline"></ion-icon>
+<ion-range #slider min="2" max="24" step="0.5" [value]="initalValue" (ionChange)="onChange(slider.value)" color="medium">
+  <ion-icon slot="start" color="success" src="/assets/icons/custom/slow.svg"></ion-icon>
+  <ion-icon slot="end" color="danger" src="/assets/icons/custom/fast.svg"></ion-icon>
 </ion-range>
-FPS: {{ slider.value }}
+<p class="ion-padding-horizontal ion-no-margin ion-padding-bottom">
+  <strong>FPS: {{ slider.value }}</strong>
+</p>

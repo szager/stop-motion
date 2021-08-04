@@ -11,12 +11,12 @@ export class ThumbnailComponent implements OnInit {
   @Input() frame: HTMLCanvasElement;
 
   public ctx: CanvasRenderingContext2D;
-  public width = 96;
-  public height = 72;
+  public width = 128;
+  public height = 96;
 
   ngOnInit() {
     this.ctx = this.thumbnail.nativeElement.getContext('2d');
-    this.ctx.drawImage(this.frame, this.width, this.height);
+    this.ctx.drawImage(this.frame, 0, 0, this.width, this.height)
   }
 
 }

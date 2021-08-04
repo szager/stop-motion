@@ -1,0 +1,16 @@
+video {
+    border-radius: 7px;
+}
+
+.camera-status {
+    display: block;
+    position: absolute;
+    z-index: 9;
+    width: 640px;
+    background-color: rgba(0, 0, 0, 0.3);
+    color: #fff;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    font-size: 14px;
+    padding: 3px 10px;
+}
