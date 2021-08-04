@@ -77,7 +77,7 @@ export class AnimatorService {
 
   public async togglePlay() {
     // TODO maybe add another state to isStreaming, like isPlaying
-    this.cameraStatus.next(CameraStatus.isPlaying);
+    this.cameraStatus.next(CameraStatus.hasPaused);
     await this.animator.togglePlay();
     this.cameraStatus.next(CameraStatus.isStreaming);
     return;
