@@ -4,8 +4,12 @@
   <app-toolbar></app-toolbar>
 
   <app-playback-slider></app-playback-slider>
-
-  <div class="container ion-padding-horizontal">
+  <p class="ion-padding-horizontal ion-no-margin camera-state">
+    <span *ngIf="state | async as state">
+      <strong>Kamera Status: {{ state[0] }}</strong>
+    </span>
+  </p>
+  <div class="container">
     <app-video #appVideo></app-video>
     <app-snapshot-canvas #appSnapshotCanvas></app-snapshot-canvas>
     <app-player-canvas #appPlayerCanvas></app-player-canvas>

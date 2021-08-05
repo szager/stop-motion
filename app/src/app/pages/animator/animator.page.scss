@@ -1,5 +1,18 @@
 .container {
     height: 480px;
+    width: 640px;
+    margin: 0 auto;
+    display: block;
+    position: relative;
+}
+
+.camera-state {
+    text-align: right;
+    margin-top: -22px;
+    margin-bottom: 20px;
+    span {
+        font-size: 16px;
+    }
 }
 
 .hflex {

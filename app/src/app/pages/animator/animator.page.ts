@@ -18,6 +18,7 @@ export class AnimatorPage extends BasePage implements AfterViewInit {
   @ViewChild('appPlayerCanvas') playerCanvasComponent: PlayerCanvasComponent;
   @ViewChild('appSnapshotCanvas') snapshotCanvasComponent: SnapshotCanvasComponent;
   @ViewChild('appVideoMessage') videoMessageComponent: VideoMessageComponent;
+  public state;
 
   constructor(
     public animatorService: AnimatorService,
@@ -28,11 +29,12 @@ export class AnimatorPage extends BasePage implements AfterViewInit {
     this.options.backButton = true;
     this.options.rightButton = true;
     this.options.rightHref = '/settings';
+    
   }
 
   async ngAfterViewInit(): Promise<void> {
     console.log(this.videoComponent, this.playerCanvasComponent, this.snapshotCanvasComponent, this.videoMessageComponent);
-
+    this.state = this.videoComponent.state;
     const video = this.videoComponent.video.nativeElement;
     const snapshotCanvas = this.snapshotCanvasComponent.snapshotCanvas.nativeElement;
     const playerCanvas = this.playerCanvasComponent.playerCanvas.nativeElement;

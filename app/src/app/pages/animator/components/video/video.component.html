@@ -1,7 +1,3 @@
-<div class="camera-status">
-    Camerastatus: {{ (state | async)[0] }}
-</div>
-
 <video [@rotatedState]="cameraRotation" [hidden]="(state | async)[0] !== 'isStreaming'" #video id="video" width=640 height=480 autoplay></video>
 
 <!-- place holder when no permission or paused -->

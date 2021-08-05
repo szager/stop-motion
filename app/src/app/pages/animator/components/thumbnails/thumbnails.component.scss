@@ -1,11 +1,11 @@
 ion-slides {
-    height: 120px;
-    ion-slide {
-  width: auto !important;
+  height: 120px;
+  width: 640px;
+  margin: 0 auto;
+  ion-slide {
+    width: auto !important;
+  }
 }
-}
-
-
 
 .swiper-container-horizontal {
   .swiper-scrollbar {
