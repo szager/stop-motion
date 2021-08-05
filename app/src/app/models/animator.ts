@@ -118,6 +118,12 @@ export class Animator {
         context.drawImage(this.video, 0, 0, this.width, this.height);
         this.frames.push(imageCanvas);
 
+        this.snapshotCanvas.style.visibility = 'visible';
+        setTimeout (() => {
+            this.snapshotCanvas.style.visibility = 'hidden';
+         }, 600);
+    
+
         const promise = new Promise(((resolve, reject) => {
             this.snapshotContext.clearRect(0, 0, this.width, this.height);
             this.snapshotContext.drawImage(imageCanvas, 0, 0, this.width, this.height);
