@@ -9,7 +9,8 @@
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "deploy:dev": "ionic build --prod && rsync -zrvh ./www/* node-development:/var/www/stop-motion-app/"
   },
   "private": true,
   "dependencies": {

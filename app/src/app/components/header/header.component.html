@@ -17,7 +17,7 @@
             </ion-button>
         </ion-buttons>
         <!-- text -->
-        <ion-title color="dark">{{ options.title | translate }}</ion-title>
+        <ion-title color="dark" class="ion-text-center">{{ options.title | translate }}</ion-title>
         <!-- default right button -->
         <ion-buttons slot="end" *ngIf="options.rightButton">
             <ion-button (click)="onNavigate(options.rightHref)">

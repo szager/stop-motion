@@ -13,11 +13,11 @@
           <ion-col size-md="4" offset-md="4">
             <ion-list class="ion-margin-vertical">
               <p class="list-headline ion-padding-start ion-margin-vertical"><b>{{ 'labels_important_links' | translate }}</b></p>
-              <ion-item detail>
-                <a href="https://kits.blog/impressum/"><ion-label class="ion-padding-start">{{ 'labels_imprint' | translate }}</ion-label></a>
+              <ion-item appOpenUrl [url]="'https://kits.blog/impressum/'" detail>
+               <ion-label class="ion-padding-start">{{ 'labels_imprint' | translate }}</ion-label>
               </ion-item>
-              <ion-item detail>
-                <a href="https://kits.blog/datenschutz/"><ion-label class="ion-padding-start">{{ 'labels_privacy' | translate }}</ion-label></a>
+              <ion-item appOpenUrl [url]="'https://kits.blog/datenschutz/'" detail>
+                <ion-label class="ion-padding-start">{{ 'labels_privacy' | translate }}</ion-label>
               </ion-item>
             </ion-list>
           </ion-col>

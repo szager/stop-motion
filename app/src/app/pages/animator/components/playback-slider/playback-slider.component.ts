@@ -14,11 +14,10 @@ export class PlaybackSliderComponent implements OnInit {
     private animatorService: AnimatorService
   ) { }
 
-  ngOnInit() {}
+  ngOnInit() { }
 
-  onChange(value: number) {
+  onChange(value: any) {
     this.animatorService.animator.setPlaybackSpeed(value);
-  console.log('🚀 ~ file: playback-slider.component.ts ~ line 15 ~ PlaybackSliderComponent ~ onChange ~ value', value);
   }
 
 }

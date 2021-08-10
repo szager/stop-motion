@@ -1,9 +1,12 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { OpenUrlDirective } from './open-url/open-url.directive';
 
 // Directives
 
-const DIRECTIVES = [];
+const DIRECTIVES = [
+    OpenUrlDirective
+];
 
 @NgModule({
     imports: [

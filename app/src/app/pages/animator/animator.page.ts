@@ -1,4 +1,5 @@
 import { AfterViewInit, Component, ViewChild } from '@angular/core';
+import { Platform } from '@ionic/angular';
 import { BasePage } from '@pages/base/base.page';
 import { AnimatorService } from '@services/animator/animator.service';
 import { BaseService } from '@services/base/base.service';
@@ -22,14 +23,14 @@ export class AnimatorPage extends BasePage implements AfterViewInit {
 
   constructor(
     public animatorService: AnimatorService,
-    public baseService: BaseService
+    public baseService: BaseService,
+    public platform: Platform
   ) {
     super(baseService);
     this.options.title = 'pages_title_animator';
-    this.options.backButton = true;
+    this.options.backButton = false;
     this.options.rightButton = true;
     this.options.rightHref = '/settings';
-    
   }
 
   async ngAfterViewInit(): Promise<void> {
