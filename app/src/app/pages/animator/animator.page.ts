@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ViewChild } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { Platform } from '@ionic/angular';
 import { BasePage } from '@pages/base/base.page';
 import { AnimatorService } from '@services/animator/animator.service';
@@ -13,7 +13,7 @@ import { VideoComponent } from './components/video/video.component';
   templateUrl: 'animator.page.html',
   styleUrls: ['animator.page.scss'],
 })
-export class AnimatorPage extends BasePage implements AfterViewInit {
+export class AnimatorPage extends BasePage {
 
   @ViewChild('appVideo') videoComponent: VideoComponent;
   @ViewChild('appPlayerCanvas') playerCanvasComponent: PlayerCanvasComponent;
@@ -33,14 +33,17 @@ export class AnimatorPage extends BasePage implements AfterViewInit {
     this.options.rightHref = '/settings';
   }
 
-  async ngAfterViewInit(): Promise<void> {
-    console.log(this.videoComponent, this.playerCanvasComponent, this.snapshotCanvasComponent, this.videoMessageComponent);
+  async ionViewWillEnter() {
     this.state = this.videoComponent.state;
     const video = this.videoComponent.video.nativeElement;
     const snapshotCanvas = this.snapshotCanvasComponent.snapshotCanvas.nativeElement;
     const playerCanvas = this.playerCanvasComponent.playerCanvas.nativeElement;
     const videoMessage = this.videoMessageComponent.videoMessage.nativeElement;
     await this.animatorService.init(video, snapshotCanvas, playerCanvas, videoMessage);
+  }
+
+  ionViewWillLeave() {
+    this.animatorService.destroy();
   }
 
 }

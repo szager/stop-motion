@@ -122,7 +122,6 @@ export class Animator {
         setTimeout (() => {
             this.snapshotCanvas.style.visibility = 'hidden';
          }, 600);
-    
 
         const promise = new Promise(((resolve, reject) => {
             this.snapshotContext.clearRect(0, 0, this.width, this.height);

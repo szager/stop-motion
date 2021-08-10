@@ -65,7 +65,7 @@ export class AnimatorService {
     this.cameraIsRotated.next(!this.cameraIsRotated.getValue());
   }
 
-  public clear() {
+  public clear(): void {
     this.animator.clear();
     this.frames.next([]);
   }
@@ -81,6 +81,11 @@ export class AnimatorService {
     await this.animator.togglePlay();
     this.cameraStatus.next(CameraStatus.isStreaming);
     return;
+  }
+
+  public destroy(): void {
+    this.animator.clear();
+    this.animator.detachStream();
   }
 
   public async recordAudio() {
