@@ -21,6 +21,7 @@ import { ToolbarComponent } from './components/toolbar/toolbar.component';
 import { UndoButtonComponent } from './components/undo-button/undo-button.component';
 import { VideoComponent } from './components/video/video.component';
 import { VideoMessageComponent } from './components/video-message/video-message.component';
+import { TimerComponent } from './components/timer/timer.component';
 
 const COMPONENTS = [
   CaptureButtonComponent,
@@ -34,6 +35,7 @@ const COMPONENTS = [
   SaveButtonComponent,
   SnapshotCanvasComponent,
   TabbarComponent,
+  TimerComponent,
   ThumbnailComponent,
   ThumbnailsComponent,
   ToggleButtonComponent,

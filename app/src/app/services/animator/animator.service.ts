@@ -43,9 +43,9 @@ export class AnimatorService {
   }
 
   public async capture() {
-    console.log('🚀 ~ file: animator.service.ts ~ line 40 ~ AnimatorService ~ capture ~ capture');
+    // console.log('🚀 ~ file: animator.service.ts ~ line 40 ~ AnimatorService ~ capture ~ capture');
     const frames = await this.animator.capture();
-    console.log('🚀 ~ file: animator.service.ts ~ line 41 ~ AnimatorService ~ capture ~ frame', frames);
+    // console.log('🚀 ~ file: animator.service.ts ~ line 41 ~ AnimatorService ~ capture ~ frame', frames);
     this.frames.next(frames);
     return;
   }

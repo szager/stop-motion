@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BaseService } from '@services/base/base.service';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 declare const webm: any;
 @Injectable({
@@ -33,10 +34,18 @@ export class Animator {
     width: any;
     zeroPlayTime: number;
 
+    private isAnimatorPlaying: BehaviorSubject<boolean>;
+
     constructor(
         // TODO if possibole get rid of injectable again
         public baseService: BaseService
-    ) { }
+    ) {
+        this.isAnimatorPlaying = new BehaviorSubject(false);
+    }
+
+    getIsPlaying(): Observable<any> {
+        return this.isAnimatorPlaying.asObservable();
+    }
 
     /*
     * Init method is used to initialize properties
@@ -105,7 +114,7 @@ export class Animator {
     * Method is used to capture new image and create canvas out of it and share it with other components
     */
     public async capture() {
-        console.log('🚀 ~ file: animator.ts ~ line 103 ~ Animator ~ capture ~ capture');
+        // console.log('🚀 ~ file: animator.ts ~ line 103 ~ Animator ~ capture ~ capture');
         if (!this.isStreaming) { return; }
         const imageCanvas: HTMLCanvasElement = document.createElement('canvas');
         imageCanvas.width = this.width;
@@ -224,6 +233,7 @@ export class Animator {
                 this.audio.currentTime = 0;
                 this.audio.play();
             }
+            this.isAnimatorPlaying.next(true);
         });
     }
 
@@ -238,6 +248,7 @@ export class Animator {
         this.playContext.clearRect(0, 0, this.width, this.height);
         this.snapshotCanvas.style.visibility = '';
         if (this.isStreaming) { this.video.play(); }
+        this.isAnimatorPlaying.next(false);
         if (cb) { cb(); }
     }
 
@@ -249,7 +260,7 @@ export class Animator {
             const timeout = this.zeroPlayTime + ((frameNumber + 1) * this.frameTimeout()) - performance.now();
             this.playTimer = setTimeout(this.playFrame.bind(this), timeout, frameNumber + 1, cb);
         }
-        console.log('🚀 ~ file: animator.ts ~ line 245 ~ Animator ~ playFrame ~  this.playTimer', this.playTimer);
+        // console.log('🚀 ~ file: animator.ts ~ line 245 ~ Animator ~ playFrame ~  this.playTimer', this.playTimer);
     }
 
     drawFrame(frameNumber, context) {
