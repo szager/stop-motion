@@ -9,6 +9,8 @@
     "alert_record_audio_animator_message": "Es ist bereits eine Audiospur vorhanden. Du kannst diese entweder löschen oder eine Neue einsprechen.",
     "alert_save_animator_header": "Aufzeichnung speichern",
     "alert_save_animator_message": "Möchtest du die aktuelle Aufzeichnung speichern?",
+    "alert_sw_update_message": "Nach dem Bestätigen wird das Update geladen",
+    "alert_sw_update_title": "Ein Update ist verfügbar!",
     "buttons_cancel": "Abbrechen",
     "buttons_delete": "Löschen",
     "buttons_home_start": "Loslegen",
