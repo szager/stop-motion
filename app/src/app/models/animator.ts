@@ -218,6 +218,12 @@ export class Animator {
         }
     }
 
+    public clearAudio() {
+        if (this.audioRecorder) { return; }
+        this.isRecording = false;
+        this.setAudioSrc(null);
+    }
+
     startPlay(noAudio) {
         return new Promise((resolve, reject) => {
             if (!this.frames.length) {
@@ -432,11 +438,6 @@ export class Animator {
             this.startPlay(true);
             this.audioRecorder.start();
         }));
-    }
-
-    clearAudio() {
-        if (this.audioRecorder) { return; }
-        this.setAudioSrc(null);
     }
 
     /*

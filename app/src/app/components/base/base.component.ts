@@ -7,6 +7,7 @@ import { Observable, Subject } from 'rxjs';
 import { Enviroment } from '@interfaces/environment.interface';
 import { BaseService } from '@services/base/base.service';
 import { environment } from '@environment/environment';
+import { LoaderOptions } from '@interfaces/loader-options.interface';
 
 @Component({
     selector: 'app-base-component',
@@ -48,10 +49,10 @@ export abstract class BaseComponent implements OnDestroy {
     /*
      * A method to display loading spinner
      */
-    async presentLoading() {
+    async presentLoading(options?: LoaderOptions) {
         this.isLoading = true;
         this.loader = await this.baseService.loadingController.create({
-            message: this.baseService.translate.instant('labels_loading')
+            message: (options && options.message) ? options.message : this.baseService.translate.instant('labels_loading')
         });
         await this.loader.present();
         return await this.loader;

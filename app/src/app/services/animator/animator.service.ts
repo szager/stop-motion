@@ -88,7 +88,7 @@ export class AnimatorService {
     this.animator.detachStream();
   }
 
-  public async recordAudio() {
+  public async recordAudio(): Promise<void> {
     if (this.animator.isRecording) {
       this.animator.endPlay(null);
       this.animator.isRecording = false;
@@ -99,6 +99,11 @@ export class AnimatorService {
     } else {
       this.animator.isRecording = false;
     }
+    return;
+  }
+
+  public clearAudio(): void {
+    this.animator.clearAudio();
   }
 
   public async save(filename: string) {
