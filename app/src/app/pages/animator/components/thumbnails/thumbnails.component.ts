@@ -3,6 +3,7 @@ import { BaseComponent } from '@components/base/base.component';
 import { IonSlides } from '@ionic/angular';
 import { AnimatorService } from '@services/animator/animator.service';
 import { BaseService } from '@services/base/base.service';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-thumbnails',
@@ -36,7 +37,7 @@ export class ThumbnailsComponent extends BaseComponent implements OnDestroy, OnI
   ngOnInit() {
     this.list = this.animatorService.getFrames();
 
-    this.animatorService.animator.getIsPlaying().subscribe((isPlaying: boolean) => {
+    this.animatorService.animator.getIsPlaying().pipe(takeUntil(this.unsubscribe$)).subscribe((isPlaying: boolean) => {
       if (isPlaying) {
         // reset slider if already moved
         this.thumbnailsContainer.slideTo(0);
@@ -63,6 +64,7 @@ export class ThumbnailsComponent extends BaseComponent implements OnDestroy, OnI
   }
 
   ngOnDestroy() {
+    super.ngOnDestroy();
     this.clearInterval();
   }
 
