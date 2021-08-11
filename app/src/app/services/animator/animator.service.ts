@@ -118,6 +118,10 @@ export class AnimatorService {
     await this.animator.save(filename);
   }
 
+  public async load(filepath: string): Promise<any> {
+    return this.animator.load(filepath);
+  }
+
   public formatTime(seconds: number) {
     return new Date(Math.round(seconds) * 1000).toISOString().substr(14, 5);
   }

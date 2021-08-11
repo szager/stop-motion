@@ -388,18 +388,22 @@ export class Animator {
         return promise;
     }
 
-    load(file, finishCB, frameRateCB) {
+    public async load(file: any): Promise<any> {
         const animator = this;
         const frameOffset = this.frames.length;
         const reader = new FileReader();
         reader.addEventListener('loadend', evt => {
             webm.decode(evt.target.result,
                 animator.setDimensions.bind(animator),
-                frameRateCB,
+                // frameRateCB,
+                (frameRate) => {
+                console.log('🚀 ~ file: animator.ts ~ line 400 ~ Animator ~ load ~ frameRate', frameRate);
+                },
                 animator.addFrameVP8.bind(animator, frameOffset),
                 animator.setAudioSrc.bind(animator));
             animator.name = file.name.substring(0, file.name.length - 5);
-            if (finishCB) { finishCB(); }
+            // if (finishCB) { finishCB(); }
+            return;
         });
         reader.readAsArrayBuffer(file);
     }
