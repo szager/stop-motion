@@ -18,6 +18,7 @@ export abstract class BaseComponent implements OnDestroy {
     public environment: Enviroment;
     public isLoading: boolean;
     public isSearching: boolean;
+    public isPlaying: boolean;
     public item: Observable<any>;
     public lang: string;
     public list: Observable<any>;
@@ -32,6 +33,7 @@ export abstract class BaseComponent implements OnDestroy {
         this.environment = environment;
         this.isLoading = false;
         this.isSearching = false;
+        this.isPlaying = false;
         this.item = null;
         this.list = null;
         this.state = null;

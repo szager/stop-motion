@@ -49,11 +49,9 @@ export class ThumbnailsComponent extends BaseComponent implements OnDestroy, OnI
         // internval has to be run outside of the angular zone
         this.zone.runOutsideAngular(() => {
           this.interval = setInterval(() => {
-          console.log('🚀 ~ file: thumbnails.component.ts ~ line 47  ~ this.interval=setInterval ~ this.interval');
             this.thumbnailsContainer.slideNext();
           // multiply interval delay by 40 % to slow slider down
           }, milliSeconds * 1.4);
-
         });
       } else {
         // if player has stopped playing slide to first slide and clear interval

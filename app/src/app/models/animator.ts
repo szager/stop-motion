@@ -246,7 +246,7 @@ export class Animator {
             this.audio.pause();
         }
         this.playContext.clearRect(0, 0, this.width, this.height);
-        this.snapshotCanvas.style.visibility = '';
+        this.snapshotCanvas.style.visibility = 'hidden';
         if (this.isStreaming) { this.video.play(); }
         this.isAnimatorPlaying.next(false);
         if (cb) { cb(); }

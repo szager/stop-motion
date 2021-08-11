@@ -13,8 +13,6 @@ export class PlayerCanvasComponent extends BaseComponent implements OnInit {
 
   @ViewChild('playerCanvas' , {static: true}) public playerCanvas: ElementRef;
 
-  public isPlaying = false;
-
   constructor(
     public baseService: BaseService,
     private animatorService: AnimatorService
@@ -24,7 +22,6 @@ export class PlayerCanvasComponent extends BaseComponent implements OnInit {
 
   ngOnInit() {
     this.animatorService.animator.getIsPlaying().pipe(takeUntil(this.unsubscribe$)).subscribe((isPlaying: boolean) => {
-      console.log('🚀 ~ file: player-canvas.component.ts ~ line 27 ~ PlayerCanvasComponent ~ isPlaying', isPlaying);
       this.isPlaying = isPlaying;
     });
   }

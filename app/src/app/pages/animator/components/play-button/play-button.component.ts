@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { AnimatorService } from '@services/animator/animator.service';
 
 @Component({
@@ -6,17 +6,15 @@ import { AnimatorService } from '@services/animator/animator.service';
   templateUrl: './play-button.component.html',
   styleUrls: ['./play-button.component.scss'],
 })
-export class PlayButtonComponent implements OnInit {
+export class PlayButtonComponent {
 
   constructor(
     private animatorService: AnimatorService
-  ) { }
+  ) {}
 
-  ngOnInit() {}
 
   async onClick() {
-    const result = await this.animatorService.togglePlay();
+      await this.animatorService.togglePlay();
   }
-
 
 }
