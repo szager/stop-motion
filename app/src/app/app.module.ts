@@ -1,13 +1,13 @@
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BrowserModule } from '@angular/platform-browser';
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
-import { NgModule } from '@angular/core';
-import { RouteReuseStrategy } from '@angular/router';
+import { APP_INITIALIZER, ErrorHandler, NgModule } from '@angular/core';
+import { Router, RouteReuseStrategy } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-
+import * as Sentry from '@sentry/angular';
 // Modules and Components
 import { environment } from '@environment/environment';
 import { AppRoutingModule } from './app-routing.module';
@@ -36,7 +36,12 @@ export const translationLoaderFactory = (http: HttpClient) => new TranslateHttpL
       // or after 30 seconds (whichever comes first).
       registrationStrategy: 'registerWhenStable:30000'
     })],
-  providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
+  providers: [
+    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+    { provide: ErrorHandler, useValue: Sentry.createErrorHandler({ showDialog: false })},
+    { provide: Sentry.TraceService, deps: [Router] },
+    { provide: APP_INITIALIZER, useFactory: () => () => {}, deps: [Sentry.TraceService], multi: true },
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule { }
