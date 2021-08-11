@@ -93,10 +93,8 @@ export class AnimatorService {
       this.animator.endPlay(null);
       this.animator.isRecording = false;
     } else if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      const stream = await navigator.mediaDevices.getUserMedia({audio: true, video: false});
-      console.log('🚀 ~ file: animator.service.ts ~ line 89 ~ AnimatorService ~ recordAudio ~ stream', stream);
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
       const result = await this.animator.recordAudio(stream);
-      console.log('🚀 ~ file: animator.service.ts ~ line 90 ~ AnimatorService ~ recordAudio ~ result', result);
       this.animator.isRecording = true;
     } else {
       this.animator.isRecording = false;
@@ -118,6 +116,14 @@ export class AnimatorService {
     }
 
     await this.animator.save(filename);
+  }
+
+  public formatTime(seconds: number) {
+    return new Date(Math.round(seconds) * 1000).toISOString().substr(14, 5);
+  }
+
+  public delayTimer(milliSeconds: number): Promise<any> {
+    return new Promise(res => setTimeout(res, milliSeconds));
   }
 
   private async startCamera(): Promise<void> {

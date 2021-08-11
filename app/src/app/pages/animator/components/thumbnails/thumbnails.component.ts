@@ -14,7 +14,7 @@ export class ThumbnailsComponent extends BaseComponent implements OnDestroy, OnI
   @ViewChild('thumbnailsContainer', { static: true }) public thumbnailsContainer: IonSlides;
   public slideOpts = {
     initialSlide: 1,
-    speed: 400,
+    speed: 100,
     slidesPerView: 6,
     spaceBetween: 0,
     pagination: {
@@ -38,14 +38,20 @@ export class ThumbnailsComponent extends BaseComponent implements OnDestroy, OnI
 
     this.animatorService.animator.getIsPlaying().subscribe((isPlaying: boolean) => {
       if (isPlaying) {
+        // reset slider if already moved
+        this.thumbnailsContainer.slideTo(0);
         // first grab seconds based on number of frames and the selected playbackspeed
-        const seconds = (this.animatorService.animator.frames.length / this.animatorService.animator.playbackSpeed).toFixed(2);
+        const seconds = Number((this.animatorService.animator.frames.length / this.animatorService.animator.playbackSpeed).toFixed(2));
+        const frames = this.animatorService.animator.frames.length;
+        // multiply the number of seconds by hundred to get interval and divide by number of frames
+        const milliSeconds = (seconds * 1000) /  frames;
         // internval has to be run outside of the angular zone
         this.zone.runOutsideAngular(() => {
           this.interval = setInterval(() => {
+          console.log('🚀 ~ file: thumbnails.component.ts ~ line 47  ~ this.interval=setInterval ~ this.interval');
             this.thumbnailsContainer.slideNext();
-          // multiply the number of seconds by hundred to get interval
-          }, Number(seconds) * 100);
+          // multiply interval delay by 40 % to slow slider down
+          }, milliSeconds * 1.4);
 
         });
       } else {
