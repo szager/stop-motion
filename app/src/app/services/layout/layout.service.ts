@@ -23,7 +23,12 @@ export class LayoutService {
     });
 
     this.platform.resize.subscribe(() => {
-      console.log('LayoutService');
+      console.log('LayoutService', {
+        isLandscape: this.platform.isLandscape(),
+        isPortrait: this.platform.isPortrait(),
+        height: this.platform.height(),
+        width: this.platform.width()
+      });
       this.layoutOptions.next({
         isLandscape: this.platform.isLandscape(),
         isPortrait: this.platform.isPortrait(),

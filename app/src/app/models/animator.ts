@@ -1,4 +1,6 @@
 import { Injectable } from '@angular/core';
+import { LayoutOptions } from '@interfaces/layout-options.interface';
+import { ScreenDimension } from '@interfaces/screen-dimensions.interface';
 import { Platform } from '@ionic/angular';
 import { BaseService } from '@services/base/base.service';
 import { BehaviorSubject, Observable } from 'rxjs';
@@ -52,7 +54,7 @@ export class Animator {
     /*
     * Init method is used to initialize properties
     */
-    public init(video, snapshotCanvas, playCanvas, messageDiv): void {
+    public init(video, snapshotCanvas, playCanvas, messageDiv, layoutOptions): void {
         this.audio = null;
         this.audioBlob = null;
         this.audioChunks = [];
@@ -75,18 +77,20 @@ export class Animator {
         this.videoStream = null;
         this.zeroPlayTime = 0;
 
-        this.setDimensions(snapshotCanvas.width, snapshotCanvas.height);
+        this.setDimensions(layoutOptions);
     }
 
     /*
     * Method is used to attach a media stream to the video component
     */
-    public async attachStream(sourceId): Promise<any> {
+    public async attachStream(sourceId: any, layoutOptions: LayoutOptions): Promise<any> {
+        const screenDimensions = this.calculateDimensions(layoutOptions);
+        console.log('🚀 ~ file: animator.ts ~ line 88 ~ Animator ~ attachStream ~ screenDimensions', screenDimensions);
         const constraints = {
             audio: false,
             frameRate: 15,
-            width: 640,
-            height: 480,
+            width: screenDimensions.width,
+            height: screenDimensions.height,
             video: null
         };
         this.videoSourceId = sourceId;
@@ -178,7 +182,7 @@ export class Animator {
         this.name = null;
     }
 
-    public async toggleCamera() {
+    public async toggleCamera(layoutOptions: LayoutOptions) {
         if (this.video.paused) {
             if (this.video.srcObject && this.video.srcObject.active) {
                 this.isStreaming = true;
@@ -189,7 +193,7 @@ export class Animator {
                     return false;
                 }
             } else {
-                await this.attachStream(this.videoSourceId);
+                await this.attachStream(this.videoSourceId, layoutOptions);
                 return true;
             }
         } else {
@@ -351,7 +355,7 @@ export class Animator {
         }
     }
 
-    async save(filename) {
+    public async save(filename) {
         filename = filename || 'StopMotion';
         if (!filename.endsWith('.webm')) { filename += '.webm'; }
         const title = filename.substr(0, filename.length - 5);
@@ -443,15 +447,27 @@ export class Animator {
         }));
     }
 
+    public calculateDimensions(layoutOptions: LayoutOptions): ScreenDimension {
+        const screenSize = layoutOptions.isLandscape ? layoutOptions.width : layoutOptions.height;
+        return {
+            width: (screenSize > 1200) ? 800 : 640,
+            height: (screenSize > 1200) ? 600 : 480,
+        };
+    }
+
     /*
     * setDimensions method is used to set dimension width and height of components
     */
-    private setDimensions(width: number, heigth: number): void {
-        this.width = width;
-        this.height = heigth;
-        this.video.width = width;
-        this.video.height = heigth;
+    private setDimensions(layoutOptions: LayoutOptions): void {
+        // console.log('🚀 ~ file: animator.ts ~ line 462 ~ Animator ~ setDimensions ~ setDimensions', width, height);
+        const screenDimensions = this.calculateDimensions(layoutOptions);
+        this.width = screenDimensions.width;
+        this.height = screenDimensions.height;
+        this.video.width = this.width;
+        this.video.height =this.height;
         this.snapshotCanvas.width = this.width;
         this.snapshotCanvas.height = this.height;
+        this.playCanvas.width =  this.width;
+        this.playCanvas.height = this.height;
     }
 }

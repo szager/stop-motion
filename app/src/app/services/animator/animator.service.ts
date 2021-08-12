@@ -2,7 +2,8 @@ import { ElementRef, Injectable } from '@angular/core';
 import { Animator } from '@models/animator';
 import { BaseService } from '@services/base/base.service';
 import { BehaviorSubject } from 'rxjs';
-import { CameraStatus } from 'src/app/enums/camera-status';
+import { first } from 'rxjs/operators';
+import { CameraStatus } from 'src/app/enums/camera-status.enum';
 
 @Injectable({
   providedIn: 'root'
@@ -38,7 +39,8 @@ export class AnimatorService {
   }
 
   public async init(video: ElementRef, snapshotCanvas: ElementRef, playerCanvas: ElementRef, videoMessage: ElementRef) {
-    this.animator.init(video, snapshotCanvas, playerCanvas, videoMessage);
+    const layoutOptions = await this.baseService.layoutService.getLayoutOptions().pipe(first()).toPromise();
+    this.animator.init(video, snapshotCanvas, playerCanvas, videoMessage, layoutOptions);
     await this.startCamera();
   }
 
@@ -72,7 +74,8 @@ export class AnimatorService {
 
   public async toggleCamera() {
     // TODO maybe add another state to isStreaming, like isPlaying
-    this.cameraStatus.next(await this.animator.toggleCamera() ? CameraStatus.isStreaming : CameraStatus.hasPaused);
+    const layoutOptions = await this.baseService.layoutService.getLayoutOptions().pipe(first()).toPromise();
+    this.cameraStatus.next(await this.animator.toggleCamera(layoutOptions) ? CameraStatus.isStreaming : CameraStatus.hasPaused);
   }
 
   public async togglePlay() {
@@ -141,7 +144,9 @@ export class AnimatorService {
       const devices = await navigator.mediaDevices.enumerateDevices();
       const cameras = devices.filter(d => d.kind === 'videoinput').map(d => d.deviceId);
       try {
-        await this.animator.attachStream(cameras[0]);
+        const layoutOptions = await this.baseService.layoutService.getLayoutOptions().pipe(first()).toPromise();
+        console.log('🚀 ~ file: animator.service.ts ~ line 146 ~ AnimatorService ~ startCamera ~ layoutOptions', layoutOptions);
+        await this.animator.attachStream(cameras[0], layoutOptions);
         this.cameraStatus.next(CameraStatus.isStreaming);
       } catch (err) {
         this.baseService.toastService.presentToast({

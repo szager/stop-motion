@@ -1,11 +1,12 @@
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { BaseComponent } from '@components/base/base.component';
+import { LayoutOptions } from '@interfaces/layout-options.interface';
 import { AnimatorService } from '@services/animator/animator.service';
 import { BaseService } from '@services/base/base.service';
 import { combineLatest } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { CameraStatus } from 'src/app/enums/camera-status';
+import { CameraStatus } from 'src/app/enums/camera-status.enum';
 
 @Component({
   selector: 'app-video',
@@ -27,15 +28,22 @@ export class VideoComponent extends BaseComponent {
 
   public cameraStatus = CameraStatus;
   public cameraRotation = 'default';
+  public height: number;
+  public width: number;
 
   constructor(
     public animatorServcie: AnimatorService,
     public baseServcie: BaseService
   ) {
     super(baseServcie);
-    this.state = combineLatest([this.animatorServcie.getCameraStatus(), this.animatorServcie.getCameraIsRotated()])
-    .pipe(tap(([camerStatus, cameraIsRotated]: [CameraStatus, boolean]) => {
+    this.state = combineLatest([this.animatorServcie.getCameraStatus(), this.animatorServcie.getCameraIsRotated()
+      , this.baseServcie.layoutService.getLayoutOptions()])
+    .pipe(tap(([camerStatus, cameraIsRotated, layoutOptions]: [CameraStatus, boolean, LayoutOptions]) => {
       this.cameraRotation = (cameraIsRotated) ? 'rotated' : 'default';
+      const screenDimensions = this.animatorServcie.animator.calculateDimensions(layoutOptions);
+      console.log('🚀 ~ file: video.component.ts ~ line 44 ~ VideoComponent ~ .pipe ~ screenDimensions', screenDimensions);
+      this.height = screenDimensions.height;
+      this.width = screenDimensions.width;
       return camerStatus;
     }));
   }
