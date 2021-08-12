@@ -200,7 +200,7 @@ export class Animator {
         }
     }
 
-    public rotateCapture() {
+    public rotateCamera() {
         this.rotated = !this.rotated;
     }
 

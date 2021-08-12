@@ -60,8 +60,8 @@ export class AnimatorService {
     }
   }
 
-  public rotateCapture() {
-    this.animator.rotateCapture();
+  public rotateCamera() {
+    this.animator.rotateCamera();
     this.cameraIsRotated.next(!this.cameraIsRotated.getValue());
   }
 

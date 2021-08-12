@@ -15,7 +15,7 @@ export class RotateButtonComponent implements OnInit {
   ngOnInit() {}
 
   public onClick() {
-    this.animatorService.rotateCapture();
+    this.animatorService.rotateCamera();
   }
 
 }
