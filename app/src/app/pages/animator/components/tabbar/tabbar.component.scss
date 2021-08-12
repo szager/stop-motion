@@ -4,6 +4,6 @@ ion-tab-bar {
     justify-content: space-evenly;
 }
 
-app-tabbar {
+app-tabbar > * {
     touch-action   : manipulation;
 }
