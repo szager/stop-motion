@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { Platform } from '@ionic/angular';
 import { BaseService } from '@services/base/base.service';
 import { BehaviorSubject, Observable } from 'rxjs';
 
@@ -38,7 +39,8 @@ export class Animator {
 
     constructor(
         // TODO if possibole get rid of injectable again
-        public baseService: BaseService
+        public baseService: BaseService,
+        private platform: Platform
     ) {
         this.isAnimatorPlaying = new BehaviorSubject(false);
     }
@@ -415,6 +417,7 @@ export class Animator {
     }
 
     public async recordAudio(stream) {
+        const mimeType = this.platform.is('ios') ? 'audio/mp4' : 'audio/webm;codecs=opus';
         return new Promise(((resolve, reject) => {
             if (!this.frames.length) {
                 resolve(null);
@@ -425,13 +428,13 @@ export class Animator {
                 resolve(null);
                 return;
             }
-            this.audioRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm;codecs=opus' });
+            this.audioRecorder = new MediaRecorder(stream, { mimeType });
             this.audioRecorder.ondataavailable = (evt => {
                 this.audioChunks.push(evt.data);
             }).bind(this);
             this.audioRecorder.onstop = (evt => {
                 this.audioRecorder = null;
-                this.setAudioSrc(new Blob(this.audioChunks, { type: 'audio/webm;codecs=opus' }));
+                this.setAudioSrc(new Blob(this.audioChunks, { type: mimeType }));
                 this.audioChunks = [];
                 resolve(this.audioBlob);
             }).bind(this);
