@@ -134,9 +134,9 @@ export class Animator {
         this.frames.push(imageCanvas);
 
         this.snapshotCanvas.style.visibility = 'visible';
-        setTimeout (() => {
+        setTimeout(() => {
             this.snapshotCanvas.style.visibility = 'hidden';
-         }, 600);
+        }, 600);
 
         const promise = new Promise(((resolve, reject) => {
             this.snapshotContext.clearRect(0, 0, this.width, this.height);
@@ -307,42 +307,6 @@ export class Animator {
         }
     }
 
-    addFrameVP8(frameOffset, blob, idx) {
-        let blobURL = URL.createObjectURL(blob);
-        const image = new Image(this.width, this.height);
-        this.framesInFlight++;
-        image.addEventListener('error', (error => {
-            if (image.getAttribute('triedvp8l')) {
-                console.log(error);
-                this.framesInFlight--;
-                URL.revokeObjectURL(blobURL);
-                image.src = null;
-                if (this.framesInFlight === 0) { this.loadFinished(); }
-            } else {
-                // image.setAttribute('triedvp8l', true);
-                image.setAttribute('triedvp8l', 'true');
-                URL.revokeObjectURL(blobURL);
-                blob = webm.vp8tovp8l(blob);
-                blobURL = URL.createObjectURL(blob);
-                image.src = blobURL;
-            }
-        }).bind(this));
-        image.addEventListener('load', (evt => {
-            const newCanvas = document.createElement('canvas');
-            newCanvas.width = this.width;
-            newCanvas.height = this.height;
-            newCanvas.getContext('2d', { alpha: false }).drawImage(evt.target, 0, 0, this.width, this.height);
-            this.frames[frameOffset + idx] = newCanvas;
-            this.frameWebps[frameOffset + idx] = new Promise((resolve, reject) => {
-                resolve(blob);
-            });
-            this.framesInFlight--;
-            URL.revokeObjectURL(blobURL);
-            if (this.framesInFlight === 0) { this.loadFinished(); }
-        }).bind(this));
-        image.src = blobURL;
-    }
-
     setAudioSrc(blob) {
         this.audioBlob = blob;
         if (this.audio) {
@@ -400,22 +364,71 @@ export class Animator {
         return promise;
     }
 
+    addFrameVP8(frameOffset, blob, idx) {
+        let blobURL = URL.createObjectURL(blob);
+        const image = new Image(this.width, this.height);
+        this.framesInFlight++;
+
+        image.addEventListener('error', (error) => {
+            console.log('🚀 ~ file: animator.ts ~ line 316 ~ Animator ~ image.addEventListener ~ addEventListener', error);
+            if (image.getAttribute('triedvp8l')) {
+                console.log(error);
+                this.framesInFlight--;
+                URL.revokeObjectURL(blobURL);
+                image.src = null;
+                if (this.framesInFlight === 0) { this.loadFinished(); }
+            } else {
+                // image.setAttribute('triedvp8l', true);
+                image.setAttribute('triedvp8l', 'true');
+                URL.revokeObjectURL(blobURL);
+                blob = webm.vp8tovp8l(blob);
+                blobURL = URL.createObjectURL(blob);
+                image.src = blobURL;
+            }
+        });
+        // .bind(this));
+
+        image.addEventListener('load', (evt: any) => {
+            console.log('🚀 ~ file: animator.ts ~ line 335 ~ Animator ~ image.addEventListener ~ evt', evt);
+            const newCanvas = document.createElement('canvas');
+            newCanvas.width = this.width;
+            newCanvas.height = this.height;
+            newCanvas.getContext('2d', { alpha: false }).drawImage(evt.target, 0, 0, this.width, this.height);
+            this.frames[frameOffset + idx] = newCanvas;
+            this.frameWebps[frameOffset + idx] = new Promise((resolve, reject) => {
+                resolve(blob);
+            });
+            this.framesInFlight--;
+            URL.revokeObjectURL(blobURL);
+            if (this.framesInFlight === 0) { this.loadFinished(); }
+        });
+        // .bind(this));
+
+        image.src = blobURL;
+    }
+
     public async load(file: any): Promise<any> {
         const animator = this;
         const frameOffset = this.frames.length;
         const reader = new FileReader();
         reader.addEventListener('loadend', evt => {
-            webm.decode(evt.target.result,
-                animator.setDimensions.bind(animator),
-                // frameRateCB,
-                (frameRate) => {
-                console.log('🚀 ~ file: animator.ts ~ line 400 ~ Animator ~ load ~ frameRate', frameRate);
-                },
-                animator.addFrameVP8.bind(animator, frameOffset),
-                animator.setAudioSrc.bind(animator));
-            animator.name = file.name.substring(0, file.name.length - 5);
-            // if (finishCB) { finishCB(); }
-            return;
+            console.log('🚀 ~ file: animator.ts ~ line 408 ~ Animator ~ load ~ loadend', evt);
+            try {
+                webm.decode(evt.target.result,
+                    animator.setDimensions.bind(animator),
+                    // frameRateCB,
+                    (frameRate) => {
+                        console.log('🚀 ~ file: animator.ts ~ line 400 ~ Animator ~ load ~ frameRate', frameRate);
+                    },
+                    animator.addFrameVP8.bind(animator, frameOffset),
+                    animator.setAudioSrc.bind(animator));
+                animator.name = file.name.substring(0, file.name.length - 5);
+                // if (finishCB) { finishCB(); }
+                return;
+            } catch (err) {
+                console.log('🚀 ~ file: animator.ts ~ line 422 ~ Animator ~ load ~ err', err);
+                return;
+            }
         });
         reader.readAsArrayBuffer(file);
     }
@@ -464,10 +477,10 @@ export class Animator {
         this.width = screenDimensions.width;
         this.height = screenDimensions.height;
         this.video.width = this.width;
-        this.video.height =this.height;
+        this.video.height = this.height;
         this.snapshotCanvas.width = this.width;
         this.snapshotCanvas.height = this.height;
-        this.playCanvas.width =  this.width;
+        this.playCanvas.width = this.width;
         this.playCanvas.height = this.height;
     }
 }

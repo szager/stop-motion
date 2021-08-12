@@ -16,7 +16,7 @@ export class ThumbnailComponent implements OnInit {
 
   ngOnInit() {
     this.ctx = this.thumbnail.nativeElement.getContext('2d');
-    this.ctx.drawImage(this.frame, 0, 0, this.width, this.height)
+    this.ctx.drawImage(this.frame, 0, 0, this.width, this.height);
   }
 
 }

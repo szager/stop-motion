@@ -13,6 +13,7 @@ import { CameraStatus } from 'src/app/enums/camera-status.enum';
  */
 export class AnimatorService {
 
+  private cameras: BehaviorSubject<MediaDeviceInfo[]>;
   private cameraIsRotated: BehaviorSubject<boolean>;
   private cameraStatus: BehaviorSubject<CameraStatus>;
   private frames: BehaviorSubject<HTMLCanvasElement[]>;
@@ -21,9 +22,14 @@ export class AnimatorService {
     public animator: Animator,
     public baseService: BaseService
   ) {
+    this.cameras = new BehaviorSubject([]);
     this.cameraIsRotated = new BehaviorSubject(false);
     this.cameraStatus = new BehaviorSubject(CameraStatus.notStarted);
     this.frames = new BehaviorSubject([]);
+  }
+
+  getCameras() {
+    return this.cameras.asObservable();
   }
 
   getCameraStatus() {
@@ -138,15 +144,28 @@ export class AnimatorService {
     return new Promise(res => setTimeout(res, milliSeconds));
   }
 
+  public async switchCamera(): Promise<void> {
+    this.animator.detachStream();
+    const layoutOptions = await this.baseService.layoutService.getLayoutOptions().pipe(first()).toPromise();
+    const cameras = await this.cameras.pipe(first()).toPromise();
+    console.log('🚀 ~ file: animator.service.ts ~ line 151 ~ AnimatorService ~ switchCamera ~ cameras', cameras);
+    await this.animator.attachStream(cameras[1].deviceId, layoutOptions);
+    this.cameraStatus.next(CameraStatus.isStreaming);
+  }
+
   private async startCamera(): Promise<void> {
     // Everything is set up, now connect to camera.
     if (window.navigator && navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
       const devices = await navigator.mediaDevices.enumerateDevices();
-      const cameras = devices.filter(d => d.kind === 'videoinput').map(d => d.deviceId);
+      console.log('🚀 ~ file: animator.service.ts ~ line 147 ~ AnimatorService ~ startCamera ~ devices', devices);
+      // const cameras = devices.filter(d => d.kind === 'videoinput').map(d => d.deviceId);
+      const cameras = devices.filter(d => d.kind === 'videoinput');
+      this.cameras.next(cameras);
+      console.log('🚀 ~ file: animator.service.ts ~ line 146 ~ AnimatorService ~ startCamera ~ cameras', cameras);
       try {
         const layoutOptions = await this.baseService.layoutService.getLayoutOptions().pipe(first()).toPromise();
         console.log('🚀 ~ file: animator.service.ts ~ line 146 ~ AnimatorService ~ startCamera ~ layoutOptions', layoutOptions);
-        await this.animator.attachStream(cameras[0], layoutOptions);
+        await this.animator.attachStream(cameras[0].deviceId, layoutOptions);
         this.cameraStatus.next(CameraStatus.isStreaming);
       } catch (err) {
         this.baseService.toastService.presentToast({

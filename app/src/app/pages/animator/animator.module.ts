@@ -3,6 +3,7 @@ import { RouterModule } from '@angular/router';
 import { ComponentsModule } from '@components/components.module';
 import { AnimatorPage } from './animator.page';
 // Components
+import { CameraSelectButtonComponent } from './components/camera-select-button/camera-select-button.component';
 import { CaptureButtonComponent } from './components/capture-button/capture-button.component';
 import { ClearButtonComponent } from './components/clear-button/clear-button.component';
 import { LoadButtonComponent } from './components/load-button/load-button.component';
@@ -25,6 +26,7 @@ import { VideoComponent } from './components/video/video.component';
 import { VideoMessageComponent } from './components/video-message/video-message.component';
 
 const COMPONENTS = [
+  CameraSelectButtonComponent,
   CaptureButtonComponent,
   ClearButtonComponent,
   LoadButtonComponent,
