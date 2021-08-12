@@ -5,6 +5,7 @@ import { Enviroment } from '@interfaces/environment.interface';
 import { LoadingController } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { AlertService } from '@services/alert/alert.service';
+import { LayoutService } from '@services/layout/layout.service';
 import { ToastService } from '@services/toast/toast.service';
 
 @Injectable({
@@ -23,6 +24,7 @@ export class BaseService {
 
     constructor(
         public alertService: AlertService,
+        public layoutService: LayoutService,
         public loadingController: LoadingController,
         public router: Router,
         public toastService: ToastService,
