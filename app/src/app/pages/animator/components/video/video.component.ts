@@ -6,7 +6,7 @@ import { AnimatorService } from '@services/animator/animator.service';
 import { BaseService } from '@services/base/base.service';
 import { combineLatest } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { CameraStatus } from 'src/app/enums/camera-status.enum';
+import { CameraStatus } from '@enums/camera-status.enum';
 
 @Component({
   selector: 'app-video',

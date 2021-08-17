@@ -16,6 +16,7 @@
     "paths": {
       "@components/*": ["src/app/components/*"],
       "@environment/*": [ "src/environments/*" ],
+      "@enums/*": [ "src/app/enums/*" ],
       "@interfaces/*": ["src/app/interfaces/*"],
       "@models/*": ["src/app/models/*"],
       "@pages/*": ["src/app/pages/*"],

@@ -3,7 +3,8 @@ import { Animator } from '@models/animator';
 import { BaseService } from '@services/base/base.service';
 import { BehaviorSubject } from 'rxjs';
 import { first } from 'rxjs/operators';
-import { CameraStatus } from 'src/app/enums/camera-status.enum';
+import { CameraStatus } from '@enums/camera-status.enum';
+import { ScreenOrientation } from '@enums/screen-orientation.enum';
 
 @Injectable({
   providedIn: 'root'
@@ -90,6 +91,13 @@ export class AnimatorService {
     await this.animator.togglePlay();
     this.cameraStatus.next(CameraStatus.isStreaming);
     return;
+  }
+
+  public async toggleOrientation() {
+    this.destroy();
+    await this.startCamera();
+    const layoutOptions = await this.baseService.layoutService.getLayoutOptions().pipe(first()).toPromise();
+    this.animator.setDimensions(layoutOptions);
   }
 
   public destroy(): void {

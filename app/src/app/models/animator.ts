@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { ScreenOrientation } from '@enums/screen-orientation.enum';
 import { LayoutOptions } from '@interfaces/layout-options.interface';
 import { ScreenDimension } from '@interfaces/screen-dimensions.interface';
 import { Platform } from '@ionic/angular';
@@ -461,17 +462,20 @@ export class Animator {
     }
 
     public calculateDimensions(layoutOptions: LayoutOptions): ScreenDimension {
-        const screenSize = layoutOptions.isLandscape ? layoutOptions.width : layoutOptions.height;
+        const screenSize = layoutOptions.currentOrientation === ScreenOrientation.portrait ? layoutOptions.height : layoutOptions.width;
+        console.log('🚀 ~ file: animator.ts ~ line 466 ~ Animator ~ calculateDimensions ~ screenSize', screenSize);
         return {
-            width: (screenSize > 1200) ? 800 : 640,
-            height: (screenSize > 1200) ? 600 : 480,
+            // width: (screenSize > 1200) ? 800 : 640,
+            // height: (screenSize > 1200) ? 600 : 480,
+            width: (layoutOptions.currentOrientation === ScreenOrientation.portrait) ? 480 : 640,
+            height: (layoutOptions.currentOrientation === ScreenOrientation.portrait) ? 640 : 480
         };
     }
 
     /*
     * setDimensions method is used to set dimension width and height of components
     */
-    private setDimensions(layoutOptions: LayoutOptions): void {
+    public setDimensions(layoutOptions: LayoutOptions): void {
         // console.log('🚀 ~ file: animator.ts ~ line 462 ~ Animator ~ setDimensions ~ setDimensions', width, height);
         const screenDimensions = this.calculateDimensions(layoutOptions);
         this.width = screenDimensions.width;
