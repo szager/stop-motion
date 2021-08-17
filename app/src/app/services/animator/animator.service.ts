@@ -13,6 +13,7 @@ import { CameraStatus } from 'src/app/enums/camera-status.enum';
  */
 export class AnimatorService {
 
+  private currentCameraIndex: number;
   private cameras: BehaviorSubject<MediaDeviceInfo[]>;
   private cameraIsRotated: BehaviorSubject<boolean>;
   private cameraStatus: BehaviorSubject<CameraStatus>;
@@ -23,6 +24,7 @@ export class AnimatorService {
     public baseService: BaseService
   ) {
     this.cameras = new BehaviorSubject([]);
+    this.currentCameraIndex = null;
     this.cameraIsRotated = new BehaviorSubject(false);
     this.cameraStatus = new BehaviorSubject(CameraStatus.notStarted);
     this.frames = new BehaviorSubject([]);
@@ -51,9 +53,7 @@ export class AnimatorService {
   }
 
   public async capture() {
-    // console.log('🚀 ~ file: animator.service.ts ~ line 40 ~ AnimatorService ~ capture ~ capture');
     const frames = await this.animator.capture();
-    // console.log('🚀 ~ file: animator.service.ts ~ line 41 ~ AnimatorService ~ capture ~ frame', frames);
     this.frames.next(frames);
     return;
   }
@@ -146,10 +146,12 @@ export class AnimatorService {
 
   public async switchCamera(): Promise<void> {
     this.animator.detachStream();
+    this.cameraStatus.next(CameraStatus.hasPaused);
     const layoutOptions = await this.baseService.layoutService.getLayoutOptions().pipe(first()).toPromise();
     const cameras = await this.cameras.pipe(first()).toPromise();
-    console.log('🚀 ~ file: animator.service.ts ~ line 151 ~ AnimatorService ~ switchCamera ~ cameras', cameras);
-    await this.animator.attachStream(cameras[1].deviceId, layoutOptions);
+    const index = (this.currentCameraIndex === 0) ? 1 : 0;
+    await this.animator.attachStream(cameras[index].deviceId, layoutOptions);
+    this.currentCameraIndex = index;
     this.cameraStatus.next(CameraStatus.isStreaming);
   }
 
@@ -157,15 +159,12 @@ export class AnimatorService {
     // Everything is set up, now connect to camera.
     if (window.navigator && navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
       const devices = await navigator.mediaDevices.enumerateDevices();
-      console.log('🚀 ~ file: animator.service.ts ~ line 147 ~ AnimatorService ~ startCamera ~ devices', devices);
-      // const cameras = devices.filter(d => d.kind === 'videoinput').map(d => d.deviceId);
       const cameras = devices.filter(d => d.kind === 'videoinput');
       this.cameras.next(cameras);
-      console.log('🚀 ~ file: animator.service.ts ~ line 146 ~ AnimatorService ~ startCamera ~ cameras', cameras);
       try {
         const layoutOptions = await this.baseService.layoutService.getLayoutOptions().pipe(first()).toPromise();
-        console.log('🚀 ~ file: animator.service.ts ~ line 146 ~ AnimatorService ~ startCamera ~ layoutOptions', layoutOptions);
         await this.animator.attachStream(cameras[0].deviceId, layoutOptions);
+        this.currentCameraIndex = 0;
         this.cameraStatus.next(CameraStatus.isStreaming);
       } catch (err) {
         this.baseService.toastService.presentToast({
@@ -174,25 +173,5 @@ export class AnimatorService {
         this.cameraStatus.next(CameraStatus.noPermission);
       }
     }
-
-    // const videoColumnDiv = document.getElementById('video-column');
-    // const selectDiv = document.createElement('div');
-    // videoColumnDiv.appendChild(selectDiv);
-    // const cameraSelect = document.createElement('select');
-    // cameraSelect.id = 'camera-select';
-    // selectDiv.appendChild(cameraSelect);
-    // for (let i = 0; i < cameras.length; i++) {
-    //   const cameraOption = document.createElement('option');
-    //   cameraOption.value = cameras[i];
-    //   cameraOption.innerText = 'Camera ' + (i + 1);
-    //   cameraSelect.appendChild(cameraOption);
-    //   if (i === 0) {
-    //     cameraOption.selected = true;
-    //   }
-    // }
-    // cameraSelect.onchange = (e: any) => {
-    //   this.animator.detachStream();
-    //   this.animator.attachStream(e.target.value);
-    // };
   }
 }

@@ -24,7 +24,6 @@ export class RecordAudioButtonComponent extends BaseComponent implements OnInit 
     const frames = await this.animatorService.getFrames().pipe(first()).toPromise();
     if (frames.length) {
       const hasAudio = this.animatorService.animator.audio;
-      console.log('🚀 ~ file: record-audio-button.component.ts ~ line 24 ~ RecordAudioButtonComponent ~ onClick ~ hasAudio', hasAudio);
       if (hasAudio) {
         this.baseService.alertService.presentAlert({
           header: this.baseService.translate.instant('alert_record_audio_animator_header'),

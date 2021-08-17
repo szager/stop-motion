@@ -43,7 +43,6 @@ export class LoadButtonComponent extends BaseComponent implements OnInit {
 
   public async onFile(event: any) {
     await this.presentLoading();
-    console.log('onFile', event.target.files[0]);
     await this.animatorService.load(event.target.files[0]);
     this.dismissloading();
   }

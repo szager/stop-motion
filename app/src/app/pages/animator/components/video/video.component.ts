@@ -42,7 +42,6 @@ export class VideoComponent extends BaseComponent {
       this.cameraRotation = (cameraIsRotated) ? 'rotated' : 'default';
       // TODO could probably removed
       const screenDimensions = this.animatorServcie.animator.calculateDimensions(layoutOptions);
-      // console.log('🚀 ~ file: video.component.ts ~ line 44 ~ VideoComponent ~ .pipe ~ screenDimensions', screenDimensions);
       this.height = screenDimensions.height;
       this.width = screenDimensions.width;
       return camerStatus;
