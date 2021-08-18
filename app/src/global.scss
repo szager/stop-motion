@@ -76,13 +76,18 @@ ion-toolbar {
     height: auto !important;
     padding: 0 !important;
   }
+  ion-button {
+    padding-left: 7px !important;
+    ion-icon {
+      font-size: 26px !important;
+    }
+  }
 }
 
 ion-tab-bar {
-  ion-icon.md {
-    font-size: 28px !important;
+  ion-icon {
+    font-size: 26px !important;
   }
-
   ion-label {
     font-size: 11px;
     letter-spacing: 0;
@@ -102,4 +107,11 @@ ion-tab-bar {
   .swiper-scrollbar-drag {
       background: rgba(0,163,211,0.8);
   }
+}
+
+.toast-message {
+  color: rgb(255, 255, 255);
+  --color: #fff;
+  font-size: 14px;
+  line-height: 1.25;
 }
