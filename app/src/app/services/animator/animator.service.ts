@@ -110,9 +110,16 @@ export class AnimatorService {
       this.animator.endPlay(null);
       this.animator.isRecording = false;
     } else if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-      const result = await this.animator.recordAudio(stream);
-      this.animator.isRecording = true;
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+        const result = await this.animator.recordAudio(stream);
+        this.animator.isRecording = true;
+      } catch (err) {
+        this.baseService.toastService.presentToast({
+          message: this.baseService.translate.instant('toast_animator_camera_no_access')
+        });
+        this.animator.isRecording = false;
+      }
     } else {
       this.animator.isRecording = false;
     }
