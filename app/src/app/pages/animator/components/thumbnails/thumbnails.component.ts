@@ -16,7 +16,7 @@ export class ThumbnailsComponent extends BaseComponent implements OnDestroy, OnI
   public slideOpts = {
     initialSlide: 1,
     speed: 100,
-    slidesPerView: 6,
+    slidesPerView: 5,
     spaceBetween: 0,
     pagination: {
       type: 'progressbar'
