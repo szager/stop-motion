@@ -55,7 +55,7 @@ export class Animator {
     /*
     * Init method is used to initialize properties
     */
-    public init(video, snapshotCanvas, playCanvas, messageDiv, layoutOptions): void {
+    public init(video, snapshotCanvas, playCanvas, layoutOptions): void {
         this.audio = null;
         this.audioBlob = null;
         this.audioChunks = [];
@@ -65,7 +65,6 @@ export class Animator {
         this.frameWebps = [];
         this.isStreaming = true;
         this.loadFinishPending = false;
-        this.messageDiv = messageDiv;
         this.name = null;
         this.playbackSpeed = 12.0;
         this.playCanvas = playCanvas;

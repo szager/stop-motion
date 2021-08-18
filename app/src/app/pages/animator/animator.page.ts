@@ -1,11 +1,12 @@
 import { Component, ViewChild } from '@angular/core';
+import { CameraStatus } from '@enums/camera-status.enum';
 import { Platform } from '@ionic/angular';
 import { BasePage } from '@pages/base/base.page';
 import { AnimatorService } from '@services/animator/animator.service';
 import { BaseService } from '@services/base/base.service';
+import { Observable } from 'rxjs';
 import { PlayerCanvasComponent } from './components/player-canvas/player-canvas.component';
 import { SnapshotCanvasComponent } from './components/snapshot-canvas/snapshot-canvas.component';
-import { VideoMessageComponent } from './components/video-message/video-message.component';
 import { VideoComponent } from './components/video/video.component';
 
 @Component({
@@ -18,8 +19,7 @@ export class AnimatorPage extends BasePage {
   @ViewChild('appVideo') videoComponent: VideoComponent;
   @ViewChild('appPlayerCanvas') playerCanvasComponent: PlayerCanvasComponent;
   @ViewChild('appSnapshotCanvas') snapshotCanvasComponent: SnapshotCanvasComponent;
-  @ViewChild('appVideoMessage') videoMessageComponent: VideoMessageComponent;
-  public state;
+  public state: Observable<CameraStatus>;
 
   constructor(
     public animatorService: AnimatorService,
@@ -27,10 +27,6 @@ export class AnimatorPage extends BasePage {
     public platform: Platform
   ) {
     super(baseService);
-    this.options.title = 'pages_title_animator';
-    this.options.backButton = false;
-    this.options.rightButton = true;
-    this.options.rightHref = '/settings';
   }
 
   async ionViewWillEnter() {
@@ -38,8 +34,7 @@ export class AnimatorPage extends BasePage {
     const video = this.videoComponent.video.nativeElement;
     const snapshotCanvas = this.snapshotCanvasComponent.snapshotCanvas.nativeElement;
     const playerCanvas = this.playerCanvasComponent.playerCanvas.nativeElement;
-    const videoMessage = this.videoMessageComponent.videoMessage.nativeElement;
-    await this.animatorService.init(video, snapshotCanvas, playerCanvas, videoMessage);
+    await this.animatorService.init(video, snapshotCanvas, playerCanvas);
   }
 
   ionViewWillLeave() {

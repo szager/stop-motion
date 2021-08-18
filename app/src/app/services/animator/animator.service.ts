@@ -47,9 +47,9 @@ export class AnimatorService {
     return this.cameraIsRotated.asObservable();
   }
 
-  public async init(video: ElementRef, snapshotCanvas: ElementRef, playerCanvas: ElementRef, videoMessage: ElementRef) {
+  public async init(video: ElementRef, snapshotCanvas: ElementRef, playerCanvas: ElementRef) {
     const layoutOptions = await this.baseService.layoutService.getLayoutOptions().pipe(first()).toPromise();
-    this.animator.init(video, snapshotCanvas, playerCanvas, videoMessage, layoutOptions);
+    this.animator.init(video, snapshotCanvas, playerCanvas, layoutOptions);
     await this.startCamera();
   }
 

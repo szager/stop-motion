@@ -14,6 +14,7 @@ import { PlayerCanvasComponent } from './components/player-canvas/player-canvas.
 import { RecordAudioButtonComponent } from './components/record-audio-button/record-audio-button.component';
 import { RotateButtonComponent } from './components/rotate-button/rotate-button.component';
 import { SaveButtonComponent } from './components/save-button/save-button.component';
+import { SettingsButtonComponent } from './components/settings-button/settings-button.component';
 import { SnapshotCanvasComponent } from './components/snapshot-canvas/snapshot-canvas.component';
 import { TabbarComponent } from './components/tabbar/tabbar.component';
 import { ThumbnailComponent } from './components/thumbnail/thumbnail.component';
@@ -23,7 +24,6 @@ import { ToggleButtonComponent } from './components/toggle-button/toggle-button.
 import { ToolbarComponent } from './components/toolbar/toolbar.component';
 import { UndoButtonComponent } from './components/undo-button/undo-button.component';
 import { VideoComponent } from './components/video/video.component';
-import { VideoMessageComponent } from './components/video-message/video-message.component';
 
 const COMPONENTS = [
   CameraSelectButtonComponent,
@@ -37,6 +37,7 @@ const COMPONENTS = [
   RecordAudioButtonComponent,
   RotateButtonComponent,
   SaveButtonComponent,
+  SettingsButtonComponent,
   SnapshotCanvasComponent,
   TabbarComponent,
   TimerComponent,
@@ -46,7 +47,6 @@ const COMPONENTS = [
   ToolbarComponent,
   UndoButtonComponent,
   VideoComponent,
-  VideoMessageComponent
 ];
 
 @NgModule({

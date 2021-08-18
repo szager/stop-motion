@@ -1,19 +1,19 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { VideoMessageComponent } from './video-message.component';
+import { SettingsButtonComponent } from './settings-button.component';
 
-describe('VideoMessageComponent', () => {
-  let component: VideoMessageComponent;
-  let fixture: ComponentFixture<VideoMessageComponent>;
+describe('SettingsButtonComponent', () => {
+  let component: SettingsButtonComponent;
+  let fixture: ComponentFixture<SettingsButtonComponent>;
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ VideoMessageComponent ],
+      declarations: [ SettingsButtonComponent ],
       imports: [IonicModule.forRoot()]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(VideoMessageComponent);
+    fixture = TestBed.createComponent(SettingsButtonComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   }));
