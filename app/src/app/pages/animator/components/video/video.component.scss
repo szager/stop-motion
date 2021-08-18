@@ -15,3 +15,27 @@ video {
     font-size: 14px;
     padding: 3px 10px;
 }
+
+@media screen and (max-width: 600px) and (orientation: portrait) {
+    .camera-status {
+        width: 330px;
+    }
+}
+
+@media screen and (max-width: 600px) and (orientation: landscape) {
+    .camera-status {
+        width: 440px;
+    }
+}
+
+@media screen and (min-width: 601px) and (orientation: portrait) {
+    .camera-status {
+        width: 720px;
+    }
+}
+
+@media screen and (min-width: 601px) and (orientation: landscape) {
+    .camera-status {
+        width: 960px;
+    }
+}

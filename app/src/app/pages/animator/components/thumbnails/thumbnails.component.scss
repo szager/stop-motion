@@ -17,3 +17,15 @@ ion-slides {
     margin-top: 10px;
   }
 }
+
+@media screen and (max-width: 600px) {
+  ion-slides {
+      width: 330px;
+  }
+}
+
+@media screen and (min-width: 601px) {
+  ion-slides {
+      width: 720px;
+  }
+}
