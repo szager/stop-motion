@@ -7,7 +7,6 @@ video {
     display: block;
     position: absolute;
     z-index: 9;
-    width: 640px;
     background-color: rgba(0, 0, 0, 0.3);
     color: #fff;
     border-top-left-radius: 6px;
@@ -18,24 +17,24 @@ video {
 
 @media screen and (max-width: 600px) and (orientation: portrait) {
     .camera-status {
-        width: 330px;
+        width: 270px;
     }
 }
 
 @media screen and (max-width: 600px) and (orientation: landscape) {
     .camera-status {
-        width: 440px;
+        width: 360px;
     }
 }
 
 @media screen and (min-width: 601px) and (orientation: portrait) {
     .camera-status {
-        width: 720px;
+        width: 600px;
     }
 }
 
 @media screen and (min-width: 601px) and (orientation: landscape) {
     .camera-status {
-        width: 960px;
+        width: 800px;
     }
 }

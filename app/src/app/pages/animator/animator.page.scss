@@ -1,96 +1,78 @@
 .container {
-    height: 640px;
-    width: 480px;
-    margin: 0 auto;
-    display: block;
-    position: relative;
+  margin: 0 auto;
+  display: block;
+  position: relative;
 }
 
 .camera-state {
-    text-align: right;
-    margin-top: -22px;
-    margin-bottom: 20px;
-    span {
-        font-size: 16px;
-    }
+  text-align: right;
+  margin-top: -22px;
+  margin-bottom: 20px;
+
+  span {
+    font-size: 16px;
+  }
 }
 
 video {
-    position: absolute;
-    top     : 0;
-    left    : 0;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 #thumbnail-container {
-    display   : flex;
-    overflow-x: auto;
-    max-width : 640px;
+  display: flex;
+  overflow-x: auto;
 }
 
 #snapshot-canvas {
-    position: absolute;
-    top     : 0;
-    left    : 0;
-    z-index : 2;
-    opacity : 0.5;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  opacity: 0.5;
 }
 
-@media screen and (max-width: 600px)  and (orientation: portrait) {
-    .container {
-        height: 440px;
-        width: 330px;
-    }
-    #video-container>* {
-        height: 440px;
-        width: 330px;
-    }
-    #thumbnail-container {
-        max-width : 330px;
-    }
+@media screen and (max-width: 600px) and (orientation: portrait) {
+  .container {
+    height: 360px;
+    width: 270px;
   }
 
-  @media screen and (max-width: 600px) and (orientation: landscape) {
-    .container {
-        height: 330px;
-        width: 440px;
-    }
-    #video-container>* {
-        height: 330px;
-        width: 440px;
-    }
-    #thumbnail-container {
-        max-width : 440px;
-    }
+  #thumbnail-container {
+    max-width: 270px;
+  }
+}
+
+@media screen and (max-width: 600px) and (orientation: landscape) {
+  .container {
+    height: 270px;
+    width: 360px;
   }
 
+  #thumbnail-container {
+    max-width: 360px;
+  }
+}
 
-
-  
-  @media screen and (min-width: 601px) and (orientation: portrait) {
-    .container {
-        height: 960px;
-        width: 720px;
-    }
-    #video-container>* {
-        height: 960px;
-        width: 720px;
-    }
-    #thumbnail-container {
-        max-width : 720px;
-    }
+@media screen and (min-width: 601px) and (orientation: portrait) {
+  .container {
+    height: 800px;
+    width: 600px;
   }
 
-    
-  @media screen and (min-width: 601px) and (orientation: landscape) {
-    .container {
-        height: 720px;
-        width: 960px;
-    }
-    #video-container>* {
-        height: 720px;
-        width: 960px;
-    }
-    #thumbnail-container {
-        max-width : 960px;
-    }
+  #thumbnail-container {
+    max-width: 600px;
   }
+}
+
+@media screen and (min-width: 601px) and (orientation: landscape) {
+  .container {
+    height: 600px;
+    width: 800px;
+  }
+
+  #thumbnail-container {
+    max-width: 800px;
+  }
+}
