@@ -461,13 +461,15 @@ export class Animator {
     }
 
     public calculateDimensions(layoutOptions: LayoutOptions): ScreenDimension {
+        const screenOrientation = layoutOptions.height > layoutOptions.width ? 'portrait' : 'landscape';
         const screenSize = layoutOptions.currentOrientation === ScreenOrientation.portrait ? layoutOptions.height : layoutOptions.width;
+        console.log(screenOrientation);
+        const width = layoutOptions.width < 600 ? 330 : 720;
+        const height = layoutOptions.width < 600 ? 440 : 960;
         console.log('🚀 ~ file: animator.ts ~ line 466 ~ Animator ~ calculateDimensions ~ screenSize', screenSize);
         return {
-            // width: (screenSize > 1200) ? 800 : 640,
-            // height: (screenSize > 1200) ? 600 : 480,
-            width: (layoutOptions.currentOrientation === ScreenOrientation.portrait) ? 480 : 640,
-            height: (layoutOptions.currentOrientation === ScreenOrientation.portrait) ? 640 : 480
+             width: (screenOrientation === 'portrait') ? width : height,
+             height: (screenOrientation === 'portrait') ? height : width
         };
     }
 
