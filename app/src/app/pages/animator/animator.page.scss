@@ -5,9 +5,9 @@
 }
 
 .camera-state {
-  text-align: right;
-  margin-top: -22px;
-  margin-bottom: 20px;
+    text-align: right;
+    margin-top: -25px;
+    margin-bottom: 10px;
 
   span {
     font-size: 16px;
@@ -35,23 +35,23 @@ video {
 
 @media screen and (max-width: 600px) and (orientation: portrait) {
   .container {
-    height: 360px;
-    width: 270px;
+    height: 333px;
+    width: 250px;
   }
 
   #thumbnail-container {
-    max-width: 270px;
+    max-width: 250px;
   }
 }
 
 @media screen and (max-width: 600px) and (orientation: landscape) {
   .container {
-    height: 270px;
-    width: 360px;
+    height: 250px;
+    width: 333px;
   }
 
   #thumbnail-container {
-    max-width: 360px;
+    max-width: 333px;
   }
 }
 

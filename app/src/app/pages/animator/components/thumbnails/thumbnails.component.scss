@@ -1,9 +1,6 @@
 ion-slides {
-  height: 120px;
-  margin: 0 auto;
-  ion-slide {
-    width: auto !important;
-  }
+  height: auto;
+  margin: 6px auto 0 auto;      
 }
 
 .swiper-container-horizontal {
@@ -19,24 +16,36 @@ ion-slides {
 
 @media screen and (max-width: 600px) and (orientation: portrait)  {
   ion-slides {
-      width: 270px;
+      width: 250px;
+      ion-slide {
+        width: 50px !important;
+      }
   }
 }
 
 @media screen and (max-width: 600px) and (orientation: landscape)  {
   ion-slides {
-      width: 360px;
+      width: 333px;
+      ion-slide {
+        width: 67px !important;
+      }
   }
 }
 
 @media screen and (min-width: 601px) and (orientation: portrait) {
   ion-slides {
       width: 600px;
+      ion-slide {
+        width: 120px !important;
+      }
   }
 }
 
 @media screen and (min-width: 601px) and (orientation: landscape) {
   ion-slides {
       width: 800px;
+      ion-slide {
+        width: 160px !important;
+      }
   }
 }

@@ -17,13 +17,13 @@ video {
 
 @media screen and (max-width: 600px) and (orientation: portrait) {
     .camera-status {
-        width: 270px;
+        width: 250px;
     }
 }
 
 @media screen and (max-width: 600px) and (orientation: landscape) {
     .camera-status {
-        width: 360px;
+        width: 333px;
     }
 }
 
