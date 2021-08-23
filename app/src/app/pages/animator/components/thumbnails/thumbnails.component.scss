@@ -34,7 +34,7 @@ ion-slides {
 
 @media screen and (min-width: 601px) and (orientation: portrait) {
   ion-slides {
-      width: 600px;
+      width: 450px;
       ion-slide {
         width: 120px !important;
       }
@@ -43,7 +43,7 @@ ion-slides {
 
 @media screen and (min-width: 601px) and (orientation: landscape) {
   ion-slides {
-      width: 800px;
+      width: 600px;
       ion-slide {
         width: 160px !important;
       }
