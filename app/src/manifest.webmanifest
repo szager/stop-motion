@@ -1,11 +1,13 @@
 {
-  "name": "app",
-  "short_name": "app",
-  "theme_color": "#1976d2",
   "background_color": "#fafafa",
+  "description": "Stop Motion App",
   "display": "standalone",
+  "name": "Stop Motion",
+  "orientation": "portrait",
   "scope": "./",
+  "short_name": "Stop Motion",
   "start_url": "./",
+  "theme_color": "#1976d2",
   "icons": [
     {
       "src": "assets/icons/icon-72x72.png",

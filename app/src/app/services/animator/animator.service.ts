@@ -116,7 +116,7 @@ export class AnimatorService {
         this.animator.isRecording = true;
       } catch (err) {
         this.baseService.toastService.presentToast({
-          message: this.baseService.translate.instant('toast_animator_camera_no_access')
+          message: this.baseService.translate.instant('toast_animator_audio_no_access')
         });
         this.animator.isRecording = false;
       }
