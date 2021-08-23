@@ -15,8 +15,9 @@ export class LayoutService {
   constructor(
     private platform: Platform
   ) {
+
     this.layoutOptions = new BehaviorSubject({
-      currentOrientation: ScreenOrientation.portrait,
+      currentOrientation: this.platform.isPortrait() ? ScreenOrientation.portrait : ScreenOrientation.landscape,
       isLandscape: this.platform.isLandscape(),
       isPortrait: this.platform.isPortrait(),
       height: this.platform.height(),

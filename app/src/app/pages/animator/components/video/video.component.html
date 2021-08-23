@@ -1,4 +1,4 @@
-<video [@rotatedState]="cameraRotation" [hidden]="(state | async)[0] !== 'isStreaming'" #video id="video" width="width" height="height" autoplay></video>
+<video [@rotatedState]="cameraRotation" [hidden]="(state | async)[0] !== 'isStreaming'" #video id="video" width="width" height="height" autoplay playsinline></video>
 
 <!-- place holder when no permission or paused -->
 <ion-icon *ngIf="(state | async)[0] === cameraStatus.noPermission" name="warning-outline">Placeholder No Permssion</ion-icon>    

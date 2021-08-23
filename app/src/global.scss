@@ -115,3 +115,7 @@ ion-tab-bar {
   font-size: 14px;
   line-height: 1.25;
 }
+
+video::-webkit-media-controls {
+  opacity: 0;
+}

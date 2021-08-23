@@ -93,6 +93,7 @@ export class Animator {
             height: screenDimensions.height,
             video: null
         };
+
         this.videoSourceId = sourceId;
         if (sourceId) {
             constraints.video = {
@@ -435,6 +436,7 @@ export class Animator {
 
     public async recordAudio(stream) {
         const mimeType = this.platform.is('ios') ? 'audio/mp4' : 'audio/webm;codecs=opus';
+        // const mimeType = 'audio/webm;codecs=opus';
         return new Promise(((resolve, reject) => {
             if (!this.frames.length) {
                 resolve(null);
