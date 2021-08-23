@@ -480,6 +480,7 @@ export class Animator {
         const screenDimensions = this.calculateDimensions(layoutOptions);
         this.width = screenDimensions.width;
         this.height = screenDimensions.height;
+        console.log(this.width);
         this.video.width = this.width;
         this.video.height = this.height;
         this.snapshotCanvas.width = this.width;
