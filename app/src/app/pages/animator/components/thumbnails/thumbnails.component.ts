@@ -3,7 +3,7 @@ import { BaseComponent } from '@components/base/base.component';
 import { IonSlides } from '@ionic/angular';
 import { AnimatorService } from '@services/animator/animator.service';
 import { BaseService } from '@services/base/base.service';
-import { takeUntil } from 'rxjs/operators';
+import { first, takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-thumbnails',
@@ -37,12 +37,13 @@ export class ThumbnailsComponent extends BaseComponent implements OnDestroy, OnI
   ngOnInit() {
     this.list = this.animatorService.getFrames();
 
-    this.animatorService.animator.getIsPlaying().pipe(takeUntil(this.unsubscribe$)).subscribe((isPlaying: boolean) => {
+    this.animatorService.animator.getIsPlaying().pipe(takeUntil(this.unsubscribe$)).subscribe(async (isPlaying: boolean) => {
       if (isPlaying) {
         // reset slider if already moved
         this.thumbnailsContainer.slideTo(0);
         // first grab seconds based on number of frames and the selected playbackspeed
-        const seconds = Number((this.animatorService.animator.frames.length / this.animatorService.animator.playbackSpeed).toFixed(2));
+        const playbackSpeed = await this.animatorService.animator.getPlaybackSpeed().pipe(first()).toPromise();
+        const seconds = Number((this.animatorService.animator.frames.length / playbackSpeed).toFixed(2));
         const frames = this.animatorService.animator.frames.length;
         // multiply the number of seconds by hundred to get interval and divide by number of frames
         const milliSeconds = (seconds * 1000) /  frames;

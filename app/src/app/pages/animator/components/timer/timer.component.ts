@@ -1,8 +1,8 @@
-import { Component, NgZone, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { BaseComponent } from '@components/base/base.component';
 import { AnimatorService } from '@services/animator/animator.service';
 import { BaseService } from '@services/base/base.service';
-import { takeUntil } from 'rxjs/operators';
+import { first, takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-timer',
@@ -18,26 +18,39 @@ export class TimerComponent extends BaseComponent implements OnDestroy, OnInit {
 
   constructor(
     public baseService: BaseService,
-    private animatorService: AnimatorService,
-    private zone: NgZone
+    private animatorService: AnimatorService
   ) {
     super(baseService);
   }
 
   ngOnInit() {
-    this.animatorService.animator.getIsPlaying().pipe(takeUntil(this.unsubscribe$)).subscribe((isPlaying: boolean) => {
+    // subscribe to player is playing
+    this.animatorService.animator.getIsPlaying().pipe(takeUntil(this.unsubscribe$)).subscribe(async (isPlaying: boolean) => {
       if (isPlaying) {
-        const seconds = Number((this.animatorService.animator.frames.length / this.animatorService.animator.playbackSpeed).toFixed(2));
-        const frames = this.animatorService.animator.frames.length;
-        this.totalTime = this.animatorService.formatTime(seconds);
+        const playbackSpeed = await this.animatorService.animator.getPlaybackSpeed().pipe(first()).toPromise();
+        const seconds = Number((this.animatorService.animator.frames.length / playbackSpeed).toFixed(2));
         this.interval = this.setDelay(seconds);
       } else {
         this.clearInterval();
         this.currentSecond = 0;
         this.playTime = '00:00';
-        this.totalTime = '00:00';
       }
       this.isPlaying = isPlaying;
+    });
+    // subscribe to frames
+    this.animatorService.getFrames().pipe(takeUntil(this.unsubscribe$)).subscribe(async (frames: any[]) => {
+      if (frames.length) {
+        const playbackSpeed = await this.animatorService.animator.getPlaybackSpeed().pipe(first()).toPromise();
+        const seconds = Number((this.animatorService.animator.frames.length / playbackSpeed).toFixed(2));
+        this.totalTime = this.animatorService.formatTime(seconds);
+      }
+    });
+    // subscribe to playback speed
+    this.animatorService.animator.getPlaybackSpeed().pipe(takeUntil(this.unsubscribe$)).subscribe(async (playbackSpeed: number) => {
+      if (this.animatorService.animator.frames) {
+        const seconds = Number((this.animatorService.animator.frames.length / playbackSpeed).toFixed(2));
+        this.totalTime = this.animatorService.formatTime(seconds);
+      }
     });
   }
 

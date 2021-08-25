@@ -26,7 +26,7 @@ export class Animator {
     loadFinishPending: boolean;
     messageDiv: any;
     name: any;
-    playbackSpeed: number;
+    // playbackSpeed: number;
     playCanvas: any;
     playContext: any;
     playTimer: any;
@@ -39,6 +39,7 @@ export class Animator {
     zeroPlayTime: number;
 
     private isAnimatorPlaying: BehaviorSubject<boolean>;
+    private playbackSpeed: BehaviorSubject<number>;
 
     constructor(
         // TODO if possibole get rid of injectable again
@@ -46,10 +47,15 @@ export class Animator {
         private platform: Platform
     ) {
         this.isAnimatorPlaying = new BehaviorSubject(false);
+        this.playbackSpeed = new BehaviorSubject(12.0);
     }
 
     getIsPlaying(): Observable<any> {
         return this.isAnimatorPlaying.asObservable();
+    }
+
+    getPlaybackSpeed(): Observable<any> {
+        return this.playbackSpeed.asObservable();
     }
 
     /*
@@ -66,7 +72,7 @@ export class Animator {
         this.isStreaming = true;
         this.loadFinishPending = false;
         this.name = null;
-        this.playbackSpeed = 12.0;
+        // this.playbackSpeed = 12.0;
         this.playCanvas = playCanvas;
         this.playContext = playCanvas.getContext('2d');
         this.playTimer = null;
@@ -85,7 +91,6 @@ export class Animator {
     */
     public async attachStream(sourceId: any, layoutOptions: LayoutOptions): Promise<any> {
         const screenDimensions = this.calculateDimensions(layoutOptions);
-        console.log('🚀 ~ file: animator.ts ~ line 88 ~ Animator ~ attachStream ~ screenDimensions', screenDimensions);
         const constraints = {
             audio: false,
             frameRate: 15,
@@ -211,7 +216,8 @@ export class Animator {
 
     public setPlaybackSpeed(speed: number) {
         if (speed > 0) {
-            this.playbackSpeed = speed;
+            // this.playbackSpeed = speed;
+            this.playbackSpeed.next(speed);
         }
     }
 
@@ -282,7 +288,7 @@ export class Animator {
     }
 
     frameTimeout() {
-        return 1000.0 / this.playbackSpeed;
+        return 1000.0 / this.playbackSpeed.getValue();
     }
 
     detachStream() {
