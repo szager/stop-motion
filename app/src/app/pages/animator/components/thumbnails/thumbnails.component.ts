@@ -62,6 +62,19 @@ export class ThumbnailsComponent extends BaseComponent implements OnDestroy, OnI
     });
   }
 
+  public onThumbnailClicked(index: number) {
+    this.baseService.alertService.presentAlert({
+      header: this.baseService.translate.instant('alert_thumbnail_delete_header'),
+      message: null,
+      buttons: [this.baseService.alertService.createCancelButton(), {
+        text: this.baseService.translate.instant('buttons_yes'),
+        handler: async () => {
+          this.animatorService.removeFrames(index);
+        }
+      }]
+    });
+  }
+
   ngOnDestroy() {
     super.ngOnDestroy();
     this.clearInterval();

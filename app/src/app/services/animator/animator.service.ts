@@ -43,6 +43,14 @@ export class AnimatorService {
     return this.frames.asObservable();
   }
 
+  removeFrames(index: number) {
+    const frames = this.frames.getValue();
+    console.log('🚀 ~ file: animator.service.ts ~ line 48 ~ AnimatorService ~ removeFrames ~ frames', frames.length);
+    frames.splice(index, 1);
+    console.log('🚀 ~ file: animator.service.ts ~ line 50 ~ AnimatorService ~ removeFrames ~ frames', frames.length);
+    this.frames.next(frames);
+  }
+
   getCameraIsRotated() {
     return this.cameraIsRotated.asObservable();
   }
@@ -63,6 +71,8 @@ export class AnimatorService {
     const frames = this.animator.undoCapture();
     this.frames.next(frames);
     if (frames.length === 0) {
+    console.log('🚀 ~ file: animator.service.ts ~ line 73 ~ AnimatorService ~ removeFrames ~ frames', frames);
+    console.log('🚀 ~ file: animator.service.ts ~ line 73 ~ AnimatorService ~ removeFrames ~ frames', frames);
       this.baseService.toastService.presentToast({
         message: this.baseService.translate.instant('toast_animator_undo_hint')
       });

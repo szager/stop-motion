@@ -1,7 +1,7 @@
 <ion-slides #thumbnailsContainer id="thumbnail-container" scrollbar="true" [options]="slideOpts" class="ion-margin-start">
-  <ng-container *ngIf="(list | async) as frames">
-    <ion-slide *ngFor="let frame of frames">
-      <app-thumbnail [frame]="frame"></app-thumbnail> 
+  <ng-container *ngIf="(list | async) as frames ">
+    <ion-slide *ngFor="let frame of frames; let i = index">
+      <app-thumbnail [frame]="frame" [index]="i" (thumbnailClicked)="onThumbnailClicked($event)"></app-thumbnail> 
     </ion-slide>
   </ng-container>
 </ion-slides>
