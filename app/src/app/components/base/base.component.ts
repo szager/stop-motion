@@ -17,9 +17,10 @@ export abstract class BaseComponent implements OnDestroy {
 
     // declaration of fields
     public environment: Enviroment;
+    public isIos: boolean;
     public isLoading: boolean;
-    public isSearching: boolean;
     public isPlaying: boolean;
+    public isSearching: boolean;
     public item: Observable<any>;
     public lang: string;
     public list: Observable<any>;
@@ -29,9 +30,10 @@ export abstract class BaseComponent implements OnDestroy {
     public readonly unsubscribe$: Subject<void> = new Subject();
 
     constructor(
-        public baseService: BaseService
+        public baseService: BaseService,
     ) {
         this.environment = environment;
+        this.isIos = this.baseService.plattform.is('ios');
         this.isLoading = false;
         this.isSearching = false;
         this.isPlaying = false;

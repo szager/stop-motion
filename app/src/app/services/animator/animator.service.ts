@@ -4,7 +4,7 @@ import { BaseService } from '@services/base/base.service';
 import { BehaviorSubject } from 'rxjs';
 import { first } from 'rxjs/operators';
 import { CameraStatus } from '@enums/camera-status.enum';
-import { ScreenOrientation } from '@enums/screen-orientation.enum';
+import { FacingMode } from '@enums/facing-mode.enum';
 
 @Injectable({
   providedIn: 'root'
@@ -18,6 +18,7 @@ export class AnimatorService {
   private cameras: BehaviorSubject<MediaDeviceInfo[]>;
   private cameraIsRotated: BehaviorSubject<boolean>;
   private cameraStatus: BehaviorSubject<CameraStatus>;
+  private facingMode: FacingMode;
   private frames: BehaviorSubject<HTMLCanvasElement[]>;
 
   constructor(
@@ -28,6 +29,7 @@ export class AnimatorService {
     this.currentCameraIndex = null;
     this.cameraIsRotated = new BehaviorSubject(false);
     this.cameraStatus = new BehaviorSubject(CameraStatus.notStarted);
+    this.facingMode = FacingMode.user;
     this.frames = new BehaviorSubject([]);
   }
 
@@ -174,8 +176,9 @@ export class AnimatorService {
     this.cameraStatus.next(CameraStatus.hasPaused);
     const layoutOptions = await this.baseService.layoutService.getLayoutOptions().pipe(first()).toPromise();
     const cameras = await this.cameras.pipe(first()).toPromise();
-    const index = (this.currentCameraIndex === 0) ? 1 : 0;
-    await this.animator.attachStream(cameras[index].deviceId, layoutOptions);
+    const index = (this.currentCameraIndex === 0 && !this.baseService.plattform.is('ios')) ? 1 : 0;
+    this.facingMode = (this.facingMode === FacingMode.user) ? FacingMode.environment : FacingMode.user;
+    await this.animator.attachStream(cameras[index].deviceId, layoutOptions, this.facingMode);
     this.currentCameraIndex = index;
     this.cameraStatus.next(CameraStatus.isStreaming);
   }

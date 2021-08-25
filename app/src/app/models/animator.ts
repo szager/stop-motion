@@ -89,7 +89,7 @@ export class Animator {
     /*
     * Method is used to attach a media stream to the video component
     */
-    public async attachStream(sourceId: any, layoutOptions: LayoutOptions): Promise<any> {
+    public async attachStream(sourceId: any, layoutOptions: LayoutOptions, facingMode?: string): Promise<any> {
         const screenDimensions = this.calculateDimensions(layoutOptions);
         const constraints = {
             audio: false,
@@ -100,14 +100,22 @@ export class Animator {
         };
 
         this.videoSourceId = sourceId;
-        if (sourceId) {
+
+        if (this.platform.is('ios') && facingMode) {
             constraints.video = {
-                optional: [{
-                    sourceId
-                }]
+                // facingMode: 'environment'
+                facingMode
             };
         } else {
-            constraints.video = true;
+            if (sourceId) {
+                constraints.video = {
+                    optional: [{
+                        sourceId
+                    }]
+                };
+            } else {
+                constraints.video = true;
+            }
         }
 
         try {
@@ -475,8 +483,8 @@ export class Animator {
         const height = layoutOptions.width < 600 ? 333 : 600;
         console.log('🚀 ~ file: animator.ts ~ line 466 ~ Animator ~ calculateDimensions ~ screenSize', screenSize);
         return {
-             width: (screenOrientation === 'portrait') ? width : height,
-             height: (screenOrientation === 'portrait') ? height : width
+            width: (screenOrientation === 'portrait') ? width : height,
+            height: (screenOrientation === 'portrait') ? height : width
         };
     }
 

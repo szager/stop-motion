@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { environment } from '@environment/environment';
 import { Enviroment } from '@interfaces/environment.interface';
-import { LoadingController } from '@ionic/angular';
+import { LoadingController, Platform } from '@ionic/angular';
 import { TranslateService } from '@ngx-translate/core';
 import { AlertService } from '@services/alert/alert.service';
 import { LayoutService } from '@services/layout/layout.service';
@@ -29,6 +29,7 @@ export class BaseService {
         public router: Router,
         public toastService: ToastService,
         public translate: TranslateService,
+        public plattform: Platform
     ) {
         // get current environement variables
         this.env = environment;

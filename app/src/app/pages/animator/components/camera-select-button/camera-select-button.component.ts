@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { BaseComponent } from '@components/base/base.component';
 import { AnimatorService } from '@services/animator/animator.service';
 import { BaseService } from '@services/base/base.service';
@@ -25,9 +25,7 @@ export class CameraSelectButtonComponent extends BaseComponent implements OnInit
   ngOnInit() {
     this.animatorService.getCameras().pipe(takeUntil(this.unsubscribe$)).subscribe((cameras: MediaDeviceInfo[]) => {
       this.cameras = cameras;
-      if (this.cameras.length > 1) {
-        this.isDisabled = false;
-      }
+      this.isDisabled = (this.cameras.length > 1 || this.isIos) ? false : true;
     });
   }
 
