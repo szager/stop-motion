@@ -13,7 +13,7 @@ export class SettingsPage extends BasePage implements OnInit {
     public baseService: BaseService
   ) {
     super(baseService);
-    this.options.title = 'pages_title_settings';
+    this.options.title = 'pages_title_info';
     this.options.rightButton = false;
     this.options.backButton = true;
   }
