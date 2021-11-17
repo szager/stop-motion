@@ -5,9 +5,9 @@
 }
 
 .camera-state {
-    text-align: right;
-    margin-top: -25px;
-    margin-bottom: 10px;
+  text-align: right;
+  margin-top: -25px;
+  margin-bottom: 10px;
 
   span {
     font-size: 16px;
@@ -75,4 +75,35 @@ video {
   #thumbnail-container {
     max-width: 600px;
   }
+}
+
+.screen-orientation-overlay {
+  display: none;
+}
+
+@media screen and (max-width:1048px) and (orientation:landscape) {
+  .screen-orientation-overlay {
+    display: flex;
+    position: absolute;
+    width: 100%;
+    height: calc(100% - 44px);
+    background-color: #c2ebff;
+    top: 44px;
+    z-index: 9999999;
+    justify-content: center;
+    align-items: center;
+    h2 {
+      font-size: 20px;
+    }
+
+    .overlay-container {
+      text-align: center;
+      ion-icon {
+        width: 150px;
+        height: 150px;
+      }
+    }
+
+  }
+
 }

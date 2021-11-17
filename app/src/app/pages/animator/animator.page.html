@@ -1,18 +1,25 @@
 <ion-content [fullscreen]="true">
-    <app-toolbar></app-toolbar>
+  <app-toolbar></app-toolbar>
+  <app-playback-slider></app-playback-slider>
+  <p *ngIf="!environment.production" class="ion-padding-horizontal ion-no-margin camera-state">
+    <span *ngIf="state | async as state">
+      <strong>Kamera Status: {{ state[0] }}</strong>
+    </span>
+  </p>
+  <div class="container">
+    <app-timer></app-timer>
+    <app-video #appVideo></app-video>
+    <app-snapshot-canvas #appSnapshotCanvas></app-snapshot-canvas>
+    <app-player-canvas #appPlayerCanvas></app-player-canvas>
+  </div>
+  <app-thumbnails></app-thumbnails>
+  <app-tabbar></app-tabbar>
 
-    <app-playback-slider></app-playback-slider>
-    <p *ngIf="!environment.production" class="ion-padding-horizontal ion-no-margin camera-state">
-        <span *ngIf="state | async as state">
-            <strong>Kamera Status: {{ state[0] }}</strong>
-        </span>
-    </p>
-    <div class="container">
-        <app-timer></app-timer>
-        <app-video #appVideo></app-video>
-        <app-snapshot-canvas #appSnapshotCanvas></app-snapshot-canvas>
-        <app-player-canvas #appPlayerCanvas></app-player-canvas>
-    </div>
-    <app-thumbnails></app-thumbnails>
-    <app-tabbar></app-tabbar>
+  <div class="screen-orientation-overlay">
+      <div class="overlay-container">
+        <ion-icon src="../../../assets/icons/custom/rotate-screen.svg" color="primary"></ion-icon>
+        <h2>Bitte wechsle in den Portrait-Mode.</h2>          
+      </div>
+  </div>
+
 </ion-content>
