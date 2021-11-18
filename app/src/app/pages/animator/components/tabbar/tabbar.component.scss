@@ -1,10 +1,15 @@
 ion-tab-bar {
-    --border       : 1px solid #00a3d3;
+    --border       : none;
     padding        : 0;
     justify-content: space-evenly;
     z-index: 999999 !important;
+    background-color: transparent !important;
 }
 
 app-tabbar > * {
     touch-action   : manipulation;
+}
+
+ion-icon {
+    color: #fff !important;
 }

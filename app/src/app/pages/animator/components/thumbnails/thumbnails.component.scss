@@ -14,9 +14,19 @@ ion-slides {
   }
 }
 
+
+/* @media screen and (max-width: 350px) and (orientation: portrait) {
+  ion-slides {
+    width: 210px;
+    ion-slide {
+      width: 42px !important;
+    }
+}
+} */
+
 @media screen and (max-width: 600px) and (orientation: portrait)  {
   ion-slides {
-      width: 250px;
+      width: 100%;
       ion-slide {
         width: 50px !important;
       }

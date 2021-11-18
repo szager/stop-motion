@@ -2,6 +2,7 @@
   margin: 0 auto;
   display: block;
   position: relative;
+  background-color: #000;
 }
 
 .camera-state {
@@ -30,19 +31,33 @@ video {
   top: 0;
   left: 0;
   z-index: 2;
-  opacity: 0.5;
+  opacity: 1;
 }
+
+/*@media screen and (max-width: 350px) and (orientation: portrait) {
+  .container {
+    height: 280px;
+    width: 210px;
+  }
+
+  #thumbnail-container {
+    max-width: 210px;
+  }
+}*/
 
 @media screen and (max-width: 600px) and (orientation: portrait) {
   .container {
-    height: 333px;
-    width: 250px;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
   }
 
   #thumbnail-container {
     max-width: 250px;
   }
 }
+
 
 @media screen and (max-width: 600px) and (orientation: landscape) {
   .container {
@@ -81,7 +96,7 @@ video {
   display: none;
 }
 
-@media screen and (max-width:1048px) and (orientation:landscape) {
+@media screen and (max-width:1048px) and (orientation: landscape) {
   .screen-orientation-overlay {
     display: flex;
     position: absolute;

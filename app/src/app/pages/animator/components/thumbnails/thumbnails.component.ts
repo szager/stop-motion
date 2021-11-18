@@ -3,7 +3,7 @@ import { BaseComponent } from '@components/base/base.component';
 import { IonSlides } from '@ionic/angular';
 import { AnimatorService } from '@services/animator/animator.service';
 import { BaseService } from '@services/base/base.service';
-import { first, takeUntil } from 'rxjs/operators';
+import { first, takeUntil, tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-thumbnails',
@@ -14,7 +14,7 @@ export class ThumbnailsComponent extends BaseComponent implements OnDestroy, OnI
 
   @ViewChild('thumbnailsContainer', { static: true }) public thumbnailsContainer: IonSlides;
   public slideOpts = {
-    initialSlide: 1,
+    initialSlide: 0,
     speed: 100,
     slidesPerView: 5,
     spaceBetween: 0,
@@ -35,7 +35,11 @@ export class ThumbnailsComponent extends BaseComponent implements OnDestroy, OnI
   }
 
   ngOnInit() {
-    this.list = this.animatorService.getFrames();
+   this.list = this.animatorService.getFrames().pipe(tap((frames: HTMLCanvasElement[]) => {
+      console.log(':rocket: ~ file: thumbnails.component.ts ~ line 39 ~ ThumbnailsComponent ~ this.getFrames ~ canvas', frames);
+      this.thumbnailsContainer.slideTo(frames.length);
+    })); 
+
 
     this.animatorService.animator.getIsPlaying().pipe(takeUntil(this.unsubscribe$)).subscribe(async (isPlaying: boolean) => {
       if (isPlaying) {

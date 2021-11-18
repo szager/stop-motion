@@ -1,6 +1,6 @@
-<ion-range #slider min="1" max="12" step="1" [value]="initalValue" (ionChange)="onChange(slider.value)" color="medium">
-  <ion-icon slot="start" color="danger" src="/assets/icons/custom/slow.svg"></ion-icon>
-  <ion-icon slot="end" color="success" src="/assets/icons/custom/fast.svg"></ion-icon>
+<ion-range #slider min="1" max="12" step="1" [value]="initalValue" (ionChange)="onChange(slider.value)" color="light">
+  <ion-icon slot="start" color="light" src="/assets/icons/custom/slow.svg"></ion-icon>
+  <ion-icon slot="end" color="light" src="/assets/icons/custom/fast.svg"></ion-icon>
 </ion-range>
 <p class="ion-padding-horizontal ion-no-margin">
   <strong>FPS: {{ slider.value }}</strong>

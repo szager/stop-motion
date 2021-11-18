@@ -74,4 +74,12 @@
   --ion-color-light-contrast-rgb: 0, 0, 0;
   --ion-color-light-shade: #d7d8da;
   --ion-color-light-tint: #f5f6f9;
+
+  /** transparent **/
+  --ion-color-transparent: rgba(0, 0, 0, 0);
+  --ion-color-transparent-rgb: rgba(0, 0, 0, 0);
+  --ion-color-transparent-contrast: rgba(0, 0, 0, 0);
+  --ion-color-transparent-contrast-rgb: rgba(0, 0, 0, 0);
+  --ion-color-transparent-shade: rgba(0, 0, 0, 0);
+  --ion-color-transparent-tint: rgba(0, 0, 0, 0);
 }

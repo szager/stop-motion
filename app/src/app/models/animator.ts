@@ -91,32 +91,27 @@ export class Animator {
     */
     public async attachStream(sourceId: any, layoutOptions: LayoutOptions, facingMode?: string): Promise<any> {
         const screenDimensions = this.calculateDimensions(layoutOptions);
-        const constraints = {
-            audio: false,
-            frameRate: 15,
-            width: screenDimensions.width,
-            height: screenDimensions.height,
-            video: null
-        };
-
         this.videoSourceId = sourceId;
 
         if (this.platform.is('ios') && facingMode) {
-            constraints.video = {
-                // facingMode: 'environment'
-                facingMode
-            };
-        } else {
-            if (sourceId) {
-                constraints.video = {
-                    optional: [{
-                        sourceId
-                    }]
-                };
-            } else {
-                constraints.video = true;
-            }
+            facingMode = 'environment';
         }
+        /*if (sourceId) {
+            this.constraintsVideo = {
+                 optional: [{
+                    sourceId
+                }]
+            };
+        } */
+
+        let constraints = {
+            video: {
+                width: 1920,
+                height: 1080,
+                aspectRatio: 1.777777778,
+                facingMode: facingMode,
+            }
+        };
 
         try {
             const stream = await navigator.mediaDevices.getUserMedia(constraints);
@@ -147,10 +142,10 @@ export class Animator {
         context.drawImage(this.video, 0, 0, this.width, this.height);
         this.frames.push(imageCanvas);
 
-        this.snapshotCanvas.style.visibility = 'visible';
+        /* this.snapshotCanvas.style.visibility = 'visible';
         setTimeout(() => {
             this.snapshotCanvas.style.visibility = 'hidden';
-        }, 600);
+        }, 600); */
 
         const promise = new Promise(((resolve, reject) => {
             this.snapshotContext.clearRect(0, 0, this.width, this.height);
@@ -479,8 +474,28 @@ export class Animator {
     public calculateDimensions(layoutOptions: LayoutOptions): ScreenDimension {
         const screenOrientation = layoutOptions.height > layoutOptions.width ? 'portrait' : 'landscape';
         const screenSize = layoutOptions.currentOrientation === ScreenOrientation.portrait ? layoutOptions.height : layoutOptions.width;
-        const width = layoutOptions.width < 600 ? 250 : 450;
-        const height = layoutOptions.width < 600 ? 333 : 600;
+        let width;
+        let height;
+        // switch case 
+        switch (true) {
+            /* case (layoutOptions.width < 350):
+                width = 210;
+                height = 280;
+                break; */
+            case (layoutOptions.width < 600):
+                width = layoutOptions.width;
+                height = layoutOptions.height;
+                break;            
+            case (layoutOptions.width >= 601):
+                width = 450;
+                height = 600;
+                break;            
+            default: 
+                // 
+                break;
+         }
+        //const width = layoutOptions.width < 600 ? 250 : 450;
+        //const height = layoutOptions.width < 600 ? 333 : 600;
         console.log('🚀 ~ file: animator.ts ~ line 466 ~ Animator ~ calculateDimensions ~ screenSize', screenSize);
         return {
             width: (screenOrientation === 'portrait') ? width : height,
