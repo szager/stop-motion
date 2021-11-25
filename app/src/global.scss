@@ -52,9 +52,12 @@ body {
 
 body {
   font-size: 17px;
+  margin-top: env(safe-area-inset-top);
+  margin-top: constant(safe-area-inset-top);
 }
 
-body, * {
+body,
+* {
   font-family: "Nunito", sans !important;
 }
 
@@ -76,8 +79,10 @@ ion-toolbar {
     height: auto !important;
     padding: 0 !important;
   }
+
   ion-button {
     padding-left: 5px !important;
+
     ion-icon {
       font-size: 26px !important;
     }
@@ -88,6 +93,7 @@ ion-tab-bar {
   ion-icon {
     font-size: 24px !important;
   }
+
   ion-label {
     font-size: 11px;
     letter-spacing: 0;
@@ -103,9 +109,10 @@ ion-tab-bar {
   opacity: 1 !important;
   width: 100%;
   margin-top: 10px;
-  background: rgba(0,163,211,0.1);
+  background: rgba(0, 163, 211, 0.1);
+
   .swiper-scrollbar-drag {
-      background: rgba(0,163,211,0.8);
+    background: rgba(0, 163, 211, 0.8);
   }
 }
 
@@ -119,3 +126,4 @@ ion-tab-bar {
 video::-webkit-media-controls {
   opacity: 0;
 }
+

@@ -14,8 +14,8 @@ export class ThumbnailComponent implements OnInit {
   @Output() thumbnailClicked = new EventEmitter();
 
   public ctx: CanvasRenderingContext2D;
-  public width = this.animatorService.animator.width / 5 - 6;
-  public height = this.animatorService.animator.height / 5;
+  public width = this.animatorService.animator.width;
+  public height = this.animatorService.animator.height;
 
   constructor(
     private animatorService: AnimatorService

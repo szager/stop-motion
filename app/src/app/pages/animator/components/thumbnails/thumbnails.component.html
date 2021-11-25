@@ -3,5 +3,6 @@
     <ion-slide *ngFor="let frame of frames; let i = index">
       <app-thumbnail [frame]="frame" [index]="i" (thumbnailClicked)="onThumbnailClicked($event)"></app-thumbnail> 
     </ion-slide>
+    <div class="swiper-pagination"></div>
   </ng-container>
 </ion-slides>

@@ -91,27 +91,34 @@ export class Animator {
     */
     public async attachStream(sourceId: any, layoutOptions: LayoutOptions, facingMode?: string): Promise<any> {
         const screenDimensions = this.calculateDimensions(layoutOptions);
-        this.videoSourceId = sourceId;
-
-        if (this.platform.is('ios') && facingMode) {
-            facingMode = 'environment';
-        }
-        /*if (sourceId) {
-            this.constraintsVideo = {
-                 optional: [{
-                    sourceId
-                }]
-            };
-        } */
-
-        let constraints = {
-            video: {
-                width: 1920,
-                height: 1080,
-                aspectRatio: 1.777777778,
-                facingMode: facingMode,
-            }
+        console.log(screenDimensions);
+        const constraints = {
+            audio: false,
+            frameRate: 15,
+            video: null
         };
+
+        facingMode = facingMode ? facingMode : 'user';
+
+        if (this.platform.is('ios') || this.platform.is('android')) {
+            constraints.video = {
+                // strange bug - width and height needs to be swaped
+                width: screenDimensions.height,
+                height: screenDimensions.width,
+                facingMode
+            };
+        } else {
+            if (sourceId) {
+                console.log('here');
+                constraints.video = {                           
+                width: screenDimensions.width,
+                height: screenDimensions.height,
+                sourceId: sourceId
+                };
+            } else {
+                constraints.video = true;
+            }
+        }
 
         try {
             const stream = await navigator.mediaDevices.getUserMedia(constraints);
