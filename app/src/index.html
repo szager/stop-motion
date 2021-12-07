@@ -8,8 +8,7 @@
     <base href="/" />
 
     <meta name="color-scheme" content="light" />
-    <meta name="viewport"
-        content="width=device-width, initial-scale=1, maximum-scale=1,user-scalable=0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1,user-scalable=0" />
     <meta name="format-detection" content="telephone=no" />
     <meta name="msapplication-tap-highlight" content="no" />
 
@@ -119,6 +118,11 @@
     <link href="./assets/icons/ios/splash/iphoneplus_splash.png"
         media="(device-width: 621px) and (device-height: 1104px) and (-webkit-device-pixel-ratio: 3)"
         rel="apple-touch-startup-image" />
+
+    <!-- prevent double tap zoom on ios -->
+    <script>
+        document.addEventListener('touchend', (event) => { event.preventDefault(); event.srcElement.click(); }, false);
+    </script>
 </head>
 
 <body>

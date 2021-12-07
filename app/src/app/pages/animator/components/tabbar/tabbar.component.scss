@@ -1,4 +1,4 @@
-@import url('../../../../../theme/variables.scss');
+// @import url('../../../../../theme/variables.scss');
 
 ion-tab-bar {
     --border       : none;
@@ -13,10 +13,6 @@ ion-tab-bar {
     ion-tab-button {
         background-color: transparent;
     }
-}
-
-app-tabbar > * {
-    touch-action   : manipulation;
 }
 
 ion-icon {
