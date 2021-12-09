@@ -36,9 +36,10 @@ export class ThumbnailsComponent extends BaseComponent implements OnDestroy, OnI
 
   ngOnInit() {
    this.list = this.animatorService.getFrames().pipe(tap((frames: HTMLCanvasElement[]) => {
-      console.log(':rocket: ~ file: thumbnails.component.ts ~ line 39 ~ ThumbnailsComponent ~ this.getFrames ~ canvas', frames);
-      this.thumbnailsContainer.slideTo(frames.length);
-    })); 
+      setTimeout(() => {
+        this.thumbnailsContainer.slideTo(frames.length + 1);
+      }, 100);
+    }));
 
 
     this.animatorService.animator.getIsPlaying().pipe(takeUntil(this.unsubscribe$)).subscribe(async (isPlaying: boolean) => {
