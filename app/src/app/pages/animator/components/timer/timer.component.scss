@@ -1,12 +1,13 @@
 span {
     position: absolute;
-    top: 14px;
     left: 15px;
     color: #fff;
     z-index: 9999999;
     font-weight: bold;
     background-color: rgba(0, 0, 0, 0.4);
-    padding: 5px 10px;
+    padding: 7px 10px;
     border-radius: 5px;
     font-size: 14px;
+    height: 30px;
+    top: 10px;
 }

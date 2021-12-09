@@ -7,6 +7,7 @@ ion-tab-bar {
     z-index: 999999 !important;
     background-color: transparent !important;
     margin-bottom: env(safe-area-inset-bottom);
+    height: 90px;
     &> * {
         flex-basis: 100%;
     }
