@@ -5,6 +5,8 @@ import { ScreenDimension } from '@interfaces/screen-dimensions.interface';
 import { Platform } from '@ionic/angular';
 import { BaseService } from '@services/base/base.service';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { first } from 'rxjs/operators';
+import * as WebMWriter from 'webm-writer';
 
 declare const webm: any;
 @Injectable({
@@ -39,7 +41,7 @@ export class Animator {
     zeroPlayTime: number;
 
     private isAnimatorPlaying: BehaviorSubject<boolean>;
-    private playbackSpeed: BehaviorSubject<number>;
+    private frameRate: BehaviorSubject<number>;
 
     constructor(
         // TODO if possibole get rid of injectable again
@@ -47,15 +49,15 @@ export class Animator {
         private platform: Platform
     ) {
         this.isAnimatorPlaying = new BehaviorSubject(false);
-        this.playbackSpeed = new BehaviorSubject(12.0);
+        this.frameRate = new BehaviorSubject(12.0);
     }
 
     getIsPlaying(): Observable<any> {
         return this.isAnimatorPlaying.asObservable();
     }
 
-    getPlaybackSpeed(): Observable<any> {
-        return this.playbackSpeed.asObservable();
+    getFramerate(): Observable<any> {
+        return this.frameRate.asObservable();
     }
 
     /*
@@ -110,10 +112,10 @@ export class Animator {
         } else {
             if (sourceId) {
                 console.log('here');
-                constraints.video = {                           
-                width: screenDimensions.width,
-                height: screenDimensions.height,
-                sourceId: sourceId
+                constraints.video = {
+                    width: screenDimensions.width,
+                    height: screenDimensions.height,
+                    sourceId
                 };
             } else {
                 constraints.video = true;
@@ -224,10 +226,9 @@ export class Animator {
         this.rotated = !this.rotated;
     }
 
-    public setPlaybackSpeed(speed: number) {
-        if (speed > 0) {
-            // this.playbackSpeed = speed;
-            this.playbackSpeed.next(speed);
+    public setFramerate(frameRate: number) {
+        if (frameRate > 0) {
+            this.frameRate.next(frameRate);
         }
     }
 
@@ -298,7 +299,7 @@ export class Animator {
     }
 
     frameTimeout() {
-        return 1000.0 / this.playbackSpeed.getValue();
+        return 1000.0 / this.frameRate.getValue();
     }
 
     detachStream() {
@@ -316,11 +317,13 @@ export class Animator {
     }
 
     loadFinished() {
+        console.log('🚀 ~ file: animator.ts ~ line 323 ~ Animator ~ loadFinished ~ this.frames', this.frames);
+
         this.snapshotContext.clearRect(0, 0, this.width, this.height);
         if (this.frames.length) {
-            this.snapshotContext.clearRect(0, 0, this.width, this.height);
-            this.snapshotContext.drawImage(this.frames[this.frames.length - 1], 0, 0, this.width, this.height);
-            this.startPlay(null);
+            // this.snapshotContext.clearRect(0, 0, this.width, this.height);
+            // this.snapshotContext.drawImage(this.frames[this.frames.length - 1], 0, 0, this.width, this.height);
+            // this.startPlay(null);
         }
     }
 
@@ -340,7 +343,26 @@ export class Animator {
         filename = filename || 'StopMotion';
         if (!filename.endsWith('.webm')) { filename += '.webm'; }
         const title = filename.substr(0, filename.length - 5);
-        const blob = await this.encode(title);
+        // const blob = await this.encode(title);
+        const frameRate = await this.getFramerate().pipe(first()).toPromise();
+
+        const videoWriter = new WebMWriter({
+            quality: 0.95,    // WebM image quality from 0.0 (worst) to 0.99999 (best), 1.00 (VP8L lossless) is not supported
+            fileWriter: null, // FileWriter in order to stream to a file instead of buffering to memory (optional)
+            fd: null,         // Node.js file handle to write to instead of buffering to memory (optional)
+            // You must supply one of:
+            // frameDuration: null, // Duration of frames in milliseconds
+            frameRate,     // Number of frames per second
+            transparent: false,      // True if an alpha channel should be included in the video
+            alphaQuality: undefined, // Allows you to set the quality level of the alpha channel separately.
+            // If not specified this defaults to the same value as `quality`.
+        });
+
+        for (const frame of this.frames) {
+            videoWriter.addFrame(frame);
+        }
+
+        const blob = await videoWriter.complete();
         this.exported = blob;
         const url = URL.createObjectURL(blob);
         const downloadLink = document.createElement('a');
@@ -349,17 +371,6 @@ export class Animator {
         downloadLink.click();
         URL.revokeObjectURL(url);
         return blob;
-
-        // return this.encode(title).then((blob => {
-        //     this.exported = blob;
-        //     const url = URL.createObjectURL(blob);
-        //     const downloadLink = document.createElement('a');
-        //     downloadLink.download = filename;
-        //     downloadLink.href = url;
-        //     downloadLink.click();
-        //     URL.revokeObjectURL(url);
-        //     return blob;
-        // }).bind(this));
     }
 
     encode(title): Promise<any> {
@@ -434,8 +445,9 @@ export class Animator {
                 webm.decode(evt.target.result,
                     animator.setDimensions.bind(animator),
                     // frameRateCB,
-                    (frameRate) => {
+                    (frameRate: number) => {
                         console.log('🚀 ~ file: animator.ts ~ line 400 ~ Animator ~ load ~ frameRate', frameRate);
+                        this.setFramerate(Math.round(frameRate));
                     },
                     animator.addFrameVP8.bind(animator, frameOffset),
                     animator.setAudioSrc.bind(animator));
@@ -483,7 +495,7 @@ export class Animator {
         const screenSize = layoutOptions.currentOrientation === ScreenOrientation.portrait ? layoutOptions.height : layoutOptions.width;
         let width;
         let height;
-        // switch case 
+        // switch case
         switch (true) {
             /* case (layoutOptions.width < 350):
                 width = 210;
@@ -492,15 +504,14 @@ export class Animator {
             case (layoutOptions.width < 600):
                 width = layoutOptions.width;
                 height = layoutOptions.height;
-                break;            
+                break;
             case (layoutOptions.width >= 601):
                 width = 450;
                 height = 600;
-                break;            
-            default: 
-                // 
                 break;
-         }
+            default:
+                break;
+        }
         //const width = layoutOptions.width < 600 ? 250 : 450;
         //const height = layoutOptions.width < 600 ? 333 : 600;
         console.log('🚀 ~ file: animator.ts ~ line 466 ~ Animator ~ calculateDimensions ~ screenSize', screenSize);

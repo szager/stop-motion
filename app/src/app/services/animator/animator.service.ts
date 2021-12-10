@@ -155,12 +155,16 @@ export class AnimatorService {
     if (!filename.endsWith('.webm')) {
       filename += '.webm';
     }
-
-    await this.animator.save(filename);
+    return await this.animator.save(filename);
   }
 
   public async load(filepath: string): Promise<any> {
-    return this.animator.load(filepath);
+    await this.animator.load(filepath);
+    console.log('🚀 ~ file: animator.service.ts ~ line 164 ~ AnimatorService ~ load ~ this.animator.frames', this.animator.frames.length);
+
+    // this.frames.next(this.animator.frames);
+    // console.log('🚀 ~ file: animator.service.ts ~ line 163 ~ AnimatorService ~ load ~ result', result);
+    return;
   }
 
   public formatTime(seconds: number) {

@@ -1620,86 +1620,91 @@ var webm = webm || {};
     });
 
     webm.decode = ((buffer, sizeCB, frameRateCB, frameCB, audioCB) => {
-        let riffHeader = new Uint8Array([82, 73, 70, 70]);  // 'RIFF'
-        let webpHeader = new Uint8Array([87, 69, 66, 80]);  // 'WEBP'
-        let vp8Header = new Uint8Array([86, 80, 56, 32]);  // 'VP8 '
-        let segment = new Cursor(new Uint8Array(buffer)).findChunk('Segment');
-        if (!segment)
-            return;
-        let tracks = segment.cursor.findChunk('Tracks');
-        if (!tracks)
-            return;
-        let hasAudio = false;
+        try {
+            let riffHeader = new Uint8Array([82, 73, 70, 70]);  // 'RIFF'
+            let webpHeader = new Uint8Array([87, 69, 66, 80]);  // 'WEBP'
+            let vp8Header = new Uint8Array([86, 80, 56, 32]);  // 'VP8 '
+            let segment = new Cursor(new Uint8Array(buffer)).findChunk('Segment');
+            if (!segment)
+                return;
+            let tracks = segment.cursor.findChunk('Tracks');
+            if (!tracks)
+                return;
+            let hasAudio = false;
 
-        let w = -1, h = -1;
-        let videoTrackNum = -1;
-        let tracksCursor = tracks.cursor;
-        for (let entry = tracksCursor.findChunk('TrackEntry');
-            entry;
-            entry = tracksCursor.findChunk('TrackEntry')) {
-            let trackType = entry.cursor.findChunk('TrackType');
-            if (!trackType)
-                continue;
-            trackType = Number(decodeUint(trackType.cursor));
-            if (trackType == 1) {  // video track
-                let trackNumber = entry.cursor.findChunk('TrackNumber');
-                if (!trackNumber)
+            let w = -1, h = -1;
+            let videoTrackNum = -1;
+            let tracksCursor = tracks.cursor;
+            for (let entry = tracksCursor.findChunk('TrackEntry');
+                entry;
+                entry = tracksCursor.findChunk('TrackEntry')) {
+                let trackType = entry.cursor.findChunk('TrackType');
+                if (!trackType)
                     continue;
-                videoTrackNum = Number(decodeUint(trackNumber.cursor));
-                let video = entry.cursor.findChunk('Video');
-                if (!video)
-                    continue;
-                let pixelWidth = video.cursor.findChunk('PixelWidth');
-                let pixelHeight = video.cursor.findChunk('PixelHeight');
-                if (!pixelWidth || !pixelHeight)
-                    continue;
-                w = Number(decodeUint(pixelWidth.cursor));
-                h = Number(decodeUint(pixelHeight.cursor));
-            } else if (trackType == 2) {  // audio track
-                hasAudio = true;
-            }
-        }
-        if (w == -1 || h == -1)
-            throw ('Could not decode height/width from Segment/Tracks/TrackEntry/Video/Pixel[Width|Height] section.');
-        if (sizeCB)
-            sizeCB(w, h);
-
-        let segmentCursor = segment.cursor;
-        let cluster;
-        let frameIdx = 0;
-        let frameTimes = [];
-        while (cluster = segmentCursor.findChunk('Cluster')) {
-            let clusterTimecode = decodeUint(cluster.cursor.findChunk('Timecode'));
-            let clusterCursor = cluster.cursor;
-            let block;
-            while (block = clusterCursor.findChunk('SimpleBlock')) {
-                let blockCursor = block.cursor;
-                let trackNum = decodeLength(blockCursor);  // Track Number
-                if (trackNum == videoTrackNum) {
-                    frameTimes.push(decodeInt(new Cursor(blockCursor.data, blockCursor.idx, blockCursor.idx + 2)));
-                    if (frameRateCB && frameTimes.length == 2)
-                        frameRateCB(1000 / (frameTimes[1] - frameTimes[0]));
-                    blockCursor.idx += 3;  // Timecode + Flags
-                    let riffLength = encodeUint(blockCursor.max - blockCursor.idx + 12, 4);
-                    Array.prototype.reverse.bind(riffLength)();
-                    let vp8Length = encodeUint(blockCursor.max - blockCursor.idx, 4);
-                    Array.prototype.reverse.bind(vp8Length)();
-                    if (frameCB) {
-                        let vp8Data = new Uint8Array(block.data.subarray(blockCursor.idx, blockCursor.max));
-                        let vp8Blob = new Blob([riffHeader, riffLength, webpHeader, vp8Header, vp8Length, vp8Data], { type: 'image/webp' });
-                        frameCB(vp8Blob, frameIdx++);
-                    }
+                trackType = Number(decodeUint(trackType.cursor));
+                if (trackType == 1) {  // video track
+                    let trackNumber = entry.cursor.findChunk('TrackNumber');
+                    if (!trackNumber)
+                        continue;
+                    videoTrackNum = Number(decodeUint(trackNumber.cursor));
+                    let video = entry.cursor.findChunk('Video');
+                    if (!video)
+                        continue;
+                    let pixelWidth = video.cursor.findChunk('PixelWidth');
+                    let pixelHeight = video.cursor.findChunk('PixelHeight');
+                    if (!pixelWidth || !pixelHeight)
+                        continue;
+                    w = Number(decodeUint(pixelWidth.cursor));
+                    h = Number(decodeUint(pixelHeight.cursor));
+                } else if (trackType == 2) {  // audio track
+                    hasAudio = true;
                 }
             }
+            if (w == -1 || h == -1)
+                throw ('Could not decode height/width from Segment/Tracks/TrackEntry/Video/Pixel[Width|Height] section.');
+            if (sizeCB)
+                sizeCB(w, h);
+
+            let segmentCursor = segment.cursor;
+            let cluster;
+            let frameIdx = 0;
+            let frameTimes = [];
+            while (cluster = segmentCursor.findChunk('Cluster')) {
+                let clusterTimecode = decodeUint(cluster.cursor.findChunk('Timecode'));
+                let clusterCursor = cluster.cursor;
+                let block;
+                    while (block = clusterCursor.findChunk('SimpleBlock')) {
+                        let blockCursor = block.cursor;
+                        let trackNum = decodeLength(blockCursor);  // Track Number
+                        if (trackNum == videoTrackNum) {
+                            frameTimes.push(decodeInt(new Cursor(blockCursor.data, blockCursor.idx, blockCursor.idx + 2)));
+                            if (frameRateCB && frameTimes.length == 2)
+                                frameRateCB(1000 / (frameTimes[1] - frameTimes[0]));
+                            blockCursor.idx += 3;  // Timecode + Flags
+                            let riffLength = encodeUint(blockCursor.max - blockCursor.idx + 12, 4);
+                            Array.prototype.reverse.bind(riffLength)();
+                            let vp8Length = encodeUint(blockCursor.max - blockCursor.idx, 4);
+                            Array.prototype.reverse.bind(vp8Length)();
+                            if (frameCB) {
+                                let vp8Data = new Uint8Array(block.data.subarray(blockCursor.idx, blockCursor.max));
+                                let vp8Blob = new Blob([riffHeader, riffLength, webpHeader, vp8Header, vp8Length, vp8Data], { type: 'image/webp' });
+                                frameCB(vp8Blob, frameIdx++);
+                            }
+                        }
+                    }
+            }
+
+
+            if (!hasAudio || !audioCB)
+                return;
+
+            let encoder = new Encoder("", 0, 0, 0, [], buffer);
+            encoder.encode().then(blob => {
+                audioCB(blob);
+            });
+        } catch (err) {
+            console.log('🚀 ~ file: webm.js ~ line 1705 ~ err', err);
         }
-
-        if (!hasAudio || !audioCB)
-            return;
-
-        let encoder = new Encoder("", 0, 0, 0, [], buffer);
-        encoder.encode().then(blob => {
-            audioCB(blob);
-        });
     });
 
     webm.verify = ((buffer, verbose) => {

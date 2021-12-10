@@ -47,7 +47,7 @@ export class ThumbnailsComponent extends BaseComponent implements OnDestroy, OnI
         // reset slider if already moved
         this.thumbnailsContainer.slideTo(0);
         // first grab seconds based on number of frames and the selected playbackspeed
-        const playbackSpeed = await this.animatorService.animator.getPlaybackSpeed().pipe(first()).toPromise();
+        const playbackSpeed = await this.animatorService.animator.getFramerate().pipe(first()).toPromise();
         const seconds = Number((this.animatorService.animator.frames.length / playbackSpeed).toFixed(2));
         const frames = this.animatorService.animator.frames.length;
         // multiply the number of seconds by hundred to get interval and divide by number of frames

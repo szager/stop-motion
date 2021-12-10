@@ -8,7 +8,7 @@ import { CaptureButtonComponent } from './components/capture-button/capture-butt
 import { ClearButtonComponent } from './components/clear-button/clear-button.component';
 import { LoadButtonComponent } from './components/load-button/load-button.component';
 import { OrientationButtonComponent } from './components/orientation-button/orientation-button.component';
-import { PlaybackSliderComponent } from './components/playback-slider/playback-slider.component';
+import { FramerateSliderComponent } from './components/framerate-slider/framerate-slider.component';
 import { PlayButtonComponent } from './components/play-button/play-button.component';
 import { PlayerCanvasComponent } from './components/player-canvas/player-canvas.component';
 import { RecordAudioButtonComponent } from './components/record-audio-button/record-audio-button.component';
@@ -31,7 +31,7 @@ const COMPONENTS = [
   ClearButtonComponent,
   LoadButtonComponent,
   OrientationButtonComponent,
-  PlaybackSliderComponent,
+  FramerateSliderComponent,
   PlayButtonComponent,
   PlayerCanvasComponent,
   RecordAudioButtonComponent,

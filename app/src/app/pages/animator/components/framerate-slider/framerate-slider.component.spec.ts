@@ -1,19 +1,19 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
-import { PlaybackSliderComponent } from './playback-slider.component';
+import { FramerateSliderComponent } from './framerate-slider.component';
 
-describe('PlaybackSliderComponent', () => {
-  let component: PlaybackSliderComponent;
-  let fixture: ComponentFixture<PlaybackSliderComponent>;
+describe('FramerateSliderComponent', () => {
+  let component: FramerateSliderComponent;
+  let fixture: ComponentFixture<FramerateSliderComponent>;
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ PlaybackSliderComponent ],
+      declarations: [ FramerateSliderComponent ],
       imports: [IonicModule.forRoot()]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(PlaybackSliderComponent);
+    fixture = TestBed.createComponent(FramerateSliderComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   }));
