@@ -24,6 +24,7 @@ export class ThumbnailsComponent extends BaseComponent implements OnDestroy, OnI
     navigation: true
   };
   private interval = null;
+  status: boolean = false;
 
 
   constructor(
@@ -78,6 +79,10 @@ export class ThumbnailsComponent extends BaseComponent implements OnDestroy, OnI
         }
       }]
     });
+  }
+
+  public toggleThumbnails() {
+    this.status = !this.status;
   }
 
   ngOnDestroy() {

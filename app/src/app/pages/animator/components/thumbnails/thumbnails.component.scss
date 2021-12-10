@@ -1,6 +1,12 @@
 ion-slides {
   height: auto;
-  margin: 6px auto 0 auto;
+  margin: 30px auto 0 auto;
+  &.hidden {
+    display: none;
+  }
+  &.shown {
+    display: block;
+  }
 }
 
 .swiper-container-horizontal {
@@ -13,6 +19,18 @@ ion-slides {
     margin-top: 10px;
   }
 }
+
+.show-thumbnails {
+  z-index: 9;
+  width: 100%;
+  position: absolute;
+  margin-top: -25px;
+  left: -3px;
+  ion-icon {
+    font-size: 28px;
+  }
+}
+
 
 
 /* @media screen and (max-width: 350px) and (orientation: portrait) {

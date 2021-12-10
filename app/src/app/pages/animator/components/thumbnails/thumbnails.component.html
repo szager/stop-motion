@@ -1,4 +1,9 @@
-<ion-slides #thumbnailsContainer id="thumbnail-container" scrollbar="true" [options]="slideOpts" class="ion-margin-start">
+
+<p class="ion-padding-horizontal ion-no-margin show-thumbnails" (click)="toggleThumbnails()">
+  <ion-icon *ngIf="!status" slot="icon-only" color="light" src="/assets/icons/custom/show.svg"></ion-icon>
+  <ion-icon *ngIf="status" slot="icon-only" color="light" src="/assets/icons/custom/hidden.svg"></ion-icon>
+</p>
+<ion-slides [ngClass]="status ? 'hidden' : 'shown'" #thumbnailsContainer id="thumbnail-container" scrollbar="true" [options]="slideOpts" class="ion-margin-start">
   <ng-container *ngIf="(list | async) as frames ">
     <ion-slide *ngFor="let frame of frames; let i = index">
       <app-thumbnail [frame]="frame" [index]="i" (thumbnailClicked)="onThumbnailClicked($event)"></app-thumbnail> 
