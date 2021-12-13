@@ -1,5 +1,5 @@
 
-<p class="ion-padding-horizontal ion-no-margin show-thumbnails" (click)="toggleThumbnails()">
+<p *ngIf="framesLength > 0" class="ion-padding-horizontal ion-no-margin show-thumbnails" (click)="toggleThumbnails()">
   <ion-icon *ngIf="!status" slot="icon-only" color="light" src="/assets/icons/custom/show.svg"></ion-icon>
   <ion-icon *ngIf="status" slot="icon-only" color="light" src="/assets/icons/custom/hidden.svg"></ion-icon>
 </p>

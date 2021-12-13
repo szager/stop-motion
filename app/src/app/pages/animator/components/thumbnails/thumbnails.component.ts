@@ -24,6 +24,7 @@ export class ThumbnailsComponent extends BaseComponent implements OnDestroy, OnI
     navigation: true
   };
   private interval = null;
+  public framesLength: number;
   status: boolean = false;
 
 
@@ -37,6 +38,7 @@ export class ThumbnailsComponent extends BaseComponent implements OnDestroy, OnI
 
   ngOnInit() {
    this.list = this.animatorService.getFrames().pipe(tap((frames: HTMLCanvasElement[]) => {
+     this.framesLength = frames.length;
       setTimeout(() => {
         this.thumbnailsContainer.slideTo(frames.length + 1);
       }, 100);
