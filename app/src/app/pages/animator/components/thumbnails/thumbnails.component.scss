@@ -1,6 +1,6 @@
 ion-slides {
   height: auto;
-  margin: 30px auto 0 auto;
+  margin: 20px auto 0 auto;
   &.hidden {
     display: none;
   }
@@ -24,7 +24,7 @@ ion-slides {
   z-index: 9;
   width: 100%;
   position: absolute;
-  margin-top: -25px;
+  margin-top: -40px;
   left: -2px;
   padding-top: 10px;
   padding-bottom: 5px;
@@ -44,7 +44,7 @@ ion-slides {
 }
 } */
 
-@media screen and (max-width: 600px) and (orientation: portrait) {
+@media screen and (max-width: 769px) and (orientation: portrait) {
   ion-slides {
     width: 90%;
 
@@ -55,7 +55,7 @@ ion-slides {
   }
 }
 
-@media screen and (max-width: 600px) and (orientation: landscape) {
+@media screen and (max-width: 769px) and (orientation: landscape) {
   ion-slides {
     width: 333px;
 
@@ -65,7 +65,7 @@ ion-slides {
   }
 }
 
-@media screen and (min-width: 601px) and (orientation: portrait) {
+@media screen and (min-width: 769px) and (orientation: portrait) {
   ion-slides {
     width: 450px;
 
@@ -75,7 +75,7 @@ ion-slides {
   }
 }
 
-@media screen and (min-width: 601px) and (orientation: landscape) {
+@media screen and (min-width: 769px) and (orientation: landscape) {
   ion-slides {
     width: 600px;
 

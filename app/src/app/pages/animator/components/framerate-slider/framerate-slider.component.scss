@@ -2,11 +2,19 @@ ion-range {
     padding-top: 0;
     padding-bottom: 0;
 
-    @media screen and (min-width: 601px) {
+    @media screen and (min-width: 769px) {
 
       .range-bar {
         background: rgba(var(--ion-color-primary), 0.46) !important;
     }
     }
+}
 
+.framerate {
+  text-align: right;
+  color: #fff;
+  font-weight: 400;
+  z-index: 9;
+  position: relative;
+  font-size: 12px;
 }
