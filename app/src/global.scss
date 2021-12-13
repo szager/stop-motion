@@ -127,3 +127,22 @@ video::-webkit-media-controls {
   opacity: 0;
 }
 
+ion-fab {
+  display: block;
+  z-index: 999999 !important;
+}
+
+@media (orientation: landscape) and (hover: none) and (pointer: coarse) {
+  .container {
+    height: unset !important;
+  }
+  body {
+    height: 100vh !important;
+    max-height: 100vh !important;
+    overflow: hidden;
+  }
+  app-thumbnails, .container {
+    display: none !important;
+  }
+}
+

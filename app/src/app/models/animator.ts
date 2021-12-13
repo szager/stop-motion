@@ -111,7 +111,6 @@ export class Animator {
             };
         } else {
             if (sourceId) {
-                console.log('here');
                 constraints.video = {
                     width: screenDimensions.width,
                     height: screenDimensions.height,
