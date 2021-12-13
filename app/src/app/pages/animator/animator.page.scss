@@ -41,7 +41,7 @@ video {
   }
 }*/
 
-@media screen and (max-width: 769px) and (orientation: portrait) {
+@media screen and (max-width: 1025px) and (orientation: portrait) {
   .container {
     height: 100%;
     width: 100%;
@@ -68,7 +68,7 @@ video {
 }
 
 
-@media screen and (max-width: 769px) and (orientation: landscape) {
+@media screen and (max-width: 1025px) and (orientation: landscape) {
   .container {
     height: 250px;
     width: 333px;
@@ -79,7 +79,7 @@ video {
   }
 }
 
-@media screen and (min-width: 769px) and (orientation: portrait) {
+@media screen and (min-width: 1025px) and (orientation: portrait) {
   .container {
     height: 600px;
     width: 450px;
@@ -90,7 +90,7 @@ video {
   }
 }
 
-@media screen and (min-width: 769px) and (orientation: landscape) {
+@media screen and (min-width: 1025px) and (orientation: landscape) {
   .container {
     height: 450px;
     width: 600px;

@@ -500,11 +500,11 @@ export class Animator {
                 width = 210;
                 height = 280;
                 break; */
-            case (layoutOptions.width < 600):
+            case (layoutOptions.width < 1025):
                 width = layoutOptions.width;
                 height = layoutOptions.height;
                 break;
-            case (layoutOptions.width >= 601):
+            case (layoutOptions.width >= 1025):
                 width = 450;
                 height = 600;
                 break;

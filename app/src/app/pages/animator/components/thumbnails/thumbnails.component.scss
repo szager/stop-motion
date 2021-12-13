@@ -44,7 +44,7 @@ ion-slides {
 }
 } */
 
-@media screen and (max-width: 769px) and (orientation: portrait) {
+@media screen and (max-width: 1025px) and (orientation: portrait) {
   ion-slides {
     width: 90%;
 
@@ -55,7 +55,7 @@ ion-slides {
   }
 }
 
-@media screen and (max-width: 769px) and (orientation: landscape) {
+@media screen and (max-width: 1025px) and (orientation: landscape) {
   ion-slides {
     width: 333px;
 
@@ -65,7 +65,7 @@ ion-slides {
   }
 }
 
-@media screen and (min-width: 769px) and (orientation: portrait) {
+@media screen and (min-width: 1025px) and (orientation: portrait) {
   ion-slides {
     width: 450px;
 
@@ -75,7 +75,7 @@ ion-slides {
   }
 }
 
-@media screen and (min-width: 769px) and (orientation: landscape) {
+@media screen and (min-width: 1025px) and (orientation: landscape) {
   ion-slides {
     width: 600px;
 
