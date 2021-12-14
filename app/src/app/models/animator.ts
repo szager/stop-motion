@@ -92,8 +92,6 @@ export class Animator {
     * Method is used to attach a media stream to the video component
     */
     public async attachStream(sourceId: any, layoutOptions: LayoutOptions, facingMode?: string): Promise<any> {
-        const screenDimensions = this.calculateDimensions(layoutOptions);
-        console.log(screenDimensions);
         const constraints = {
             audio: false,
             frameRate: 15,
@@ -105,15 +103,15 @@ export class Animator {
         if (this.platform.is('ios') || this.platform.is('android')) {
             constraints.video = {
                 // strange bug - width and height needs to be swaped
-                width: screenDimensions.height,
-                height: screenDimensions.width,
+                width: layoutOptions.height,
+                height: layoutOptions.width,
                 facingMode
             };
         } else {
             if (sourceId) {
                 constraints.video = {
-                    width: screenDimensions.width,
-                    height: screenDimensions.height,
+                    width: layoutOptions.width,
+                    height: layoutOptions.height,
                     sourceId
                 };
             } else {
@@ -489,46 +487,13 @@ export class Animator {
         }));
     }
 
-    public calculateDimensions(layoutOptions: LayoutOptions): ScreenDimension {
-        const screenOrientation = layoutOptions.height > layoutOptions.width ? 'portrait' : 'landscape';
-        const screenSize = layoutOptions.currentOrientation === ScreenOrientation.portrait ? layoutOptions.height : layoutOptions.width;
-        let width;
-        let height;
-        // switch case
-        switch (true) {
-            /* case (layoutOptions.width < 350):
-                width = 210;
-                height = 280;
-                break; */
-            case (layoutOptions.width < 1025):
-                width = layoutOptions.width;
-                height = layoutOptions.height;
-                break;
-            case (layoutOptions.width >= 1025):
-                width = 450;
-                height = 600;
-                break;
-            default:
-                break;
-        }
-        //const width = layoutOptions.width < 600 ? 250 : 450;
-        //const height = layoutOptions.width < 600 ? 333 : 600;
-        console.log('🚀 ~ file: animator.ts ~ line 466 ~ Animator ~ calculateDimensions ~ screenSize', screenSize);
-        return {
-            width: (screenOrientation === 'portrait') ? width : height,
-            height: (screenOrientation === 'portrait') ? height : width
-        };
-    }
-
     /*
     * setDimensions method is used to set dimension width and height of components
     */
     public setDimensions(layoutOptions: LayoutOptions): void {
         // console.log('🚀 ~ file: animator.ts ~ line 462 ~ Animator ~ setDimensions ~ setDimensions', width, height);
-        const screenDimensions = this.calculateDimensions(layoutOptions);
-        this.width = screenDimensions.width;
-        this.height = screenDimensions.height;
-        console.log(this.width);
+        this.width = layoutOptions.width;
+        this.height = layoutOptions.height;
         this.video.width = this.width;
         this.video.height = this.height;
         this.snapshotCanvas.width = this.width;

@@ -132,7 +132,7 @@ ion-fab {
   z-index: 999999 !important;
 }
 
-@media (orientation: landscape) and (hover: none) and (pointer: coarse) {
+@media (max-height: 680px) and (orientation: landscape) and (hover: none) and (pointer: coarse) {
   .container {
     height: unset !important;
   }

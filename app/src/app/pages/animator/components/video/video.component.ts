@@ -41,9 +41,8 @@ export class VideoComponent extends BaseComponent {
     .pipe(tap(([camerStatus, cameraIsRotated, layoutOptions]: [CameraStatus, boolean, LayoutOptions]) => {
       this.cameraRotation = (cameraIsRotated) ? 'rotated' : 'default';
       // TODO could probably removed
-      const screenDimensions = this.animatorService.animator.calculateDimensions(layoutOptions);
-      this.height = screenDimensions.height;
-      this.width = screenDimensions.width;
+      this.height = layoutOptions.height;
+      this.width = layoutOptions.width;
       return camerStatus;
     }));
   }

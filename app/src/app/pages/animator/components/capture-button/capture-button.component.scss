@@ -6,11 +6,6 @@ ion-fab-button {
   ion-icon {
     font-size: 48px;
   }
-
-  @media screen and (min-width: 1025px) {
-    background-color: var(--ion-color-primary) !important;
-    border-radius: 50%;
-  }
 }
 
 @keyframes buttonClickAnimation {

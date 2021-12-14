@@ -19,12 +19,3 @@ ion-tab-bar {
 ion-icon {
     color: #fff !important;
 }
-
-@media screen and (min-width: 1025px) {
-    ion-tab-bar {
-        background-color: var(--ion-color-primary) !important;
-        ion-tab-button {
-            background-color: transparent;
-        }
-    }
-}

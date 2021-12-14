@@ -1,14 +1,25 @@
 .container {
   margin: 0 auto;
   display: block;
-  position: relative;
   background-color: #000;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
 }
 
 .camera-state {
   text-align: right;
   margin-top: -25px;
-  margin-bottom: 10px;
+  color: #fff;
+  display: block;
+  z-index: 9;
+  position: relative;
+  font-weight: 400;
+  top: 0px;
+  margin-top: 0px;
+  margin-bottom: 0 !important;
+  font-size: 12px;
 }
 
 video {
@@ -20,6 +31,7 @@ video {
 #thumbnail-container {
   display: flex;
   overflow-x: auto;
+  max-width: 250px;
 }
 
 #snapshot-canvas {
@@ -30,82 +42,12 @@ video {
   opacity: 1;
 }
 
-/*@media screen and (max-width: 350px) and (orientation: portrait) {
-  .container {
-    height: 280px;
-    width: 210px;
-  }
-
-  #thumbnail-container {
-    max-width: 210px;
-  }
-}*/
-
-@media screen and (max-width: 1025px) and (orientation: portrait) {
-  .container {
-    height: 100%;
-    width: 100%;
-    position: absolute;
-    top: 0;
-  }
-
-  #thumbnail-container {
-    max-width: 250px;
-  }
-  .camera-state {
-    text-align: right;
-    margin-top: -25px;
-    color: #fff;
-    display: block;
-    z-index: 9;
-    position: relative;
-    font-weight: 400;
-    top: 0px;
-    margin-top: 0px;
-    margin-bottom: 0 !important;
-    font-size: 12px;
-}
-}
-
-
-@media screen and (max-width: 1025px) and (orientation: landscape) {
-  .container {
-    height: 250px;
-    width: 333px;
-  }
-
-  #thumbnail-container {
-    max-width: 333px;
-  }
-}
-
-@media screen and (min-width: 1025px) and (orientation: portrait) {
-  .container {
-    height: 600px;
-    width: 450px;
-  }
-
-  #thumbnail-container {
-    max-width: 450px;
-  }
-}
-
-@media screen and (min-width: 1025px) and (orientation: landscape) {
-  .container {
-    height: 450px;
-    width: 600px;
-  }
-
-  #thumbnail-container {
-    max-width: 600px;
-  }
-}
-
 .screen-orientation-overlay {
   display: none;
 }
 
-@media screen and (max-width:1048px) and (orientation: landscape) {
+
+@media (max-height: 680px) and (orientation: landscape) {
   .screen-orientation-overlay {
     display: flex;
     position: absolute;
@@ -116,12 +58,14 @@ video {
     z-index: 9999999;
     justify-content: center;
     padding-top: 45px;
+
     h2 {
       font-size: 20px;
     }
 
     .overlay-container {
       text-align: center;
+
       ion-icon {
         width: 110px;
         height: 110px;

@@ -1,13 +1,6 @@
 ion-range {
     padding-top: 0;
     padding-bottom: 0;
-
-    @media screen and (min-width: 1025px) {
-
-      .range-bar {
-        background: rgba(var(--ion-color-primary), 0.46) !important;
-    }
-    }
 }
 
 .framerate {
