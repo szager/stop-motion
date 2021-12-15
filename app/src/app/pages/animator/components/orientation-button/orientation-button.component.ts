@@ -1,17 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
+import { BaseComponent } from '@components/base/base.component';
+import { ScreenOrientation } from '@enums/screen-orientation.enum';
 import { AnimatorService } from '@services/animator/animator.service';
 import { BaseService } from '@services/base/base.service';
-import { first, last, takeUntil } from 'rxjs/operators';
-import { ScreenOrientation } from '@enums/screen-orientation.enum';
-import { BaseComponent } from '@components/base/base.component';
 import { LayoutService } from '@services/layout/layout.service';
+import { first } from 'rxjs/operators';
 
 @Component({
   selector: 'app-orientation-button',
   templateUrl: './orientation-button.component.html',
   styleUrls: ['./orientation-button.component.scss'],
 })
-export class OrientationButtonComponent extends BaseComponent implements OnInit {
+export class OrientationButtonComponent extends BaseComponent {
 
   constructor(
     public baseService: BaseService,
@@ -20,8 +20,6 @@ export class OrientationButtonComponent extends BaseComponent implements OnInit 
   ) {
     super(baseService);
   }
-
-  ngOnInit() { }
 
   public async onClick() {
     const frames = await this.animatorService.getFrames().pipe(first()).toPromise();

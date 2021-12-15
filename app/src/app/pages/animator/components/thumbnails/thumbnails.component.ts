@@ -23,9 +23,9 @@ export class ThumbnailsComponent extends BaseComponent implements OnDestroy, OnI
     },
     navigation: true
   };
-  private interval = null;
   public framesLength: number;
-  status: boolean = false;
+  public status = false;
+  private interval = null;
 
 
   constructor(
@@ -37,8 +37,8 @@ export class ThumbnailsComponent extends BaseComponent implements OnDestroy, OnI
   }
 
   ngOnInit() {
-   this.list = this.animatorService.getFrames().pipe(tap((frames: HTMLCanvasElement[]) => {
-     this.framesLength = frames.length;
+    this.list = this.animatorService.getFrames().pipe(tap((frames: HTMLCanvasElement[]) => {
+      this.framesLength = frames.length;
       setTimeout(() => {
         this.thumbnailsContainer.slideTo(frames.length + 1);
       }, 100);
@@ -54,12 +54,12 @@ export class ThumbnailsComponent extends BaseComponent implements OnDestroy, OnI
         const seconds = Number((this.animatorService.animator.frames.length / playbackSpeed).toFixed(2));
         const frames = this.animatorService.animator.frames.length;
         // multiply the number of seconds by hundred to get interval and divide by number of frames
-        const milliSeconds = (seconds * 1000) /  frames;
+        const milliSeconds = (seconds * 1000) / frames;
         // internval has to be run outside of the angular zone
         this.zone.runOutsideAngular(() => {
           this.interval = setInterval(() => {
             this.thumbnailsContainer.slideNext();
-          // multiply interval delay by 40 % to slow slider down
+            // multiply interval delay by 40 % to slow slider down
           }, milliSeconds * 1.4);
         });
       } else {

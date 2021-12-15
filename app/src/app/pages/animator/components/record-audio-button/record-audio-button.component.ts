@@ -53,14 +53,13 @@ export class RecordAudioButtonComponent extends BaseComponent implements OnInit 
   }
 
   private async recordAudio() {
-    await this.animatorService.recordAudio();
-    // await this.presentLoading({
-    //   message: this.baseService.translate.instant('loader_record_audio_message')
-    // });
-    // setTimeout(async () => {
-    //   this.dismissloading();
-    //   await this.animatorService.recordAudio();
-    // }, 3000);
+    await this.presentLoading({
+      message: this.baseService.translate.instant('loader_record_audio_message')
+    });
+    setTimeout(async () => {
+      this.dismissloading();
+      await this.animatorService.recordAudio();
+    }, 3000);
   }
 
 }

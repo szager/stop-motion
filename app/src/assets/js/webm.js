@@ -1660,6 +1660,8 @@ var webm = webm || {};
                     hasAudio = true;
                 }
             }
+            console.log('🚀 ~ file: webm.js ~ line 1664 ~ w', w);
+            console.log('🚀 ~ file: webm.js ~ line 1664 ~ h', h);
             if (w == -1 || h == -1)
                 throw ('Could not decode height/width from Segment/Tracks/TrackEntry/Video/Pixel[Width|Height] section.');
             if (sizeCB)

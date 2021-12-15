@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { AnimatorService } from '@services/animator/animator.service';
 
 @Component({
@@ -6,13 +6,11 @@ import { AnimatorService } from '@services/animator/animator.service';
   templateUrl: './undo-button.component.html',
   styleUrls: ['./undo-button.component.scss'],
 })
-export class UndoButtonComponent implements OnInit {
+export class UndoButtonComponent {
 
   constructor(
     private animatorService: AnimatorService
   ) { }
-
-  ngOnInit() {}
 
   onClick() {
     this.animatorService.undoCapture();

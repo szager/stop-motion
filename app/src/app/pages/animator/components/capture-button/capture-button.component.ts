@@ -6,21 +6,21 @@ import { AnimatorService } from '@services/animator/animator.service';
   templateUrl: './capture-button.component.html',
   styleUrls: ['./capture-button.component.scss'],
 })
-export class CaptureButtonComponent implements OnInit {
-  animated: boolean = false;
+export class CaptureButtonComponent {
+
+  animated = false;
+
   constructor(
     private animatorService: AnimatorService
   ) { }
 
-  ngOnInit() {}
-
-  async onClick() {
+  async onClick(): Promise<void> {
     await this.animatorService.capture();
     this.animated = !this.animated;
     this.delay(500).then(() => this.animated = false);
   }
 
-  async delay(ms: number) {
+  async delay(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 

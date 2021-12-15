@@ -337,40 +337,13 @@ export class Animator {
             // If not specified this defaults to the same value as `quality`.
         });
 
-        // console.log('🚀 ~ file: animator.ts ~ line 361 ~ Animator ~ save ~ videoWriter', videoWriter);
-
         for (const frame of this.frames) {
             if (this.isSafari()) {
-                // console.log('🚀 ~ file: animator.ts ~ line 365 ~ Animator ~ save ~ frame', frame.toDataURL('image/png'));
-                // console.log('🚀 ~ file: animator.ts ~ line 369 ~ Animator ~ save ~ result', result);
                 const encoder = new WebPEncoder();
                 const config = {
                     // eslint-disable-next-line @typescript-eslint/naming-convention
                     extra_info_type: 0
                 };
-                //Config, you can set all arguments or what you need, nothing no objeect
-                // var
-                // config = new Object()
-                // config.target_size = 0;	 // if non-zero, set the desired target size in bytes.
-                // Takes precedence over the 'compression' parameter.
-                // config.target_PSNR = 0.;	 // if non-zero, specifies the minimal distortion to try to achieve.
-                // Takes precedence over target_size.
-                // config.method 					// quality/speed trade-off (0=fast, 6=slower-better)
-                // config.sns_strength       		// Spatial Noise Shaping. 0=off, 100=maximum.
-                // config.filter_strength           // range: [0 = off .. 100 = strongest]
-                // config.filter_sharpness // range: [0 = off .. 7 = least sharp]
-                // config.filter_type  	// filtering type: 0 = simple, 1 = strong (only used if filter_strength > 0 or autofilter > 0)
-                // config.partitions 	// log2(number of token partitions) in [0..3] Default is set to 0 for easier progressive decoding.
-                // config.segments );				// maximum number of segments to use, in [1..4]
-                // config.pass 				// number of entropy-analysis passes (in [1..10]).
-                // config.show_compressed	// if true, export the compressed picture back. In-loop filtering is not applied.
-                // config.preprocessing // preprocessing filter (0=none, 1=segment-smooth)
-                // config.autofilter // Auto adjust filter's strength [0 = off, 1 = on]
-                // config.partition_limit /  --- description from libwebp-C-Source Code ---
-                // config.extra_info_type val(),2);	// print extra_info
-                // config.preset  					// 0: default, 1: picture, 2: photo, 3: drawing, 4: icon, 5: text
-
-                //set Config; default config -> WebPConfig( null )
                 encoder.WebPEncodeConfig(config); //when you set the config you must it do for every WebPEncode... new
                 const out = { output: '' };
                 //w*4 desc: w = width, 3:RGB/BGR, 4:RGBA/BGRA
@@ -392,26 +365,6 @@ export class Animator {
         downloadLink.click();
         URL.revokeObjectURL(url);
         return blob;
-        // return;
-    }
-
-    encode(title): Promise<any> {
-        if (!this.audioBlob) {
-            console.log('🚀 ~ file: line 358 ~ encode ~ title', title, this.width, this.height, this.frameTimeout(), this.frameWebps);
-            return webm.encode(title, this.width, this.height, this.frameTimeout(), this.frameWebps, null);
-        }
-        const fr = new FileReader();
-        const an = this;
-        console.log('🚀 ~ file: animator.ts ~ line 361 ~ Animator ~ encode ~ an', an.width, an.height, an.frameTimeout(), an.frameWebps);
-        const promise = new Promise((resolve, reject) => {
-            fr.addEventListener('loadend', evt => {
-                console.log('🚀 ~ file: animator.ts ~ line 364 ~ Animator ~ promise ~ loadend', fr.result);
-                webm.encode(title, an.width, an.height, an.frameTimeout(), an.frameWebps, fr.result)
-                    .then(resolve);
-            });
-            fr.readAsArrayBuffer(an.audioBlob);
-        });
-        return promise;
     }
 
     public async recordAudio(stream) {

@@ -13,7 +13,7 @@ export class PlayButtonComponent {
   ) {}
 
 
-  async onClick() {
+  async onClick(): Promise<void> {
       await this.animatorService.togglePlay();
   }
 

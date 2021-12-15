@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { BaseComponent } from '@components/base/base.component';
 import { AnimatorService } from '@services/animator/animator.service';
 import { BaseService } from '@services/base/base.service';
@@ -9,7 +9,7 @@ import { first } from 'rxjs/operators';
   templateUrl: './load-button.component.html',
   styleUrls: ['./load-button.component.scss'],
 })
-export class LoadButtonComponent extends BaseComponent implements OnInit {
+export class LoadButtonComponent extends BaseComponent {
 
   @ViewChild('fileInput', { static: true }) public fileInput: ElementRef;
 
@@ -19,8 +19,6 @@ export class LoadButtonComponent extends BaseComponent implements OnInit {
   ) {
     super(baseService);
   }
-
-  ngOnInit() { }
 
   async onClick() {
     const frames = await this.animatorService.getFrames().pipe(first()).toPromise();
