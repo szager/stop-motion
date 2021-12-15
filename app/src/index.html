@@ -123,7 +123,7 @@
 
     <!-- prevent double tap zoom on ios -->
     <script>
-        document.addEventListener('touchend', (event) => { event.preventDefault(); event.srcElement.click(); }, false);
+        document.addEventListener('touchend', (event) => { return false });
     </script>
 </head>
 
