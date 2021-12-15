@@ -157,6 +157,8 @@ export class AnimatorService {
   }
 
   public async load(filepath: string): Promise<any> {
+    // before loading a new file clear all current data
+    this.clear();
     await this.animator.load(filepath);
     this.frames.next(this.animator.frames);
     return;

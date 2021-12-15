@@ -26,7 +26,6 @@ export class ClearButtonComponent implements OnInit {
         message: this.baseService.translate.instant('alert_clear_animator_message'),
         buttons: [this.baseService.alertService.createCancelButton(),
         this.baseService.alertService.createConfirmButton(() => {
-          // TODO clear thumbnail container > thumbnailContainer.innerHTML = "";
           this.animatorService.clear();
         })]
       });
