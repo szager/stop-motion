@@ -3,7 +3,7 @@
   <app-framerate-slider></app-framerate-slider>
   <p *ngIf="!environment.production" class="ion-padding-horizontal ion-no-margin camera-state">
     <span *ngIf="state | async as state">
-      Kamera Status: {{ state[0] }}
+      Camera: {{ state[0] }}
     </span>
   </p>
   <div class="container">

@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
+import { BaseComponent } from '@components/base/base.component';
 import { AnimatorService } from '@services/animator/animator.service';
 import { BaseService } from '@services/base/base.service';
 import { first } from 'rxjs/operators';
@@ -8,14 +9,14 @@ import { first } from 'rxjs/operators';
   templateUrl: './save-button.component.html',
   styleUrls: ['./save-button.component.scss'],
 })
-export class SaveButtonComponent implements OnInit {
+export class SaveButtonComponent extends BaseComponent {
 
   constructor(
     public baseService: BaseService,
     private animatorService: AnimatorService
-  ) { }
-
-  ngOnInit() { }
+  ) {
+    super(baseService);
+  }
 
   async onClick() {
     const frames = await this.animatorService.getFrames().pipe(first()).toPromise();
@@ -31,8 +32,13 @@ export class SaveButtonComponent implements OnInit {
           },],
         buttons: [this.baseService.alertService.createCancelButton(), {
           text: this.baseService.translate.instant('buttons_save'),
-          handler: (inputData: any) => {
-            this.animatorService.save(inputData.filename);
+          handler: async (inputData: any) => {
+            await this.baseService.alertService.dismissAlert();
+            await this.presentLoading({
+              message: this.baseService.translate.instant('loader_export_start')
+            });
+            await this.animatorService.save(inputData.filename);
+            this.dismissloading();
           }
         }]
       });

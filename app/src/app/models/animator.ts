@@ -1,13 +1,12 @@
 import { Injectable } from '@angular/core';
-import { ScreenOrientation } from '@enums/screen-orientation.enum';
 import { LayoutOptions } from '@interfaces/layout-options.interface';
-import { ScreenDimension } from '@interfaces/screen-dimensions.interface';
 import { Platform } from '@ionic/angular';
 import { BaseService } from '@services/base/base.service';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { first } from 'rxjs/operators';
 import * as WebMWriter from 'webm-writer';
-
+// eslint-disable-next-line @typescript-eslint/naming-convention
+declare const WebPEncoder: any;
 declare const webm: any;
 @Injectable({
     providedIn: 'root'
@@ -314,13 +313,10 @@ export class Animator {
     }
 
     loadFinished() {
-        console.log('🚀 ~ file: animator.ts ~ line 323 ~ Animator ~ loadFinished ~ this.frames', this.frames);
-
-        this.snapshotContext.clearRect(0, 0, this.width, this.height);
         if (this.frames.length) {
-            // this.snapshotContext.clearRect(0, 0, this.width, this.height);
-            // this.snapshotContext.drawImage(this.frames[this.frames.length - 1], 0, 0, this.width, this.height);
-            // this.startPlay(null);
+            this.snapshotContext.clearRect(0, 0, this.width, this.height);
+            this.snapshotContext.drawImage(this.frames[this.frames.length - 1], 0, 0, this.width, this.height);
+            this.startPlay(null);
         }
     }
 
@@ -339,10 +335,7 @@ export class Animator {
     public async save(filename) {
         filename = filename || 'StopMotion';
         if (!filename.endsWith('.webm')) { filename += '.webm'; }
-        const title = filename.substr(0, filename.length - 5);
-        // const blob = await this.encode(title);
         const frameRate = await this.getFramerate().pipe(first()).toPromise();
-
         const videoWriter = new WebMWriter({
             quality: 0.95,    // WebM image quality from 0.0 (worst) to 0.99999 (best), 1.00 (VP8L lossless) is not supported
             fileWriter: null, // FileWriter in order to stream to a file instead of buffering to memory (optional)
@@ -355,8 +348,50 @@ export class Animator {
             // If not specified this defaults to the same value as `quality`.
         });
 
+        // console.log('🚀 ~ file: animator.ts ~ line 361 ~ Animator ~ save ~ videoWriter', videoWriter);
+
         for (const frame of this.frames) {
-            videoWriter.addFrame(frame);
+            if (this.isSafari()) {
+                // console.log('🚀 ~ file: animator.ts ~ line 365 ~ Animator ~ save ~ frame', frame.toDataURL('image/png'));
+                // console.log('🚀 ~ file: animator.ts ~ line 369 ~ Animator ~ save ~ result', result);
+                const encoder = new WebPEncoder();
+                const config = {
+                    // eslint-disable-next-line @typescript-eslint/naming-convention
+                    extra_info_type: 0
+                };
+                //Config, you can set all arguments or what you need, nothing no objeect
+                // var
+                // config = new Object()
+                // config.target_size = 0;	 // if non-zero, set the desired target size in bytes.
+                // Takes precedence over the 'compression' parameter.
+                // config.target_PSNR = 0.;	 // if non-zero, specifies the minimal distortion to try to achieve.
+                // Takes precedence over target_size.
+                // config.method 					// quality/speed trade-off (0=fast, 6=slower-better)
+                // config.sns_strength       		// Spatial Noise Shaping. 0=off, 100=maximum.
+                // config.filter_strength           // range: [0 = off .. 100 = strongest]
+                // config.filter_sharpness // range: [0 = off .. 7 = least sharp]
+                // config.filter_type  	// filtering type: 0 = simple, 1 = strong (only used if filter_strength > 0 or autofilter > 0)
+                // config.partitions 	// log2(number of token partitions) in [0..3] Default is set to 0 for easier progressive decoding.
+                // config.segments );				// maximum number of segments to use, in [1..4]
+                // config.pass 				// number of entropy-analysis passes (in [1..10]).
+                // config.show_compressed	// if true, export the compressed picture back. In-loop filtering is not applied.
+                // config.preprocessing // preprocessing filter (0=none, 1=segment-smooth)
+                // config.autofilter // Auto adjust filter's strength [0 = off, 1 = on]
+                // config.partition_limit /  --- description from libwebp-C-Source Code ---
+                // config.extra_info_type val(),2);	// print extra_info
+                // config.preset  					// 0: default, 1: picture, 2: photo, 3: drawing, 4: icon, 5: text
+
+                //set Config; default config -> WebPConfig( null )
+                encoder.WebPEncodeConfig(config); //when you set the config you must it do for every WebPEncode... new
+                const out = { output: '' };
+                //w*4 desc: w = width, 3:RGB/BGR, 4:RGBA/BGRA
+                const ctx = frame.getContext('2d').getImageData(0, 0, this.width, this.height);
+                encoder.WebPEncodeRGBA(ctx.data, this.width, this.height, this.width * 4, 75, out);
+                const base64URI = `data:image/webp;base64,${btoa(out.output)}`;
+                videoWriter.addFrame(base64URI);
+            } else {
+                videoWriter.addFrame(frame);
+            }
         }
 
         const blob = await videoWriter.complete();
@@ -368,6 +403,7 @@ export class Animator {
         downloadLink.click();
         URL.revokeObjectURL(url);
         return blob;
+        // return;
     }
 
     encode(title): Promise<any> {
@@ -389,79 +425,10 @@ export class Animator {
         return promise;
     }
 
-    addFrameVP8(frameOffset, blob, idx) {
-        let blobURL = URL.createObjectURL(blob);
-        const image = new Image(this.width, this.height);
-        this.framesInFlight++;
-
-        image.addEventListener('error', (error) => {
-            console.log('🚀 ~ file: animator.ts ~ line 316 ~ Animator ~ image.addEventListener ~ addEventListener', error);
-            if (image.getAttribute('triedvp8l')) {
-                console.log(error);
-                this.framesInFlight--;
-                URL.revokeObjectURL(blobURL);
-                image.src = null;
-                if (this.framesInFlight === 0) { this.loadFinished(); }
-            } else {
-                // image.setAttribute('triedvp8l', true);
-                image.setAttribute('triedvp8l', 'true');
-                URL.revokeObjectURL(blobURL);
-                blob = webm.vp8tovp8l(blob);
-                blobURL = URL.createObjectURL(blob);
-                image.src = blobURL;
-            }
-        });
-        // .bind(this));
-
-        image.addEventListener('load', (evt: any) => {
-            console.log('🚀 ~ file: animator.ts ~ line 335 ~ Animator ~ image.addEventListener ~ evt', evt);
-            const newCanvas = document.createElement('canvas');
-            newCanvas.width = this.width;
-            newCanvas.height = this.height;
-            newCanvas.getContext('2d', { alpha: false }).drawImage(evt.target, 0, 0, this.width, this.height);
-            this.frames[frameOffset + idx] = newCanvas;
-            this.frameWebps[frameOffset + idx] = new Promise((resolve, reject) => {
-                resolve(blob);
-            });
-            this.framesInFlight--;
-            URL.revokeObjectURL(blobURL);
-            if (this.framesInFlight === 0) { this.loadFinished(); }
-        });
-        // .bind(this));
-
-        image.src = blobURL;
-    }
-
-    public async load(file: any): Promise<any> {
-        const animator = this;
-        const frameOffset = this.frames.length;
-        const reader = new FileReader();
-        reader.addEventListener('loadend', evt => {
-            console.log('🚀 ~ file: animator.ts ~ line 408 ~ Animator ~ load ~ loadend', evt);
-            try {
-                webm.decode(evt.target.result,
-                    animator.setDimensions.bind(animator),
-                    // frameRateCB,
-                    (frameRate: number) => {
-                        console.log('🚀 ~ file: animator.ts ~ line 400 ~ Animator ~ load ~ frameRate', frameRate);
-                        this.setFramerate(Math.round(frameRate));
-                    },
-                    animator.addFrameVP8.bind(animator, frameOffset),
-                    animator.setAudioSrc.bind(animator));
-                animator.name = file.name.substring(0, file.name.length - 5);
-                // if (finishCB) { finishCB(); }
-                return;
-            } catch (err) {
-                console.log('🚀 ~ file: animator.ts ~ line 422 ~ Animator ~ load ~ err', err);
-                return;
-            }
-        });
-        reader.readAsArrayBuffer(file);
-    }
-
     public async recordAudio(stream) {
-        const mimeType = this.platform.is('ios') ? 'audio/mp4' : 'audio/webm;codecs=opus';
-        // const mimeType = 'audio/webm;codecs=opus';
+        // determine if os is iOS or browser is safari, if so use other codec to store audio
+        const mimeType = this.isSafari() ? 'audio/mp4' : 'audio/webm;codecs=opus';
+        // const mimeType = 'video/webm';
         return new Promise(((resolve, reject) => {
             if (!this.frames.length) {
                 resolve(null);
@@ -491,7 +458,6 @@ export class Animator {
     * setDimensions method is used to set dimension width and height of components
     */
     public setDimensions(layoutOptions: LayoutOptions): void {
-        // console.log('🚀 ~ file: animator.ts ~ line 462 ~ Animator ~ setDimensions ~ setDimensions', width, height);
         this.width = layoutOptions.width;
         this.height = layoutOptions.height;
         this.video.width = this.width;
@@ -500,5 +466,97 @@ export class Animator {
         this.snapshotCanvas.height = this.height;
         this.playCanvas.width = this.width;
         this.playCanvas.height = this.height;
+    }
+
+
+    addFrameVP8(frameOffset, callback, blob, idx) {
+        let blobURL = URL.createObjectURL(blob);
+        const image = new Image(this.width, this.height);
+        this.framesInFlight++;
+
+        image.addEventListener('error', (error) => {
+            if (image.getAttribute('triedvp8l')) {
+                console.log(error);
+                this.framesInFlight--;
+                URL.revokeObjectURL(blobURL);
+                image.src = null;
+                if (this.framesInFlight === 0) { callback(); }
+            } else {
+                // image.setAttribute('triedvp8l', true);
+                image.setAttribute('triedvp8l', 'true');
+                URL.revokeObjectURL(blobURL);
+                blob = webm.vp8tovp8l(blob);
+                blobURL = URL.createObjectURL(blob);
+                image.src = blobURL;
+            }
+        });
+        // .bind(this));
+
+        image.addEventListener('load', (evt: any) => {
+            const newCanvas = document.createElement('canvas');
+            newCanvas.width = this.width;
+            newCanvas.height = this.height;
+            newCanvas.getContext('2d', { alpha: false }).drawImage(evt.target, 0, 0, this.width, this.height);
+            this.frames[frameOffset + idx] = newCanvas;
+            this.frameWebps[frameOffset + idx] = new Promise((resolve, reject) => {
+                resolve(blob);
+            });
+            this.framesInFlight--;
+            URL.revokeObjectURL(blobURL);
+            if (this.framesInFlight === 0) { callback(); }
+        });
+        // .bind(this));
+
+        image.src = blobURL;
+    }
+
+    public async load(file: any): Promise<any> {
+        const result = await this.readFile(file);
+        try {
+            await this.decodeFile(result);
+            this.loadFinished();
+            return;
+        } catch (err) {
+            console.log('🚀 ~ file: animator.ts ~ line 422 ~ Animator ~ load ~ err', err);
+            return;
+        }
+    }
+
+    private async decodeFile(fileBuffer: ArrayBuffer) {
+        const animator = this;
+        return new Promise((resolve) => {
+            webm.decode(fileBuffer,
+                // animator.setDimensions.bind(animator),
+                (width: number, height: number) => {
+                console.log('🚀 ~ file: animator.ts ~ line 610 ~ Animator ~ returnnewPromise ~ height', height);
+                console.log('🚀 ~ file: animator.ts ~ line 610 ~ Animator ~ returnnewPromise ~ width', width);
+                    this.setDimensions({
+                        width: this.width,
+                        height: this.height
+                    } as any);
+                },
+                // frameRateCB,
+                (frameRate: number) => {
+                    console.log('🚀 ~ file: animator.ts ~ line 400 ~ Animator ~ load ~ frameRate', frameRate);
+                    this.setFramerate(Math.round(frameRate));
+                },
+                animator.addFrameVP8.bind(animator, this.frames.length, resolve),
+                animator.setAudioSrc.bind(animator));
+        });
+    }
+
+    private async readFile(file: any): Promise<ArrayBuffer> {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = (event: any) => resolve(event.target.result);
+            reader.readAsArrayBuffer(file);
+        });
+    }
+
+    /*
+    * Method is used to determine wether browser has user agent safari or is used on ios
+    */
+    private isSafari(): boolean {
+        return (navigator.userAgent.indexOf('Safari') !== -1 && navigator.userAgent.indexOf('Chrome') === -1) || this.platform.is('ios');
     }
 }

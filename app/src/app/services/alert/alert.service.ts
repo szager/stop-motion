@@ -8,6 +8,8 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class AlertService {
 
+  alert: HTMLIonAlertElement;
+
   constructor(
     private alertController: AlertController,
     private translate: TranslateService
@@ -16,8 +18,8 @@ export class AlertService {
   /*
  * A method to display alert
  */
-  async presentAlert(options: AlertOptions) {
-    const alert = await this.alertController.create({
+  async presentAlert(options: AlertOptions): Promise<void> {
+    this.alert = await this.alertController.create({
       backdropDismiss: false,
       header: options.header,
       message: options.message,
@@ -25,7 +27,13 @@ export class AlertService {
       inputs: options.inputs || []
     });
 
-    await alert.present();
+    await this.alert.present();
+  }
+
+  async dismissAlert(): Promise<void> {
+    if (this.alert) {
+      await this.alert.dismiss();
+    }
   }
 
   public createConfirmButton(handler: () => void) {

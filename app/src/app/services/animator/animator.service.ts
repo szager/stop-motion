@@ -47,9 +47,7 @@ export class AnimatorService {
 
   removeFrames(index: number) {
     const frames = this.frames.getValue();
-    console.log('🚀 ~ file: animator.service.ts ~ line 48 ~ AnimatorService ~ removeFrames ~ frames', frames.length);
     frames.splice(index, 1);
-    console.log('🚀 ~ file: animator.service.ts ~ line 50 ~ AnimatorService ~ removeFrames ~ frames', frames.length);
     this.frames.next(frames);
   }
 
@@ -73,8 +71,6 @@ export class AnimatorService {
     const frames = this.animator.undoCapture();
     this.frames.next(frames);
     if (frames.length === 0) {
-    console.log('🚀 ~ file: animator.service.ts ~ line 73 ~ AnimatorService ~ removeFrames ~ frames', frames);
-    console.log('🚀 ~ file: animator.service.ts ~ line 73 ~ AnimatorService ~ removeFrames ~ frames', frames);
       this.baseService.toastService.presentToast({
         message: this.baseService.translate.instant('toast_animator_undo_hint')
       });
@@ -125,8 +121,10 @@ export class AnimatorService {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
         const result = await this.animator.recordAudio(stream);
+        console.log('🚀 ~ file: animator.service.ts ~ line 128 ~ AnimatorService ~ recordAudio ~ result', result);
         this.animator.isRecording = true;
       } catch (err) {
+        console.log('🚀 ~ file: animator.service.ts ~ line 131 ~ AnimatorService ~ recordAudio ~ err', err);
         this.baseService.toastService.presentToast({
           message: this.baseService.translate.instant('toast_animator_audio_no_access')
         });
@@ -160,19 +158,12 @@ export class AnimatorService {
 
   public async load(filepath: string): Promise<any> {
     await this.animator.load(filepath);
-    console.log('🚀 ~ file: animator.service.ts ~ line 164 ~ AnimatorService ~ load ~ this.animator.frames', this.animator.frames.length);
-
-    // this.frames.next(this.animator.frames);
-    // console.log('🚀 ~ file: animator.service.ts ~ line 163 ~ AnimatorService ~ load ~ result', result);
+    this.frames.next(this.animator.frames);
     return;
   }
 
   public formatTime(seconds: number) {
     return new Date(Math.round(seconds) * 1000).toISOString().substr(14, 5);
-  }
-
-  public delayTimer(milliSeconds: number): Promise<any> {
-    return new Promise(res => setTimeout(res, milliSeconds));
   }
 
   public async switchCamera(): Promise<void> {
