@@ -1,10 +1,10 @@
 import { ElementRef, Injectable } from '@angular/core';
+import { CameraStatus } from '@enums/camera-status.enum';
+import { FacingMode } from '@enums/facing-mode.enum';
 import { Animator } from '@models/animator';
 import { BaseService } from '@services/base/base.service';
 import { BehaviorSubject } from 'rxjs';
 import { first } from 'rxjs/operators';
-import { CameraStatus } from '@enums/camera-status.enum';
-import { FacingMode } from '@enums/facing-mode.enum';
 
 @Injectable({
   providedIn: 'root'
@@ -175,9 +175,16 @@ export class AnimatorService {
     const cameras = await this.cameras.pipe(first()).toPromise();
     const index = (this.currentCameraIndex === 0 && !this.baseService.plattform.is('ios')) ? 1 : 0;
     this.facingMode = (this.facingMode === FacingMode.user) ? FacingMode.environment : FacingMode.user;
-    await this.animator.attachStream(cameras[index].deviceId, layoutOptions, this.facingMode);
-    this.currentCameraIndex = index;
-    this.cameraStatus.next(CameraStatus.isStreaming);
+    try {
+      await this.animator.attachStream(cameras[index].deviceId, layoutOptions, this.facingMode);
+      this.currentCameraIndex = index;
+      this.cameraStatus.next(CameraStatus.isStreaming);
+    } catch (err) {
+      // fallback if only one camera is available e.g. on desktops
+      await this.animator.attachStream(cameras[0].deviceId, layoutOptions, this.facingMode);
+      this.currentCameraIndex = 0;
+      this.cameraStatus.next(CameraStatus.isStreaming);
+    }
   }
 
   private async startCamera(): Promise<void> {
