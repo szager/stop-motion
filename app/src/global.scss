@@ -24,6 +24,7 @@
 @import "~@ionic/angular/css/text-alignment.css";
 @import "~@ionic/angular/css/text-transformation.css";
 @import "~@ionic/angular/css/flex-utils.css";
+@import url('theme/variables.scss');
 
 @font-face {
   font-family: "Nunito";
@@ -112,7 +113,7 @@ ion-tab-bar {
   background: rgba(0, 163, 211, 0.1);
 
   .swiper-scrollbar-drag {
-    background: rgba(0, 163, 211, 0.8);
+    background: var(--ion-color-primary);
   }
 }
 
