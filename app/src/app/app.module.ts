@@ -7,7 +7,6 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-import * as Sentry from '@sentry/angular';
 // Modules and Components
 import { environment } from '@environment/environment';
 import { AppRoutingModule } from './app-routing.module';
@@ -38,9 +37,6 @@ export const translationLoaderFactory = (http: HttpClient) => new TranslateHttpL
     })],
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    { provide: ErrorHandler, useValue: Sentry.createErrorHandler({ showDialog: false })},
-    { provide: Sentry.TraceService, deps: [Router] },
-    { provide: APP_INITIALIZER, useFactory: () => () => {}, deps: [Sentry.TraceService], multi: true },
   ],
   bootstrap: [AppComponent],
 })
