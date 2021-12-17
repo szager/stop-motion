@@ -34,6 +34,7 @@ export class AnimatorPage extends BasePage {
     console.log('orientationChanged', event);
     const frames = await this.animatorService.getFrames().pipe(first()).toPromise();
     const message = frames.length ? 'toast_orientation_change_warning' : 'toast_orientation_change_hint';
+    await this.animatorService.toggleOrientation();
     this.baseService.toastService.presentToast({
       color: frames.length ? 'danger' : 'warning',
       message: this.baseService.translate.instant(message)
