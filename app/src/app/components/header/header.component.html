@@ -1,0 +1,28 @@
+<ion-header>
+    <ion-toolbar>
+        <!-- back button -->
+        <ion-buttons slot="start" *ngIf="options.backButton && options.backHref">
+            <ion-back-button icon="chevron-back" text="" defaultHref="{{ options.backHref }}" color="primary">
+            </ion-back-button>
+        </ion-buttons>
+        <ion-buttons slot="start" *ngIf="options.backButton && !options.backHref">
+            <ion-button (click)="onNavigateLastRoute()">
+                <ion-icon slot="icon-only" name="chevron-back-outline" color="primary"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <!-- left button -->
+        <ion-buttons slot="start" *ngIf="options.leftButton">
+            <ion-button (click)="onNavigate(options.leftHref)">
+                <ion-icon slot="icon-only" name="{{ options.leftIcon }}"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <!-- text -->
+        <ion-title color="dark" class="ion-text-center">{{ options.title | translate }}</ion-title>
+        <!-- default right button -->
+        <ion-buttons slot="end" *ngIf="options.rightButton">
+            <ion-button (click)="onNavigate(options.rightHref)">
+                <ion-icon slot="icon-only" color="primary" src="/assets/icons/custom/settings.svg"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>

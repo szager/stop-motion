@@ -1,0 +1,19 @@
+ion-tab-bar {
+    --border       : none;
+    padding        : 0;
+    justify-content: space-evenly;
+    z-index: 9999 !important;
+    background-color: transparent !important;
+    margin-bottom: env(safe-area-inset-bottom);
+    height: 90px;
+    &> * {
+        flex-basis: 100%;
+    }
+    ion-tab-button {
+        background-color: transparent;
+    }
+}
+
+ion-icon {
+    color: #fff !important;
+}

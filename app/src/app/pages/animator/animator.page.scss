@@ -1,0 +1,77 @@
+.container {
+  margin: 0 auto;
+  display: block;
+  background-color: #000;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+}
+
+.camera-state {
+  text-align: right;
+  margin-top: -25px;
+  color: #fff;
+  display: block;
+  z-index: 9;
+  position: relative;
+  font-weight: 400;
+  top: 0px;
+  margin-top: 0px;
+  margin-bottom: 0 !important;
+  font-size: 12px;
+}
+
+video {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+#thumbnail-container {
+  display: flex;
+  overflow-x: auto;
+  max-width: 250px;
+}
+
+#snapshot-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  opacity: 1;
+}
+
+.screen-orientation-overlay {
+  display: none;
+}
+
+
+@media (max-height: 680px) and (orientation: landscape) {
+  .screen-orientation-overlay {
+    display: flex;
+    position: absolute;
+    width: 100%;
+    height: calc(100% - 44px);
+    background-color: #c2ebff;
+    top: 44px;
+    z-index: 9999999;
+    justify-content: center;
+    padding-top: 45px;
+
+    h2 {
+      font-size: 20px;
+    }
+
+    .overlay-container {
+      text-align: center;
+
+      ion-icon {
+        width: 110px;
+        height: 110px;
+      }
+    }
+
+  }
+
+}
