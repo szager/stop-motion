@@ -50,5 +50,5 @@
     "toast_animator_save_hint": "Du kannst nicht speichern, da noch nichts aufgezeichnet wurde!",
     "toast_animator_undo_hint": "Du kannst nicht weiter zurückspringen!",
     "toast_orientation_change_hint": "Achte darauf, dass du Videos nur im Hoch- oder Querformat aufnimmst!",
-    "toast_orientation_change_warning": "Achtung! Durch das Ändern des Videoformats können bei einer bestehenden Aufzeichnung Probleme mit der Darstellung auftreten. Aufzeichnung wird gelöscht!"
+    "toast_orientation_change_warning": "Achtung! Durch das Ändern des Videoformats können bei einer bestehenden Aufzeichnung Probleme mit der Darstellung auftreten!"
 }

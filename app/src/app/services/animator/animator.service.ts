@@ -102,7 +102,6 @@ export class AnimatorService {
   }
 
   public async toggleOrientation() {
-    this.destroy();
     await this.startCamera();
     const layoutOptions = await this.baseService.layoutService.getLayoutOptions().pipe(first()).toPromise();
     this.animator.setDimensions(layoutOptions);
@@ -196,6 +195,7 @@ export class AnimatorService {
       this.cameras.next(cameras);
       try {
         const layoutOptions = await this.baseService.layoutService.getLayoutOptions().pipe(first()).toPromise();
+        console.log('🚀 ~ file: animator.service.ts ~ line 199 ~ AnimatorService ~ startCamera ~ layoutOptions', layoutOptions);
         await this.animator.attachStream(cameras[0].deviceId, layoutOptions);
         this.currentCameraIndex = 0;
         this.cameraStatus.next(CameraStatus.isStreaming);

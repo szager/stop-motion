@@ -26,7 +26,7 @@ export class LayoutService {
 
     this.platform.resize.subscribe(() => {
       this.layoutOptions.next({
-        currentOrientation: this.layoutOptions.getValue().currentOrientation,
+        currentOrientation: this.platform.isPortrait() ? ScreenOrientation.portrait : ScreenOrientation.landscape,
         isLandscape: this.platform.isLandscape(),
         isPortrait: this.platform.isPortrait(),
         height: this.platform.height(),
@@ -40,7 +40,6 @@ export class LayoutService {
   }
 
   public async toggleOrientation(orientation: ScreenOrientation) {
-    console.log('🚀 ~ file: animator.service.ts ~ line 103 ~ AnimatorService ~ toggleOrientation ~ orientation', orientation);
     this.layoutOptions.next({
       currentOrientation: orientation,
       isLandscape: this.platform.isLandscape(),

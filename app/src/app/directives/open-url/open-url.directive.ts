@@ -1,4 +1,5 @@
 import { Directive, HostListener, Input } from '@angular/core';
+import { Platform } from '@ionic/angular';
 import { BaseService } from '@services/base/base.service';
 
 @Directive({
@@ -9,7 +10,8 @@ export class OpenUrlDirective {
   @Input() url: string;
 
   constructor(
-    private baseService: BaseService
+    private baseService: BaseService,
+    private platform: Platform
   ) { }
 
   @HostListener('click') async onClick() {
@@ -17,7 +19,11 @@ export class OpenUrlDirective {
       message: this.baseService.translate.instant('labels_loading')
     });
     await loader.present();
-    window.open(this.url, '_blank');
+    if (this.platform.is('ios')) {
+      window.location.href = this.url;
+    } else {
+      window.open(this.url, '_blank');
+    }
     await loader.dismiss();
   }
 

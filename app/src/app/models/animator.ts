@@ -27,7 +27,6 @@ export class Animator {
     loadFinishPending: boolean;
     messageDiv: any;
     name: any;
-    // playbackSpeed: number;
     playCanvas: any;
     playContext: any;
     playTimer: any;
@@ -43,7 +42,7 @@ export class Animator {
     private frameRate: BehaviorSubject<number>;
 
     constructor(
-        // TODO if possibole get rid of injectable again
+        // TODO if possible get rid of injectable again
         public baseService: BaseService,
         private platform: Platform
     ) {
@@ -73,7 +72,6 @@ export class Animator {
         this.isStreaming = true;
         this.loadFinishPending = false;
         this.name = null;
-        // this.playbackSpeed = 12.0;
         this.playCanvas = playCanvas;
         this.playContext = playCanvas.getContext('2d');
         this.playTimer = null;
@@ -400,6 +398,7 @@ export class Animator {
     * setDimensions method is used to set dimension width and height of components
     */
     public setDimensions(layoutOptions: LayoutOptions): void {
+        console.log('🚀 ~ file: animator.ts ~ line 403 ~ Animator ~ setDimensions ~ layoutOptions', layoutOptions);
         this.width = layoutOptions.width;
         this.height = layoutOptions.height;
         this.video.width = this.width;
