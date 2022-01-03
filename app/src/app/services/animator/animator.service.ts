@@ -110,6 +110,7 @@ export class AnimatorService {
 
   public destroy(): void {
     this.animator.clear();
+    this.frames.next([]);
     this.animator.detachStream();
   }
 

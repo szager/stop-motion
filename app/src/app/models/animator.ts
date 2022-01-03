@@ -470,8 +470,6 @@ export class Animator {
             webm.decode(fileBuffer,
                 // animator.setDimensions.bind(animator),
                 (width: number, height: number) => {
-                console.log('🚀 ~ file: animator.ts ~ line 610 ~ Animator ~ returnnewPromise ~ height', height);
-                console.log('🚀 ~ file: animator.ts ~ line 610 ~ Animator ~ returnnewPromise ~ width', width);
                     this.setDimensions({
                         width: this.width,
                         height: this.height

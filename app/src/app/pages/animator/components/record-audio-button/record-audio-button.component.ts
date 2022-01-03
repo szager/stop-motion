@@ -21,7 +21,6 @@ export class RecordAudioButtonComponent extends BaseComponent implements OnInit 
   ngOnInit() { }
 
   async onClick() {
-
     const frames = await this.animatorService.getFrames().pipe(first()).toPromise();
     if (frames.length) {
       const hasAudio = this.animatorService.animator.audio;
