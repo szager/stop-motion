@@ -1,9 +1,14 @@
 /* -*- mode: javascript; js-indent-level: 2 -*- */
 
+// Copyright 2022 Stefan Zager <szager@gmail.com>
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 // Codec for a subset of the webm container format, which itself is a subset of
 // the Matroska format:
 //
 //   https://www.matroska.org/technical/specs/index.html
+
 'use strict';
 
 var webm = webm || {};

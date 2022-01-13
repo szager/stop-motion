@@ -1,14 +1,18 @@
 /* -*- mode: javascript; js-indent-level: 2 -*- */
+
+// Copyright 2022 Stefan Zager <szager@gmail.com>
+// Use of this source code is governed by a BSD-style license that can be                                              
+// found in the LICENSE file.  
+
 'use strict';
 
 var animator = animator || {};
 
 (() => {
-  
   const STATE_IDLE = 0;
   const STATE_PLAY = 1;
   const STATE_RECORD = 2;
-  
+
   class Animator {
     constructor(video, snapshotCanvas, playCanvas, messageDiv) {
       this.video = video;
@@ -322,16 +326,16 @@ var animator = animator || {};
     }
 
     load(file, finishCB, frameRateCB) {
-      let animator = this;
+      let an = this;
       let frameOffset = this.frames.length;
       let reader = new FileReader();
       reader.addEventListener("loadend", evt => {
         webm.decode(evt.target.result,
-                    animator.setDimensions.bind(animator),
+                    an.setDimensions.bind(an),
                     frameRateCB,
-                    animator.addFrameVP8.bind(animator, frameOffset),
-                    animator.setAudioSrc.bind(animator));
-        animator.name = file.name.substring(0, file.name.length - 5);
+                    an.addFrameVP8.bind(an, frameOffset),
+                    an.setAudioSrc.bind(an));
+        an.name = file.name.substring(0, file.name.length - 5);
         if (finishCB)
           finishCB();
       });
