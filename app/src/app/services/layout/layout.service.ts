@@ -11,17 +11,23 @@ import { BehaviorSubject } from 'rxjs';
 export class LayoutService {
 
   private layoutOptions: BehaviorSubject<LayoutOptions>;
+  // used to store initial height/width
+  private initialHeight: number;
+  private initialWidth: number;
 
   constructor(
     private platform: Platform
   ) {
 
+    this.initialHeight = this.platform.height();
+    this.initialWidth = this.platform.width();
+
     this.layoutOptions = new BehaviorSubject({
       currentOrientation: this.platform.isPortrait() ? ScreenOrientation.portrait : ScreenOrientation.landscape,
       isLandscape: this.platform.isLandscape(),
       isPortrait: this.platform.isPortrait(),
-      height: this.platform.height(),
-      width: this.platform.width()
+      height: this.initialHeight,
+      width: this.initialWidth
     });
 
     this.platform.resize.subscribe(() => {
@@ -29,7 +35,9 @@ export class LayoutService {
         currentOrientation: this.platform.isPortrait() ? ScreenOrientation.portrait : ScreenOrientation.landscape,
         isLandscape: this.platform.isLandscape(),
         isPortrait: this.platform.isPortrait(),
-        height: this.platform.height(),
+      // additional check here because Ionic seems to have issues retrieving the correct height once orientation has been changed once
+        height: (this.platform.isPortrait() && this.platform.height() <= this.platform.width())
+        ? this.initialHeight : this.platform.height(),
         width: this.platform.width()
       });
     });
