@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "author": "kits – Kompetent in Technik und Sprache",
   "homepage": "https://kits.blog/",
+  "license": "GNU Affero General Public License (AGPL)",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
