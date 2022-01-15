@@ -248,20 +248,20 @@ var animator = animator || {};
       let blobURL = URL.createObjectURL(blob);
       let image = new Image(this.w, this.h);
       this.framesInFlight++;
-      image.addEventListener("error", (error => {
-        if (image.getAttribute('triedvp8l')) {
-          console.log(error);
+      image.addEventListener("error", (evt => {
+        if (evt.target.getAttribute('triedvp8l')) {
+          console.log(evt);
           this.framesInFlight--;
           URL.revokeObjectURL(blobURL);
-          image.src = null;
+          image = null;
           if (this.framesInFlight === 0)
-          this.loadFinished();
+            this.loadFinished();
         } else {
-          image.setAttribute('triedvp8l', true);
+          evt.target.setAttribute('triedvp8l', true);
           URL.revokeObjectURL(blobURL);
           blob = webm.vp8tovp8l(blob);
           blobURL = URL.createObjectURL(blob);
-          image.src = blobURL;
+          evt.target.src = blobURL;
         }
       }).bind(this));
       image.addEventListener("load", (evt => {

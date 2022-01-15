@@ -590,6 +590,22 @@ var webm = webm || {};
     'ChapProcessData': BINARY_TYPE,
   };
 
+  let arrayEq = (a, b) => {
+    if (a.byteLength != b.byteLength)
+      return false;
+    for (let i = 0; i < a.byteLength; i++) {
+      if (a[i] != b[i])
+        return false;
+    }
+    return true;
+  };
+
+  const riffHeader = new Uint8Array([82, 73, 70, 70]);  // 'RIFF'
+  const webpHeader = new Uint8Array([87, 69, 66, 80]);  // 'WEBP'
+  const vp8Header = new Uint8Array([86, 80, 56, 32]);  // 'VP8 '
+  const vp8lHeader = new Uint8Array([86, 80, 56, 76]);  // 'VP8L'
+  const vp8xHeader = new Uint8Array([86, 80, 56, 88]);  // 'VP8X'
+
   let lengthSum = (arr => {
     return Array.prototype.reduce.bind(arr)((tot, x) => { return tot + x.length }, 0);
   });
@@ -1423,7 +1439,24 @@ var webm = webm || {};
     let promise = new Promise((resolve, reject) => {
       let fr = new FileReader();
       fr.addEventListener("load", evt => {
-        resolve(new Uint8Array(fr.result.slice(20)));
+        let header = new Uint8Array(fr.result.slice(12, 16));
+        if (arrayEq(header, vp8Header) || arrayEq(header, vp8lHeader)) {
+          resolve(new Uint8Array(fr.result.slice(20)));
+        } else if (arrayEq(header, vp8xHeader)) {
+          let position = 30;
+          while (position < fr.result.byteLength) {
+            let subheader = new Uint8Array(fr.result.slice(position, position + 4));
+            let l = decodeUint(new Cursor((new Uint8Array(fr.result.slice(position + 4, position + 8))).reverse()));
+            if (arrayEq(subheader, vp8Header) || arrayEq(subheader, vp8lHeader)) {
+              resolve(new Uint8Array(fr.result.slice(position + 8, position + 8 + l)));
+              return;
+            }
+            position += (l + 8);
+          }
+          reject("Could not locate VP8 or VP8L data section of webp");
+        } else {
+          reject("Unrecognized VP8 ChunkHeader: " + decodeString(new Cursor(header)));
+        }
       });
       fr.addEventListener("error", evt => {
 	      reject(fr.error);
@@ -1614,7 +1647,6 @@ var webm = webm || {};
   /* Public API begins here */
 
   webm.vp8tovp8l = (blob => {
-    let vp8lHeader = new Uint8Array([86, 80, 56, 76]);  // ['V', 'P', '8', 'L']
     blob = new Blob([blob.slice(0, 12), vp8lHeader, blob.slice(16)], {type: 'image/webp'});
     return blob;
   });
@@ -1625,9 +1657,6 @@ var webm = webm || {};
   });
 
   webm.decode = ((buffer, sizeCB, frameRateCB, frameCB, audioCB) => {
-    let riffHeader = new Uint8Array([82, 73, 70, 70]);  // 'RIFF'
-    let webpHeader = new Uint8Array([87, 69, 66, 80]);  // 'WEBP'
-    let vp8Header = new Uint8Array([86, 80, 56, 32]);  // 'VP8 '
     let segment = new Cursor(new Uint8Array(buffer)).findChunk('Segment');
     if (!segment)
       return;
