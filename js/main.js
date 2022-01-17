@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', evt => {
   evt.target.getElementById('toggleButton').firstChild.src = assets['images']['off'];
   evt.target.getElementById('captureButton').firstChild.src = assets['images']['capture'];
   evt.target.getElementById('undoButton').firstChild.src = assets['images']['undo'];
-  evt.target.getElementById('playButton').firstChild.src = assets['images']['play'];
+  evt.target.getElementById('playButton').firstChild.src = assets['images']['playpause'];
   evt.target.getElementById('clearButton').firstChild.src = assets['images']['clear'];
   evt.target.getElementById('saveButton').firstChild.src = assets['images']['save'];
   evt.target.getElementById('loadButton').firstChild.src = assets['images']['load'];
@@ -102,7 +102,7 @@ window.addEventListener('load', evt => {
         toggleButton.firstChild.src = assets['images']['on'];
       }
     }).catch(err => {
-      toggleButton.firstChild.src = assets['images']['off']
+      toggleButton.firstChild.src = assets['images']['off'];
     });
   });
 
