@@ -8,6 +8,16 @@
 
 var main = main || {};
 
+document.addEventListener('DOMContentLoaded', evt => {
+  evt.target.getElementById('toggleButton').firstChild.src = assets['images']['off'];
+  evt.target.getElementById('captureButton').firstChild.src = assets['images']['capture'];
+  evt.target.getElementById('undoButton').firstChild.src = assets['images']['undo'];
+  evt.target.getElementById('playButton').firstChild.src = assets['images']['play'];
+  evt.target.getElementById('clearButton').firstChild.src = assets['images']['clear'];
+  evt.target.getElementById('saveButton').firstChild.src = assets['images']['save'];
+  evt.target.getElementById('loadButton').firstChild.src = assets['images']['load'];
+});
+
 window.addEventListener('load', evt => {
   // Create Animator object and set up callbacks.
   let video = document.getElementById('video');
@@ -87,12 +97,12 @@ window.addEventListener('load', evt => {
   toggleButton.addEventListener("click", evt => {
     an.toggleVideo().then(isPlaying => {
       if (isPlaying) {
-        toggleButton.firstChild.src = "images/off72.png";
+        toggleButton.firstChild.src = assets['images']['off'];
       } else {
-        toggleButton.firstChild.src = "images/on72.png";
+        toggleButton.firstChild.src = assets['images']['on'];
       }
     }).catch(err => {
-      toggleButton.firstChild.src = "images/off72.png";
+      toggleButton.firstChild.src = assets['images']['off']
     });
   });
 

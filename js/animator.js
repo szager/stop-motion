@@ -1,8 +1,8 @@
 /* -*- mode: javascript; js-indent-level: 2 -*- */
 
 // Copyright 2022 Stefan Zager <szager@gmail.com>
-// Use of this source code is governed by a BSD-style license that can be                                              
-// found in the LICENSE file.  
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
 
 'use strict';
 
