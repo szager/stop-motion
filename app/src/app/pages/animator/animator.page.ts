@@ -4,11 +4,13 @@ import { Platform } from '@ionic/angular';
 import { BasePage } from '@pages/base/base.page';
 import { AnimatorService } from '@services/animator/animator.service';
 import { BaseService } from '@services/base/base.service';
+import { LayoutService } from '@services/layout/layout.service';
 import { Observable } from 'rxjs';
 import { first } from 'rxjs/operators';
 import { PlayerCanvasComponent } from './components/player-canvas/player-canvas.component';
 import { SnapshotCanvasComponent } from './components/snapshot-canvas/snapshot-canvas.component';
 import { VideoComponent } from './components/video/video.component';
+import { ScreenOrientation } from '@enums/screen-orientation.enum';
 
 @Component({
   selector: 'app-animator',
@@ -25,6 +27,7 @@ export class AnimatorPage extends BasePage {
   constructor(
     public animatorService: AnimatorService,
     public baseService: BaseService,
+    public layoutService: LayoutService,
     public platform: Platform
   ) {
     super(baseService);
@@ -34,6 +37,8 @@ export class AnimatorPage extends BasePage {
     console.log('orientationChanged', event);
     const frames = await this.animatorService.getFrames().pipe(first()).toPromise();
     const message = frames.length ? 'toast_orientation_change_warning' : 'toast_orientation_change_hint';
+    console.log('🚀 ~ file: animator.page.ts ~ line 41 ~ this.platform.isLandscape()', this.platform.isLandscape());
+    await this.layoutService.toggleOrientation(this.platform.isLandscape() ? ScreenOrientation.landscape : ScreenOrientation.portrait);
     await this.animatorService.toggleOrientation();
     this.baseService.toastService.presentToast({
       color: frames.length ? 'danger' : 'warning',

@@ -56,7 +56,7 @@ export class AnimatorService {
   }
 
   public async init(video: ElementRef, snapshotCanvas: ElementRef, playerCanvas: ElementRef) {
-    const layoutOptions = await this.baseService.layoutService.getLayoutOptions().pipe(first()).toPromise();
+    const layoutOptions = this.baseService.layoutService.getLayoutOptions();
     this.animator.init(video, snapshotCanvas, playerCanvas, layoutOptions);
     await this.startCamera();
   }
@@ -89,7 +89,8 @@ export class AnimatorService {
 
   public async toggleCamera() {
     // TODO maybe add another state to isStreaming, like isPlaying
-    const layoutOptions = await this.baseService.layoutService.getLayoutOptions().pipe(first()).toPromise();
+    const layoutOptions = this.baseService.layoutService.getLayoutOptions();
+    console.log('🚀 ~ file: animator.service.ts ~ line 93 ~ AnimatorService ~ toggleCamera ~ layoutOptions', layoutOptions);
     this.cameraStatus.next(await this.animator.toggleCamera(layoutOptions) ? CameraStatus.isStreaming : CameraStatus.hasPaused);
   }
 
@@ -102,8 +103,9 @@ export class AnimatorService {
   }
 
   public async toggleOrientation() {
+    const layoutOptions = this.baseService.layoutService.getLayoutOptions();
     await this.startCamera();
-    const layoutOptions = await this.baseService.layoutService.getLayoutOptions().pipe(first()).toPromise();
+    console.log('🚀 ~ file: animator.service.ts ~ line 107 ~ AnimatorService ~ toggleOrientation ~ layoutOptions', layoutOptions);
     this.animator.setDimensions(layoutOptions);
   }
 
@@ -171,7 +173,7 @@ export class AnimatorService {
   public async switchCamera(): Promise<void> {
     this.animator.detachStream();
     this.cameraStatus.next(CameraStatus.hasPaused);
-    const layoutOptions = await this.baseService.layoutService.getLayoutOptions().pipe(first()).toPromise();
+    const layoutOptions = this.baseService.layoutService.getLayoutOptions();
     const cameras = await this.cameras.pipe(first()).toPromise();
     const index = (this.currentCameraIndex === 0 && !this.baseService.plattform.is('ios')) ? 1 : 0;
     this.facingMode = (this.facingMode === FacingMode.user) ? FacingMode.environment : FacingMode.user;
@@ -194,7 +196,7 @@ export class AnimatorService {
       const cameras = devices.filter(d => d.kind === 'videoinput');
       this.cameras.next(cameras);
       try {
-        const layoutOptions = await this.baseService.layoutService.getLayoutOptions().pipe(first()).toPromise();
+        const layoutOptions = this.baseService.layoutService.getLayoutOptions();
         console.log('🚀 ~ file: animator.service.ts ~ line 199 ~ AnimatorService ~ startCamera ~ layoutOptions', layoutOptions);
         await this.animator.attachStream(cameras[0].deviceId, layoutOptions);
         this.currentCameraIndex = 0;

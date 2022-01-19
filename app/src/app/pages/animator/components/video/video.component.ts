@@ -36,13 +36,11 @@ export class VideoComponent extends BaseComponent {
     public baseService: BaseService
   ) {
     super(baseService);
-    this.state = combineLatest([this.animatorService.getCameraStatus(), this.animatorService.getCameraIsRotated()
-      , this.baseService.layoutService.getLayoutOptions()])
-    .pipe(tap(([camerStatus, cameraIsRotated, layoutOptions]: [CameraStatus, boolean, LayoutOptions]) => {
+    this.state = combineLatest([this.animatorService.getCameraStatus(), this.animatorService.getCameraIsRotated()])
+    .pipe(tap(([camerStatus, cameraIsRotated]: [CameraStatus, boolean]) => {
       this.cameraRotation = (cameraIsRotated) ? 'rotated' : 'default';
-      // TODO could probably removed
-      this.height = layoutOptions.height;
-      this.width = layoutOptions.width;
+      this.height = this.baseService.layoutService.getLayoutOptions().height;
+      this.width = this.baseService.layoutService.getLayoutOptions().width;
       return camerStatus;
     }));
   }

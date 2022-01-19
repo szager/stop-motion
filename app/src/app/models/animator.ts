@@ -89,6 +89,7 @@ export class Animator {
     * Method is used to attach a media stream to the video component
     */
     public async attachStream(sourceId: any, layoutOptions: LayoutOptions, facingMode?: string): Promise<any> {
+        console.log('🚀 ~ file: animator.ts ~ line 92 ~ Animator ~ attachStream ~ layoutOptions', layoutOptions);
         const constraints = {
             audio: false,
             frameRate: 15,
@@ -98,10 +99,13 @@ export class Animator {
         facingMode = facingMode ? facingMode : 'user';
 
         if (this.platform.is('ios') || this.platform.is('android')) {
+            const aspectRatio = (layoutOptions.isPortrait) ? layoutOptions.height / layoutOptions.width
+            : layoutOptions.width / layoutOptions.height;
             constraints.video = {
                 // strange bug - width and height needs to be swaped
-                width: layoutOptions.height,
-                height: layoutOptions.width,
+                width: layoutOptions.width,
+                height: layoutOptions.height,
+                aspectRatio,
                 facingMode
             };
         } else {

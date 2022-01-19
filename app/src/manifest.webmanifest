@@ -1,7 +1,7 @@
 {
   "background_color": "#fafafa",
   "description": "Stop Motion App",
-  "display": "standalone",
+  "display": "fullscreen",
   "name": "Stop Motion",
   "orientation": "portrait",
   "scope": "./",

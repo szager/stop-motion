@@ -7,7 +7,6 @@ import { CameraSelectButtonComponent } from './components/camera-select-button/c
 import { CaptureButtonComponent } from './components/capture-button/capture-button.component';
 import { ClearButtonComponent } from './components/clear-button/clear-button.component';
 import { LoadButtonComponent } from './components/load-button/load-button.component';
-import { OrientationButtonComponent } from './components/orientation-button/orientation-button.component';
 import { FramerateSliderComponent } from './components/framerate-slider/framerate-slider.component';
 import { PlayButtonComponent } from './components/play-button/play-button.component';
 import { PlayerCanvasComponent } from './components/player-canvas/player-canvas.component';
@@ -29,7 +28,6 @@ const COMPONENTS = [
   CaptureButtonComponent,
   ClearButtonComponent,
   LoadButtonComponent,
-  OrientationButtonComponent,
   FramerateSliderComponent,
   PlayButtonComponent,
   PlayerCanvasComponent,
