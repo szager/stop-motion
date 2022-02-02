@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { BaseComponent } from '@components/base/base.component';
 import { AnimatorService } from '@services/animator/animator.service';
 import { BaseService } from '@services/base/base.service';
-import { takeUntil } from 'rxjs/operators';
+import { take, takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-camera-select-button',
@@ -30,7 +30,9 @@ export class CameraSelectButtonComponent extends BaseComponent implements OnInit
   }
 
   async onClick() {
-    await this.animatorService.switchCamera();
+    console.log('🚀 ~ file: camera-select-button.component.ts ~ line 33 ~ CameraSelectButtonComponent ~ onClick ~ onClick');
+    const layoutOptions = await this.baseService.layoutService.getLayoutOptions().pipe(take(1)).toPromise();
+    await this.animatorService.switchCamera(layoutOptions);
   }
 
 }

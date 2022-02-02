@@ -1,6 +1,7 @@
 import { ElementRef, Injectable } from '@angular/core';
 import { CameraStatus } from '@enums/camera-status.enum';
 import { FacingMode } from '@enums/facing-mode.enum';
+import { LayoutOptions } from '@interfaces/layout-options.interface';
 import { Animator } from '@models/animator';
 import { BaseService } from '@services/base/base.service';
 import { BehaviorSubject } from 'rxjs';
@@ -56,9 +57,10 @@ export class AnimatorService {
   }
 
   public async init(video: ElementRef, snapshotCanvas: ElementRef, playerCanvas: ElementRef) {
-    const layoutOptions = this.baseService.layoutService.getLayoutOptions();
+
+    const layoutOptions = await this.baseService.layoutService.getLayoutOptions().pipe(first()).toPromise();
     this.animator.init(video, snapshotCanvas, playerCanvas, layoutOptions);
-    await this.startCamera();
+    await this.startCamera(layoutOptions);
   }
 
   public async capture() {
@@ -87,10 +89,8 @@ export class AnimatorService {
     this.frames.next([]);
   }
 
-  public async toggleCamera() {
+  public async toggleCamera(layoutOptions: LayoutOptions) {
     // TODO maybe add another state to isStreaming, like isPlaying
-    const layoutOptions = this.baseService.layoutService.getLayoutOptions();
-    console.log('🚀 ~ file: animator.service.ts ~ line 93 ~ AnimatorService ~ toggleCamera ~ layoutOptions', layoutOptions);
     this.cameraStatus.next(await this.animator.toggleCamera(layoutOptions) ? CameraStatus.isStreaming : CameraStatus.hasPaused);
   }
 
@@ -100,13 +100,6 @@ export class AnimatorService {
     await this.animator.togglePlay();
     this.cameraStatus.next(CameraStatus.isStreaming);
     return;
-  }
-
-  public async toggleOrientation() {
-    const layoutOptions = this.baseService.layoutService.getLayoutOptions();
-    await this.startCamera();
-    console.log('🚀 ~ file: animator.service.ts ~ line 107 ~ AnimatorService ~ toggleOrientation ~ layoutOptions', layoutOptions);
-    this.animator.setDimensions(layoutOptions);
   }
 
   public destroy(): void {
@@ -170,10 +163,9 @@ export class AnimatorService {
     return new Date(Math.round(seconds) * 1000).toISOString().substr(14, 5);
   }
 
-  public async switchCamera(): Promise<void> {
+  public async switchCamera(layoutOptions: LayoutOptions): Promise<void> {
     this.animator.detachStream();
     this.cameraStatus.next(CameraStatus.hasPaused);
-    const layoutOptions = this.baseService.layoutService.getLayoutOptions();
     const cameras = await this.cameras.pipe(first()).toPromise();
     const index = (this.currentCameraIndex === 0 && !this.baseService.plattform.is('ios')) ? 1 : 0;
     this.facingMode = (this.facingMode === FacingMode.user) ? FacingMode.environment : FacingMode.user;
@@ -189,15 +181,15 @@ export class AnimatorService {
     }
   }
 
-  private async startCamera(): Promise<void> {
+  private async startCamera(layoutOptions: LayoutOptions): Promise<void> {
+    console.log('🚀 ~ file: animator.service.ts ~ line 199 ~ AnimatorService ~ startCamera ~ layoutOptions', layoutOptions);
+
     // Everything is set up, now connect to camera.
     if (window.navigator && navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
       const devices = await navigator.mediaDevices.enumerateDevices();
       const cameras = devices.filter(d => d.kind === 'videoinput');
       this.cameras.next(cameras);
       try {
-        const layoutOptions = this.baseService.layoutService.getLayoutOptions();
-        console.log('🚀 ~ file: animator.service.ts ~ line 199 ~ AnimatorService ~ startCamera ~ layoutOptions', layoutOptions);
         await this.animator.attachStream(cameras[0].deviceId, layoutOptions);
         this.currentCameraIndex = 0;
         this.cameraStatus.next(CameraStatus.isStreaming);

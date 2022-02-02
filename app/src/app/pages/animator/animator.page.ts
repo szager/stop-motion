@@ -1,5 +1,6 @@
 import { Component, HostListener, ViewChild } from '@angular/core';
 import { CameraStatus } from '@enums/camera-status.enum';
+import { LayoutOptions } from '@interfaces/layout-options.interface';
 import { Platform } from '@ionic/angular';
 import { BasePage } from '@pages/base/base.page';
 import { AnimatorService } from '@services/animator/animator.service';
@@ -10,7 +11,6 @@ import { first } from 'rxjs/operators';
 import { PlayerCanvasComponent } from './components/player-canvas/player-canvas.component';
 import { SnapshotCanvasComponent } from './components/snapshot-canvas/snapshot-canvas.component';
 import { VideoComponent } from './components/video/video.component';
-import { ScreenOrientation } from '@enums/screen-orientation.enum';
 
 @Component({
   selector: 'app-animator',
@@ -37,9 +37,6 @@ export class AnimatorPage extends BasePage {
     console.log('orientationChanged', event);
     const frames = await this.animatorService.getFrames().pipe(first()).toPromise();
     const message = frames.length ? 'toast_orientation_change_warning' : 'toast_orientation_change_hint';
-    console.log('🚀 ~ file: animator.page.ts ~ line 41 ~ this.platform.isLandscape()', this.platform.isLandscape());
-    await this.layoutService.toggleOrientation(this.platform.isLandscape() ? ScreenOrientation.landscape : ScreenOrientation.portrait);
-    await this.animatorService.toggleOrientation();
     this.baseService.toastService.presentToast({
       color: frames.length ? 'danger' : 'warning',
       message: this.baseService.translate.instant(message)
@@ -68,6 +65,10 @@ export class AnimatorPage extends BasePage {
     const snapshotCanvas = this.snapshotCanvasComponent.snapshotCanvas.nativeElement;
     const playerCanvas = this.playerCanvasComponent.playerCanvas.nativeElement;
     await this.animatorService.init(video, snapshotCanvas, playerCanvas);
+    this.baseService.layoutService.getLayoutOptions().subscribe(async (layoutOptions: LayoutOptions) => {
+      console.log('🚀 ~ file: animator.page.ts ~ line 75 ~ AnimatorPage ~ .pipe ~ layoutOptions', layoutOptions);
+      await this.animatorService.init(video, snapshotCanvas, playerCanvas);
+    });
   }
 
   ionViewWillLeave() {

@@ -103,8 +103,8 @@ export class Animator {
             : layoutOptions.width / layoutOptions.height;
             constraints.video = {
                 // strange bug - width and height needs to be swaped
-                width: layoutOptions.width,
-                height: layoutOptions.height,
+                width: this.platform.is('android') ? layoutOptions.height : layoutOptions.width,
+                height: this.platform.is('android') ? layoutOptions.width : layoutOptions.height,
                 aspectRatio,
                 facingMode
             };
