@@ -10,7 +10,7 @@ var assets = {
   'images': {
     'capture': 'images/capture72.png',
     'clear': 'images/clear72.png',
-    'load': 'images/load72.png'
+    'load': 'images/load72.png',
     'off': 'images/off72.png',
     'on': 'images/on72.png',
     'playpause': 'images/playpause72.png',
