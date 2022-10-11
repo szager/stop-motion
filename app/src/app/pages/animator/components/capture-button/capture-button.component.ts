@@ -14,7 +14,8 @@ export class CaptureButtonComponent {
     private animatorService: AnimatorService
   ) { }
 
-  async onClick(): Promise<void> {
+  async onClick($event: Event): Promise<void> {
+    $event.preventDefault();
     await this.animatorService.capture();
     this.animated = !this.animated;
     this.delay(500).then(() => this.animated = false);

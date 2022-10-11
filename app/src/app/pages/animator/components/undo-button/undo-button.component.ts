@@ -12,7 +12,8 @@ export class UndoButtonComponent {
     private animatorService: AnimatorService
   ) { }
 
-  onClick() {
+  public onClick($event: Event): void {
+    $event.preventDefault();
     this.animatorService.undoCapture();
   }
 

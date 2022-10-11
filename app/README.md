@@ -21,6 +21,15 @@ ionic build                         | Create build inside www folder
 
 ## Web
 
+Project has a makefile with several commands to build the app image, run it as a container or stop the running container.
+
+Ciommands                           | Description
+------------------------------------|---------------------------------------------------------------------------------------
+make build                          | Build image as stop-motion-app:snapshot
+make start                          | Run image as container stop-motion-app (make build has to be run first)
+make stop                           | Stop container stop-motion-app
+make clean                          | Stop and remove container and image
+
 ### Build and deploy to firebase
 
 ``ionic build --prod``

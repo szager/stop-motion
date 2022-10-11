@@ -10,11 +10,12 @@ export class PlayButtonComponent {
 
   constructor(
     private animatorService: AnimatorService
-  ) {}
+  ) { }
 
 
-  async onClick(): Promise<void> {
-      await this.animatorService.togglePlay();
+  async onClick($event: Event): Promise<void> {
+    $event.preventDefault();
+    await this.animatorService.togglePlay();
   }
 
 }

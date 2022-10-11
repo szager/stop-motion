@@ -36,9 +36,9 @@ export class AlertService {
     }
   }
 
-  public createConfirmButton(handler: () => void) {
+  public createButton(handler: () => void, text?: string) {
     return {
-      text: 'OK',
+      text: text ? this.translate.instant(text) : 'OK',
       handler
     };
   }

@@ -19,9 +19,7 @@ export class LayoutService {
   ) {
 
     this.initialHeight = this.platform.height();
-    console.log('🚀 ~ file: layout.service.ts ~ line 23 ~ LayoutService ~ this.initialHeight', this.initialHeight);
     this.initialWidth = this.platform.width();
-    console.log('🚀 ~ file: layout.service.ts ~ line 25 ~ LayoutService ~ this.initialWidth', this.initialWidth);
 
     this.layoutOptions = new BehaviorSubject({
       currentOrientation: this.platform.isPortrait() ? ScreenOrientation.portrait : ScreenOrientation.landscape,
@@ -32,8 +30,8 @@ export class LayoutService {
     });
 
     this.platform.resize.subscribe(() => {
-      let height;
-      let width;
+      let height: number;
+      let width: number;
 
       if (this.platform.isPortrait()) {
           height = (this.initialHeight >= this.initialWidth) ? this.initialHeight : this.initialWidth;
@@ -44,9 +42,6 @@ export class LayoutService {
         height = (this.initialWidth >= this.initialHeight) ? this.initialHeight : this.initialWidth;
         width = (this.initialWidth >= this.initialHeight) ? this.initialWidth : this.initialHeight;
     }
-
-      console.log('🚀 ~ file: layout.service.ts ~ line 76 ~ LayoutService ~ this.platform.resize.subscribe ~ width', width);
-      console.log('🚀 ~ file: layout.service.ts ~ line 76 ~ LayoutService ~ this.platform.resize.subscribe ~ height', height);
 
       this.layoutOptions.next({
         currentOrientation: this.platform.isPortrait() ? ScreenOrientation.portrait : ScreenOrientation.landscape,

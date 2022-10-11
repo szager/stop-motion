@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { BaseComponent } from '@components/base/base.component';
+import { ModalController } from '@ionic/angular';
+import { CountdownModalComponent } from '@pages/animator/modals/countdown/countdown.modal';
 import { AnimatorService } from '@services/animator/animator.service';
 import { BaseService } from '@services/base/base.service';
 import { first } from 'rxjs/operators';
@@ -9,18 +11,18 @@ import { first } from 'rxjs/operators';
   templateUrl: './record-audio-button.component.html',
   styleUrls: ['./record-audio-button.component.scss'],
 })
-export class RecordAudioButtonComponent extends BaseComponent implements OnInit {
+export class RecordAudioButtonComponent extends BaseComponent {
 
   constructor(
     public baseService: BaseService,
-    private animatorService: AnimatorService
+    private animatorService: AnimatorService,
+    private modalController: ModalController
   ) {
     super(baseService);
   }
 
-  ngOnInit() { }
-
-  async onClick() {
+  async onClick($event: any) {
+    $event.preventDefault();
     const frames = await this.animatorService.getFrames().pipe(first()).toPromise();
     if (frames.length) {
       const hasAudio = this.animatorService.animator.audio;
@@ -52,13 +54,21 @@ export class RecordAudioButtonComponent extends BaseComponent implements OnInit 
   }
 
   private async recordAudio() {
-    await this.presentLoading({
-      message: this.baseService.translate.instant('loader_record_audio_message')
+    const modal = await this.modalController.create({
+      backdropDismiss: false,
+      showBackdrop: true,
+      component: CountdownModalComponent,
+      componentProps: {
+        duration: 3,
+        message: 'loader_record_audio_message'
+      }
     });
-    setTimeout(async () => {
-      this.dismissloading();
-      await this.animatorService.recordAudio();
-    }, 3000);
+    await modal.present();
+    await modal.onWillDismiss();
+    const blob = await this.animatorService.recordAudio();
+    await this.presentLoading();
+    await this.animatorService.convertAudio(blob);
+    this.dismissloading();
   }
 
 }

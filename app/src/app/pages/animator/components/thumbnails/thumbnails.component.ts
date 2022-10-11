@@ -1,4 +1,4 @@
-import { Component, NgZone, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { BaseComponent } from '@components/base/base.component';
 import { IonSlides } from '@ionic/angular';
 import { AnimatorService } from '@services/animator/animator.service';
@@ -30,17 +30,17 @@ export class ThumbnailsComponent extends BaseComponent implements OnDestroy, OnI
 
   constructor(
     public baseService: BaseService,
-    private animatorService: AnimatorService,
-    private zone: NgZone
+    private animatorService: AnimatorService
   ) {
     super(baseService);
   }
 
   ngOnInit() {
-    this.list = this.animatorService.getFrames().pipe(tap((frames: HTMLCanvasElement[]) => {
+    this.list = this.animatorService.getFrames().pipe(tap(async (frames: HTMLCanvasElement[]) => {
       this.framesLength = frames.length;
-      setTimeout(() => {
-        this.thumbnailsContainer.slideTo(frames.length + 1);
+      setTimeout(async () => {
+        await this.thumbnailsContainer.slideTo(frames.length + 1);
+        await this.thumbnailsContainer.update();
       }, 100);
     }));
 
@@ -55,13 +55,12 @@ export class ThumbnailsComponent extends BaseComponent implements OnDestroy, OnI
         const frames = this.animatorService.animator.frames.length;
         // multiply the number of seconds by hundred to get interval and divide by number of frames
         const milliSeconds = (seconds * 1000) / frames;
-        // internval has to be run outside of the angular zone
-        this.zone.runOutsideAngular(() => {
-          this.interval = setInterval(() => {
-            this.thumbnailsContainer.slideNext();
-            // multiply interval delay by 40 % to slow slider down
-          }, milliSeconds * 1.4);
-        });
+        // set nextFrame to -1, so that slider does not start immediatley
+        let nextFrame = -1;
+        this.interval = setInterval(async () => {
+          await this.thumbnailsContainer.slideTo(nextFrame);
+          nextFrame++;
+        }, milliSeconds);
       } else {
         // if player has stopped playing slide to first slide and clear interval
         this.thumbnailsContainer.slideTo(0);

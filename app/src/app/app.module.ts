@@ -1,18 +1,19 @@
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BrowserModule } from '@angular/platform-browser';
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
-import { APP_INITIALIZER, ErrorHandler, NgModule } from '@angular/core';
-import { Router, RouteReuseStrategy } from '@angular/router';
+import { NgModule } from '@angular/core';
+import { RouteReuseStrategy } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient, HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 // Modules and Components
 import { environment } from '@environment/environment';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ComponentsModule } from '@components/components.module';
 import { PipesModule } from '@pipes/pipes.module';
+import { CustomHttpInterceptor } from '@shared/http.interceptor';
 
 export const translationLoaderFactory = (http: HttpClient) => new TranslateHttpLoader(http);
 @NgModule({
@@ -37,6 +38,7 @@ export const translationLoaderFactory = (http: HttpClient) => new TranslateHttpL
     })],
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+    { provide: HTTP_INTERCEPTORS, useClass: CustomHttpInterceptor, multi: true },
   ],
   bootstrap: [AppComponent],
 })

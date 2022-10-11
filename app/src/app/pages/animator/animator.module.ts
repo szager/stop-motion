@@ -3,11 +3,13 @@ import { RouterModule } from '@angular/router';
 import { ComponentsModule } from '@components/components.module';
 import { AnimatorPage } from './animator.page';
 // Components
+import { AnimatorGuard } from './guards/animator.guard';
 import { CameraSelectButtonComponent } from './components/camera-select-button/camera-select-button.component';
 import { CaptureButtonComponent } from './components/capture-button/capture-button.component';
 import { ClearButtonComponent } from './components/clear-button/clear-button.component';
-import { LoadButtonComponent } from './components/load-button/load-button.component';
+import { CountdownModalComponent } from './modals/countdown/countdown.modal';
 import { FramerateSliderComponent } from './components/framerate-slider/framerate-slider.component';
+import { LoadButtonComponent } from './components/load-button/load-button.component';
 import { PlayButtonComponent } from './components/play-button/play-button.component';
 import { PlayerCanvasComponent } from './components/player-canvas/player-canvas.component';
 import { RecordAudioButtonComponent } from './components/record-audio-button/record-audio-button.component';
@@ -45,6 +47,14 @@ const COMPONENTS = [
   VideoComponent,
 ];
 
+const GUARDS = [
+  AnimatorGuard,
+];
+
+const MODALS = [
+  CountdownModalComponent
+];
+
 @NgModule({
   imports: [
     ComponentsModule,
@@ -52,11 +62,12 @@ const COMPONENTS = [
       {
         path: '',
         component: AnimatorPage,
+        canDeactivate: [AnimatorGuard],
       }
-    ]),
+    ])
   ],
-  providers: [],
-  declarations: [...COMPONENTS, AnimatorPage],
+  providers: [...GUARDS],
+  declarations: [...COMPONENTS, ...MODALS, AnimatorPage],
   exports: [...COMPONENTS]
 })
 export class AnimatorPageModule { }

@@ -10,8 +10,10 @@ import { TranslateModule } from '@ngx-translate/core';
 // components
 import { HeaderComponent } from './header/header.component';
 import { SpinnerComponent } from './spinner/spinner.component';
+import { CountdownComponent } from './countdown/countdown.component';
 
 const COMPONENTS = [
+    CountdownComponent,
     HeaderComponent,
     SpinnerComponent
 ];

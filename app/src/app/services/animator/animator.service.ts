@@ -1,12 +1,16 @@
 import { ElementRef, Injectable } from '@angular/core';
 import { CameraStatus } from '@enums/camera-status.enum';
 import { FacingMode } from '@enums/facing-mode.enum';
+import { MimeTypes } from '@enums/mime-types.enum';
+import { SaveState } from '@enums/save-state';
 import { LayoutOptions } from '@interfaces/layout-options.interface';
 import { Animator } from '@models/animator';
+import { AudioService } from '@services/audio/audio.service';
 import { BaseService } from '@services/base/base.service';
+import { VideoService } from '@services/video/video.service';
 import { BehaviorSubject } from 'rxjs';
 import { first } from 'rxjs/operators';
-
+import { saveAs } from 'file-saver';
 @Injectable({
   providedIn: 'root'
 })
@@ -24,7 +28,9 @@ export class AnimatorService {
 
   constructor(
     public animator: Animator,
-    public baseService: BaseService
+    public baseService: BaseService,
+    public audioService: AudioService,
+    public videoService: VideoService
   ) {
     this.cameras = new BehaviorSubject([]);
     this.currentCameraIndex = null;
@@ -57,9 +63,9 @@ export class AnimatorService {
   }
 
   public async init(video: ElementRef, snapshotCanvas: ElementRef, playerCanvas: ElementRef) {
-
     const layoutOptions = await this.baseService.layoutService.getLayoutOptions().pipe(first()).toPromise();
-    this.animator.init(video, snapshotCanvas, playerCanvas, layoutOptions);
+    const frames = await this.getFrames().pipe(first()).toPromise();
+    await this.animator.init(video, snapshotCanvas, playerCanvas, layoutOptions, (frames && frames.length) ? true : false);
     await this.startCamera(layoutOptions);
   }
 
@@ -108,16 +114,16 @@ export class AnimatorService {
     this.animator.detachStream();
   }
 
-  public async recordAudio(): Promise<void> {
+  public async recordAudio(): Promise<Blob> {
     if (this.animator.isRecording) {
       this.animator.endPlay(null);
       this.animator.isRecording = false;
     } else if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-        const result = await this.animator.recordAudio(stream);
-        console.log('🚀 ~ file: animator.service.ts ~ line 128 ~ AnimatorService ~ recordAudio ~ result', result);
+        const blob = await this.animator.recordAudio();
+        console.log('🚀 ~ file: animator.service.ts ~ line 128 ~ AnimatorService ~ recordAudio ~ blob', blob);
         this.animator.isRecording = true;
+        return blob;
       } catch (err) {
         console.log('🚀 ~ file: animator.service.ts ~ line 131 ~ AnimatorService ~ recordAudio ~ err', err);
         this.baseService.toastService.presentToast({
@@ -131,24 +137,35 @@ export class AnimatorService {
     return;
   }
 
+  public async convertAudio(blob: Blob): Promise<void> {
+    const result = await this.audioService.convertAudio(blob);
+    console.log('🚀 ~ file: animator.service.ts ~ line 122 ~ AnimatorService ~ recordAudio ~ result', result);
+    const tempBlob = [result];
+    const finalBlob = new Blob(tempBlob, { type: MimeTypes.audioMp3 });
+    this.animator.setAudioSrc(finalBlob, MimeTypes.audioMp3);
+    return;
+  }
+
   public clearAudio(): void {
     this.animator.clearAudio();
   }
 
-  public async save(filename: string) {
+  public async save(filename: string, type: SaveState): Promise<void> {
     if (!filename.length) {
       filename = 'StopMotion';
     }
     filename = filename.replace(/\s+/g, '_');
     filename = filename.replace(/[^\w\-\.]+/g, '');
-    if (filename.endsWith('.mng')) {
-      filename = filename.substring(0, filename.length - 4);
 
+    if (type === SaveState.video) {
+      const frameRate = await this.animator.getFramerate().pipe(first()).toPromise();
+      const result = await this.videoService.createVideo(this.animator.frameWebps,frameRate, this.animator.audioBlob);
+      saveAs(new Blob([result]), filename + '.mp4', { autoBom: true });
+      return;
+    } else {
+      return await this.animator.saveDraft(filename);
     }
-    if (!filename.endsWith('.webm')) {
-      filename += '.webm';
-    }
-    return await this.animator.save(filename);
+
   }
 
   public async load(filepath: string): Promise<any> {
@@ -182,8 +199,6 @@ export class AnimatorService {
   }
 
   private async startCamera(layoutOptions: LayoutOptions): Promise<void> {
-    console.log('🚀 ~ file: animator.service.ts ~ line 199 ~ AnimatorService ~ startCamera ~ layoutOptions', layoutOptions);
-
     // Everything is set up, now connect to camera.
     if (window.navigator && navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
       const devices = await navigator.mediaDevices.enumerateDevices();

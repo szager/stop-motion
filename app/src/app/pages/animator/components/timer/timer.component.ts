@@ -43,6 +43,8 @@ export class TimerComponent extends BaseComponent implements OnDestroy, OnInit {
         const playbackSpeed = await this.animatorService.animator.getFramerate().pipe(first()).toPromise();
         const seconds = Number((this.animatorService.animator.frames.length / playbackSpeed).toFixed(2));
         this.totalTime = this.animatorService.formatTime(seconds);
+      } else {
+        this.totalTime = '00:00';
       }
     });
     // subscribe to playback speed
