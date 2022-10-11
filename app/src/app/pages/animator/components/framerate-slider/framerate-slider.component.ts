@@ -13,7 +13,7 @@ import { takeUntil } from 'rxjs/operators';
 export class FramerateSliderComponent extends BaseComponent implements OnInit {
 
   @ViewChild('slider') slider: IonRange;
-  public initalValue = 12;
+  public initalValue = 6;
 
   constructor(
     public baseService: BaseService,

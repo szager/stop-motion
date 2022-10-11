@@ -11,7 +11,7 @@ import { takeUntil } from 'rxjs/operators';
 })
 export class PlayerCanvasComponent extends BaseComponent implements OnInit {
 
-  @ViewChild('playerCanvas' , {static: true}) public playerCanvas: ElementRef;
+  @ViewChild('playerCanvas', { static: true }) public playerCanvas: ElementRef;
 
   constructor(
     public baseService: BaseService,

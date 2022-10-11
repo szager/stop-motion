@@ -1,0 +1,13 @@
+
+.app-countdown-modal .modal-wrapper {
+    background: #222;
+  }
+
+::ng-deep ion-modal {
+    .headline {
+        font-size: 30px;
+        font-weight: bold;
+        color: black;
+        background-color: rgba(0, 0, 0, 0.2);
+    }
+}

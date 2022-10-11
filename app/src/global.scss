@@ -147,3 +147,14 @@ ion-fab {
   }
 }
 
+/* modal headline (countdown) */
+h2.countdown-headline{
+  font-size: 22px;
+  padding-left:20px;
+  padding-right:20px;
+  position: absolute;
+  top: 60%;
+  left: 0;
+  text-align: center;
+  width: 100%;
+}

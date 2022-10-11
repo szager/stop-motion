@@ -40,6 +40,7 @@ export class LoadButtonComponent extends BaseComponent {
   }
 
   public async onFile(event: any) {
+    console.log('🚀 ~ file: load-button.component.ts ~ line 43 ~ LoadButtonComponent ~ onFile ~ event', event.target.files[0]);
     await this.presentLoading();
     await this.animatorService.load(event.target.files[0]);
     this.dismissloading();

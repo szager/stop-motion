@@ -66,7 +66,6 @@ export class AnimatorPage extends BasePage {
     const playerCanvas = this.playerCanvasComponent.playerCanvas.nativeElement;
     await this.animatorService.init(video, snapshotCanvas, playerCanvas);
     this.baseService.layoutService.getLayoutOptions().subscribe(async (layoutOptions: LayoutOptions) => {
-      console.log('🚀 ~ file: animator.page.ts ~ line 75 ~ AnimatorPage ~ .pipe ~ layoutOptions', layoutOptions);
       await this.animatorService.init(video, snapshotCanvas, playerCanvas);
     });
   }
