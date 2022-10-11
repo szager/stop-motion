@@ -1,0 +1,28 @@
+version: "3.8"
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: stop-motion-api
+    restart: always
+    ports:
+      - 9000:9000
+    networks:
+      - stop-motion-network
+
+  app:
+    build:
+      context: ../stop-motion-app
+      dockerfile: Dockerfile
+    container_name: stop-motion-app
+    restart: always
+    ports:
+      - 9001:80
+    networks:
+      - stop-motion-network
+
+networks:
+  stop-motion-network:
+    name: stop-motion-network
+    driver: bridge
