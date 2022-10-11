@@ -18,7 +18,7 @@ Run `nest g s service-name` to generate a new service. You can also use `ng gene
 
 ## Running the app
 
-Run `yarn run start:dev` for a dev server. Navigate to `http://localhost:8000/`. The app will automatically reload if you change any of the source files.
+Run `yarn run start:dev` for a dev server. Navigate to `http://localhost:9000/`. The app will automatically reload if you change any of the source files.
 
 ```bash
 # development
@@ -47,6 +47,19 @@ $ yarn run test:e2e
 # test coverage
 $ yarn run test:cov
 ```
+
+## Docker
+
+Most import commands are simpflied inside Makefile.
+
+```bash
+make > will run default task, which is build
+make build > will build api applications
+make start  > will start api applications
+make clean > will clean up api applications container
+make update-deployment > will create network and build app and api
+make stop-deployment > will stop app and api
+make clean-deployment > will clean up containers and network
 
 ## Further help
 
