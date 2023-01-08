@@ -1,0 +1,7 @@
+<div class="ion-page">
+    <app-countdown-component [duration]="duration" [countdownState]="countdownState" (stateEmitter)="dismiss()">
+    </app-countdown-component>
+    <ion-text color="primary">
+        <h2 class="countdown-headline">{{ message | translate }}</h2>
+    </ion-text>
+</div>

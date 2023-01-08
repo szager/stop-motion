@@ -1,0 +1,14 @@
+ion-range {
+    padding-top: 0;
+    padding-bottom: 0;
+    --bar-background: rgba(255, 255, 255, 0.3) !important;
+}
+
+.framerate {
+  text-align: right;
+  color: #fff;
+  font-weight: 400;
+  z-index: 9;
+  position: relative;
+  font-size: 12px;
+}

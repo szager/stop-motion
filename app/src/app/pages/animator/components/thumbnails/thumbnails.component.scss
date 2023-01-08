@@ -1,0 +1,39 @@
+ion-slides {
+  height: auto;
+  margin: 0 auto 0 auto;
+  width: 90%;
+  &.hidden {
+    display: none;
+  }
+  &.shown {
+    display: block;
+  }
+  ion-slide {
+    width: 18% !important;
+    margin: 0 1%;
+  }
+}
+
+.swiper-container-horizontal {
+  .swiper-scrollbar {
+    left: 0;
+    bottom: 0px;
+    height: 7px;
+    opacity: 1 !important;
+    width: 100%;
+    margin-top: 10px;
+  }
+}
+
+.show-thumbnails {
+  z-index: 9;
+  width: 100%;
+  position: relative;
+  margin-top: -10px;
+  left: -2px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  ion-icon {
+    font-size: 28px;
+  }
+}

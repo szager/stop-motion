@@ -1,0 +1,28 @@
+.background-primary {
+    background-color: #00a3d3;
+}
+
+.background-primary img {
+    max-width: 220px;
+    margin   : 0 auto;
+    display  : block;
+}
+
+ion-item {
+    --inner-padding-start: 0;
+    --padding-start      : 0;
+    font-size            : 16px !important;
+
+    a {
+        color          : #333;
+        text-decoration: none;
+    }
+}
+
+ion-item:hover {
+    cursor: pointer;
+}
+
+.list-headline {
+    font-size: 19px;
+}
